@@ -1,4 +1,4 @@
-import { Client, Account, Databases, ID } from "appwrite";
+import { Client, Account, Databases, Storage, ID } from "appwrite";
 
 // Initialize the Appwrite client as documented in Appwrite docs
 const client = new Client();
@@ -21,5 +21,6 @@ export const appwrite = {
   client,
   account: new Account(client),
   databases: new Databases(client),
+  storage: new Storage(client),
   id: ID,
 };

@@ -20,6 +20,7 @@ import ResponsiveNavigation from "@/components/ResponsiveNavigation";
 import ResponsiveFooter from "@/components/ResponsiveFooter";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { Toaster } from "sonner";
 
 // Optimize by deferring non-critical components
 const FooterNewsletter = lazy(() => import("@/components/FooterNewsletter"));
@@ -166,6 +167,9 @@ export default function ClientLayout({
           </AuthProvider>
         )}
       </div>
+
+      {/* Add Sonner Toaster component for toast notifications */}
+      <Toaster position="top-right" closeButton richColors />
 
       {/* Performance optimization scripts - moved outside HTML structure */}
       <script src="/performance-optimizations.js" defer />

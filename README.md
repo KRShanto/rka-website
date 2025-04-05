@@ -25,11 +25,42 @@ cp .env.example .env.local
 Update the following variables in your `.env.local` file:
 - `NEXT_PUBLIC_APPWRITE_ENDPOINT`: Your Appwrite API endpoint
 - `NEXT_PUBLIC_APPWRITE_PROJECT_ID`: Your Appwrite project ID
+- `NEXT_PUBLIC_APPWRITE_USER_DATABASE_ID`: ID of the user profiles database
+- `NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID`: ID of the user profiles collection
+- `NEXT_PUBLIC_APPWRITE_PROFILE_IMAGES_BUCKET_ID`: ID of the storage bucket for profile images
 
 ### Appwrite Setup
 1. Create an Appwrite project in the [Appwrite Console](https://cloud.appwrite.io/console)
 2. Enable Email/Password authentication in the "Auth" settings
 3. Create a Web App platform in "Settings" → "Platforms" with your development/production hostname
+
+#### Database and Collection Setup
+1. Go to Databases in your Appwrite Console
+2. Create a new database named "user_profiles" (or your preferred name)
+3. Create a new collection named "profiles" with the following attributes:
+   - `userId` (string, required) - This will be the document ID
+   - `firstName` (string)
+   - `lastName` (string)
+   - `email` (string)
+   - `phone` (string)
+   - `motherName` (string)
+   - `fatherName` (string)
+   - `profileImageUrl` (string)
+   - `currentBelt` (string)
+   - `weight` (string)
+   - `gender` (string)
+4. Set appropriate permissions for the collection:
+   - Allow Create, Read, Update, and Delete for users with documents where `userId` attribute is equal to their user ID
+   - Allow Read for all authenticated users if you want profiles to be visible to other users
+
+#### Storage Setup
+1. Go to Storage in your Appwrite Console
+2. Create a new storage bucket named "profile_images" (or your preferred name)
+3. Set appropriate permissions for the bucket:
+   - Allow Upload, Read, and Delete for users with files where `userId` attribute is equal to their user ID
+   - Allow Read for all authenticated users if you want profile images to be visible to other users
+4. Set maximum file size as needed (5MB recommended for profile pictures)
+5. Allow file extensions: jpg, jpeg, png
 
 #### Important Platform Configuration
 To avoid the "User (role: guests) missing scope (account)" error:
