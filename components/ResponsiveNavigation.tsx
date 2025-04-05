@@ -1,0 +1,320 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { Menu, X, ChevronDown } from "lucide-react"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { Button } from "@/components/ui/button"
+
+interface NavItem {
+  href: string
+  label: string
+  icon?: React.ElementType
+  children?: NavItem[]
+}
+
+interface ResponsiveNavigationProps {
+  logo: string
+  logoAlt: string
+  items: NavItem[]
+  cta?: {
+    href: string
+    label: string
+  }
+}
+
+export default function ResponsiveNavigation({ logo, logoAlt, items, cta }: ResponsiveNavigationProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null)
+  const [scrolled, setScrolled] = useState(false)
+  const pathname = usePathname()
+
+  // Handle scroll events
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [isMobileMenuOpen])
+
+  // Toggle submenu
+  const toggleSubmenu = (href: string) => {
+    setActiveSubmenu(activeSubmenu === href ? null : href)
+  }
+
+  // Check if link is active
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === href
+    return pathname.startsWith(href)
+  }
+
+  return (
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
+        scrolled ? "bg-white dark:bg-gray-900 shadow-md" : "bg-[#dc2626] dark:bg-gray-900",
+        isMobileMenuOpen && "bg-white dark:bg-gray-900",
+      )}
+    >
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Mobile Left Button (Menu) */}
+          <div className="md:hidden">
+            <button
+              type="button"
+              className={cn(
+                "inline-flex items-center justify-center p-2 rounded-md",
+                scrolled ? "text-gray-700 dark:text-gray-200" : "text-white",
+                "hover:text-white hover:bg-[#b91c1c] dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white",
+              )}
+              aria-expanded={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <span className="sr-only">{isMobileMenuOpen ? "Close menu" : "Open menu"}</span>
+              {isMobileMenuOpen ? (
+                <X className="block h-6 w-6" aria-hidden="true" />
+              ) : (
+                <Menu className="block h-6 w-6" aria-hidden="true" />
+              )}
+            </button>
+          </div>
+
+          {/* Logo - Centered on mobile */}
+          <div className="flex-1 flex justify-center md:justify-start">
+            <Link href="/" className="flex items-center space-x-2">
+              <Image
+                src={logo || "/placeholder.svg"}
+                alt={logoAlt}
+                width={60}
+                height={60}
+                className="h-12 w-auto"
+                priority
+              />
+              <span className={cn("font-bold text-xl", scrolled ? "text-gray-900 dark:text-white" : "text-white")}>
+                {logoAlt}
+              </span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {items.map((item) => (
+              <div key={item.href} className="relative group">
+                {item.children ? (
+                  <button
+                    className={cn(
+                      "flex items-center space-x-1 py-2 focus-visible relative group",
+                      isActive(item.href)
+                        ? scrolled
+                          ? "text-[#dc2626] font-medium"
+                          : "text-white font-medium" // Keep white text on red background
+                        : scrolled
+                          ? "text-gray-700 dark:text-gray-200"
+                          : "text-white",
+                      "transition-colors duration-200",
+                    )}
+                    onClick={() => toggleSubmenu(item.href)}
+                    aria-expanded={activeSubmenu === item.href}
+                  >
+                    <span>{item.label}</span>
+                    <ChevronDown className="w-4 h-4" />
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-black dark:bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
+                    {isActive(item.href) && (
+                      <span
+                        className={cn(
+                          "absolute bottom-0 left-0 w-full h-0.5 rounded-full",
+                          scrolled ? "bg-[#dc2626]" : "bg-white", // White indicator on red background
+                        )}
+                      ></span>
+                    )}
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "block py-2 focus-visible relative group",
+                      isActive(item.href)
+                        ? scrolled
+                          ? "text-[#dc2626] font-medium"
+                          : "text-white font-medium" // Keep white text on red background
+                        : scrolled
+                          ? "text-gray-700 dark:text-gray-200"
+                          : "text-white",
+                      "transition-colors duration-200",
+                    )}
+                  >
+                    {item.label}
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-black dark:bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
+                    {isActive(item.href) && (
+                      <span
+                        className={cn(
+                          "absolute bottom-0 left-0 w-full h-0.5 rounded-full",
+                          scrolled ? "bg-[#dc2626]" : "bg-white", // White indicator on red background
+                        )}
+                      ></span>
+                    )}
+                  </Link>
+                )}
+
+                {/* Dropdown for desktop */}
+                {item.children && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={cn(
+                          "block px-4 py-2 text-sm",
+                          isActive(child.href)
+                            ? "text-[#dc2626] font-medium bg-gray-50 dark:bg-gray-700 dark:text-white"
+                            : "text-gray-700 dark:text-gray-200",
+                          "hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-[#dc2626] dark:hover:text-white",
+                        )}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* CTA Button */}
+            {cta && (
+              <Button asChild className="bg-white hover:bg-white/90 text-[#dc2626]">
+                <Link href={cta.href}>{cta.label}</Link>
+              </Button>
+            )}
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+          </nav>
+
+          {/* Mobile Right Button (Theme Toggle) */}
+          <div className="md:hidden">
+            <ThemeToggle />
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-white dark:bg-gray-900 transform transition-transform ease-in-out duration-300 md:hidden",
+          isMobileMenuOpen ? "translate-y-0" : "translate-y-full",
+        )}
+      >
+        <div className="pt-16 pb-6 px-4 h-full overflow-y-auto">
+          <nav className="space-y-1">
+            {items.map((item) => (
+              <div key={item.href} className="py-1">
+                {item.children ? (
+                  <>
+                    <button
+                      className={cn(
+                        "flex items-center justify-between w-full px-3 py-3 rounded-md text-left",
+                        isActive(item.href)
+                          ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-white"
+                          : "text-gray-700 dark:text-gray-200",
+                        "hover:bg-gray-50 dark:hover:bg-gray-800",
+                      )}
+                      onClick={() => toggleSubmenu(item.href)}
+                      aria-expanded={activeSubmenu === item.href}
+                    >
+                      <span>{item.label}</span>
+                      <ChevronDown
+                        className={cn(
+                          "w-5 h-5 transition-transform",
+                          activeSubmenu === item.href ? "transform rotate-180" : "",
+                        )}
+                      />
+                    </button>
+
+                    {/* Mobile Submenu */}
+                    {activeSubmenu === item.href && (
+                      <div className="mt-1 pl-4 space-y-1">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={cn(
+                              "block px-3 py-2 rounded-md",
+                              isActive(child.href)
+                                ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-white"
+                                : "text-gray-700 dark:text-gray-200",
+                              "hover:bg-gray-50 dark:hover:bg-gray-800",
+                            )}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex items-center px-3 py-3 rounded-md",
+                      isActive(item.href)
+                        ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-[#dc2626]" // Enhanced active state
+                        : "text-gray-700 dark:text-gray-200",
+                      "hover:bg-gray-50 dark:hover:bg-gray-800",
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.icon && <item.icon className={cn("mr-3 h-5 w-5", isActive(item.href) && "text-[#dc2626]")} />}
+                    <span>{item.label}</span>
+                    {isActive(item.href) && (
+                      <span className="ml-auto bg-[#dc2626]/20 text-[#dc2626] text-xs font-medium py-1 px-2 rounded-full">
+                        Active
+                      </span>
+                    )}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </nav>
+
+          {/* Mobile CTA */}
+          {cta && (
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <Button asChild className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white">
+                <Link href={cta.href} onClick={() => setIsMobileMenuOpen(false)}>
+                  {cta.label}
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  )
+}
+
