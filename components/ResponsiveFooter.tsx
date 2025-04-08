@@ -12,9 +12,17 @@ interface FooterLink {
   href: string;
 }
 
+interface PhoneLink {
+  label: string;
+  isPhone: true;
+  phoneNumber: string;
+}
+
+type FooterLinkType = FooterLink | PhoneLink;
+
 interface FooterColumn {
   title: string;
-  links: FooterLink[];
+  links: FooterLinkType[];
 }
 
 interface SocialLink {
@@ -49,12 +57,9 @@ export default function ResponsiveFooter({
   };
 
   // Function to update phone number links
-  const updatePhoneNumber = (
-    links: FooterLink[]
-  ): (FooterLink | { label: string; isPhone: true; phoneNumber: string })[] => {
+  const updatePhoneNumber = (links: FooterLinkType[]): FooterLinkType[] => {
     return links.map((link) => {
-      if (link.label === "+880 1234 567890") {
-        // Return a special object for phone numbers
+      if ("href" in link && link.label === "+880 1234 567890") {
         return {
           label: "+880 1763531313",
           isPhone: true,
@@ -115,9 +120,7 @@ export default function ResponsiveFooter({
               </h3>
               <ul className="space-y-2">
                 {column.links.map((link) => (
-                  <li
-                    key={typeof link.href === "string" ? link.href : link.label}
-                  >
+                  <li key={link.label}>
                     {"isPhone" in link ? (
                       <span
                         className="text-gray-400 hover:text-white transition-colors cursor-pointer"
@@ -257,11 +260,7 @@ export default function ResponsiveFooter({
               >
                 <ul className="space-y-2 py-2">
                   {column.links.map((link) => (
-                    <li
-                      key={
-                        typeof link.href === "string" ? link.href : link.label
-                      }
-                    >
+                    <li key={link.label}>
                       {"isPhone" in link ? (
                         <span
                           className="text-gray-400 hover:text-white transition-colors cursor-pointer"
