@@ -144,13 +144,7 @@ export default function ClientLayout({
                 />
               )}
 
-              <div
-                className={`${
-                  !isDashboard ? "pt-16 md:pt-20 pb-16 md:pb-0" : ""
-                }`}
-              >
-                <main>{children}</main>
-              </div>
+              <main>{children}</main>
 
               {!isDashboard && (
                 <ResponsiveFooter

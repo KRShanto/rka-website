@@ -88,23 +88,19 @@ export default function ResponsiveNavigation({
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
-        scrolled
-          ? "bg-white dark:bg-gray-900 shadow-md"
-          : "bg-[#dc2626] dark:bg-gray-900",
-        isMobileMenuOpen && "bg-white dark:bg-gray-900"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-200 bg-white dark:bg-gray-900",
+        scrolled && "shadow-md"
       )}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="flex items-center justify-between h-14 md:h-16">
           {/* Mobile Left Button (Menu) */}
           <div className="md:hidden">
             <button
               type="button"
               className={cn(
-                "inline-flex items-center justify-center p-2 rounded-md",
-                scrolled ? "text-gray-700 dark:text-gray-200" : "text-white",
-                "hover:text-white hover:bg-[#b91c1c] dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                "inline-flex items-center justify-center p-1.5 rounded-md text-gray-700 dark:text-gray-200",
+                "hover:text-[#dc2626] hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#dc2626]"
               )}
               aria-expanded={isMobileMenuOpen}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -113,9 +109,9 @@ export default function ResponsiveNavigation({
                 {isMobileMenuOpen ? "Close menu" : "Open menu"}
               </span>
               {isMobileMenuOpen ? (
-                <X className="block h-6 w-6" aria-hidden="true" />
+                <X className="block h-5 w-5" aria-hidden="true" />
               ) : (
-                <Menu className="block h-6 w-6" aria-hidden="true" />
+                <Menu className="block h-5 w-5" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -126,37 +122,28 @@ export default function ResponsiveNavigation({
               <Image
                 src={logo || "/placeholder.svg"}
                 alt={logoAlt}
-                width={60}
-                height={60}
-                className="h-12 w-auto"
+                width={48}
+                height={48}
+                className="h-10 w-auto"
                 priority
               />
-              <span
-                className={cn(
-                  "font-bold text-xl",
-                  scrolled ? "text-gray-900 dark:text-white" : "text-white"
-                )}
-              >
+              <span className="font-bold text-lg text-gray-900 dark:text-white">
                 {logoAlt}
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             {filteredItems.map((item) => (
               <div key={item.href} className="relative group">
                 {item.children ? (
                   <button
                     className={cn(
-                      "flex items-center space-x-1 py-2 focus-visible relative group",
+                      "flex items-center space-x-1 py-1.5 focus-visible relative group",
                       isActive(item.href)
-                        ? scrolled
-                          ? "text-[#dc2626] font-medium"
-                          : "text-white font-medium" // Keep white text on red background
-                        : scrolled
-                        ? "text-gray-700 dark:text-gray-200"
-                        : "text-white",
+                        ? "text-[#dc2626] font-medium"
+                        : "text-gray-700 dark:text-gray-200",
                       "transition-colors duration-200"
                     )}
                     onClick={() => toggleSubmenu(item.href)}
@@ -164,40 +151,26 @@ export default function ResponsiveNavigation({
                   >
                     <span>{item.label}</span>
                     <ChevronDown className="w-4 h-4" />
-                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-black dark:bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#dc2626] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
                     {isActive(item.href) && (
-                      <span
-                        className={cn(
-                          "absolute bottom-0 left-0 w-full h-0.5 rounded-full",
-                          scrolled ? "bg-[#dc2626]" : "bg-white" // White indicator on red background
-                        )}
-                      ></span>
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 rounded-full bg-[#dc2626]"></span>
                     )}
                   </button>
                 ) : (
                   <Link
                     href={item.href}
                     className={cn(
-                      "block py-2 focus-visible relative group",
+                      "block py-1.5 focus-visible relative group",
                       isActive(item.href)
-                        ? scrolled
-                          ? "text-[#dc2626] font-medium"
-                          : "text-white font-medium"
-                        : scrolled
-                        ? "text-gray-700 dark:text-gray-200"
-                        : "text-white",
+                        ? "text-[#dc2626] font-medium"
+                        : "text-gray-700 dark:text-gray-200",
                       "transition-colors duration-200"
                     )}
                   >
                     {item.label}
-                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-black dark:bg-white scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#dc2626] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
                     {isActive(item.href) && (
-                      <span
-                        className={cn(
-                          "absolute bottom-0 left-0 w-full h-0.5 rounded-full",
-                          scrolled ? "bg-[#dc2626]" : "bg-white"
-                        )}
-                      ></span>
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 rounded-full bg-[#dc2626]"></span>
                     )}
                   </Link>
                 )}
@@ -230,10 +203,11 @@ export default function ResponsiveNavigation({
               <Button
                 asChild
                 variant="ghost"
-                className="text-white hover:text-white hover:bg-[#b91c1c]"
+                size="sm"
+                className="text-gray-700 hover:text-[#dc2626] hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
               >
                 <Link href="/dashboard">
-                  <User className="w-5 h-5 mr-2" />
+                  <User className="w-4 h-4 mr-2" />
                   Profile
                 </Link>
               </Button>
@@ -241,7 +215,8 @@ export default function ResponsiveNavigation({
               cta && (
                 <Button
                   asChild
-                  className="bg-white hover:bg-white/90 text-[#dc2626]"
+                  size="sm"
+                  className="bg-[#dc2626] hover:bg-[#b91c1c] text-white"
                 >
                   <Link href={cta.href}>{cta.label}</Link>
                 </Button>

@@ -145,8 +145,7 @@
 
 /* Ensure content doesn't get hidden under fixed elements */
 body {
-  padding-top: 64px;
-  padding-bottom: 64px;
+  padding-top: 0;
 }
 
 /* Add these to your existing CSS */
@@ -333,11 +332,6 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Add padding to account for fixed navbar */
-main {
-  padding-top: 4rem;
-}
-
 /* Ensure content doesn't get hidden under the navbar */
 section {
   scroll-margin-top: 5rem;
@@ -499,13 +493,15 @@ section {
 /* Optimize button hover animations */
 @media (prefers-reduced-motion: no-preference) {
   .hover-effect {
-    transition: transform var(--transition-duration) cubic-bezier(0.4, 0, 0.2, 1), box-shadow var(--transition-duration)
-      cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--transition-duration)
+        cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow var(--transition-duration) cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hover-effect:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -684,7 +680,11 @@ section {
   top: 0;
   left: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 10%, transparent 10.01%);
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.1) 10%,
+    transparent 10.01%
+  );
   background-repeat: no-repeat;
   background-position: 50%;
   transform: scale(10, 10);
@@ -693,7 +693,11 @@ section {
 }
 
 .dark .touch-ripple::after {
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10.01%);
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 10%,
+    transparent 10.01%
+  );
 }
 
 .touch-ripple:active::after {
@@ -929,7 +933,12 @@ section {
 
 /* Add a subtle background to active items */
 .active-nav-subtle-bg {
-  background-color: rgba(255, 255, 255, 0.2); /* Subtle white background on red */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* Subtle white background on red */
   border-radius: 4px;
 }
 
@@ -1028,4 +1037,3 @@ section {
 .active-nav-indicator .navbar-link-hover-animation::after {
   display: none;
 }
-
