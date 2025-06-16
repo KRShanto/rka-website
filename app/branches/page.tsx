@@ -1,9 +1,17 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { motion } from "framer-motion"
-import { useState } from "react"
-import { Phone } from "lucide-react"
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { Phone } from "lucide-react";
+
+interface Branch {
+  name: string;
+  address: string;
+  contactNumber: string;
+  schedule: { days: string; times: string[] }[];
+  facilities: string[];
+}
 
 const branches = [
   {
@@ -13,11 +21,21 @@ const branches = [
     schedule: [
       {
         days: "Saturday to Tuesday",
-        times: ["7:00 AM - 8:30 AM", "3:30 PM - 5:00 PM", "5:30 PM - 7:00 PM", "7:30 PM - 9:00 PM"],
+        times: [
+          "7:00 AM - 8:30 AM",
+          "3:30 PM - 5:00 PM",
+          "5:30 PM - 7:00 PM",
+          "7:30 PM - 9:00 PM",
+        ],
       },
       {
         days: "Wednesday to Friday",
-        times: ["7:00 AM - 8:30 AM", "3:30 PM - 5:00 PM", "5:30 PM - 7:00 PM", "7:30 PM - 9:00 PM"],
+        times: [
+          "7:00 AM - 8:30 AM",
+          "3:30 PM - 5:00 PM",
+          "5:30 PM - 7:00 PM",
+          "7:30 PM - 9:00 PM",
+        ],
       },
     ],
     facilities: [
@@ -35,11 +53,21 @@ const branches = [
     schedule: [
       {
         days: "Saturday to Tuesday",
-        times: ["7:00 AM - 8:30 AM", "3:30 PM - 5:00 PM", "5:30 PM - 7:00 PM", "7:30 PM - 9:00 PM"],
+        times: [
+          "7:00 AM - 8:30 AM",
+          "3:30 PM - 5:00 PM",
+          "5:30 PM - 7:00 PM",
+          "7:30 PM - 9:00 PM",
+        ],
       },
       {
         days: "Wednesday to Friday",
-        times: ["7:00 AM - 8:30 AM", "3:30 PM - 5:00 PM", "5:30 PM - 7:00 PM", "7:30 PM - 9:00 PM"],
+        times: [
+          "7:00 AM - 8:30 AM",
+          "3:30 PM - 5:00 PM",
+          "5:30 PM - 7:00 PM",
+          "7:30 PM - 9:00 PM",
+        ],
       },
     ],
     facilities: [
@@ -54,22 +82,38 @@ const branches = [
     name: "Bansree (B Block)",
     address: "House 14, Road 5, B Block, Bansree, Dhaka",
     contactNumber: "+880 1912-345678",
-    schedule: [{ days: " Wednesday to  saterday", times: ["5:00 PM - 6:30 PM"] }],
-    facilities: ["Spacious training area", "Changing rooms", "Viewing area for spectators"],
+    schedule: [
+      { days: " Wednesday to  saterday", times: ["5:00 PM - 6:30 PM"] },
+    ],
+    facilities: [
+      "Spacious training area",
+      "Changing rooms",
+      "Viewing area for spectators",
+    ],
   },
   {
     name: "Rampura TV Center",
     address: "TV Center, Rampura, Dhaka",
     contactNumber: "+880 1612-345678",
-    schedule: [{ days: " Saturday  to turshday", times: ["5:30 PM - 7:00 PM"] }],
-    facilities: ["Spacious training area", "Changing rooms", "Viewing area for spectators"],
+    schedule: [
+      { days: " Saturday  to turshday", times: ["5:30 PM - 7:00 PM"] },
+    ],
+    facilities: [
+      "Spacious training area",
+      "Changing rooms",
+      "Viewing area for spectators",
+    ],
   },
   {
     name: "NSC Tower",
     address: "NSC Tower, Dhaka",
     contactNumber: "+880 1512-345678",
     schedule: [{ days: "Sunday to turshday", times: ["7:30 AM - 9:00 AM"] }],
-    facilities: ["Spacious training area", "Changing rooms", "Viewing area for spectators"],
+    facilities: [
+      "Spacious training area",
+      "Changing rooms",
+      "Viewing area for spectators",
+    ],
   },
   {
     name: "Demra",
@@ -78,23 +122,37 @@ const branches = [
     schedule: [
       {
         days: "Saturday to Tuesday",
-        times: ["7:00 AM - 8:30 AM", "3:30 PM - 5:00 PM", "5:30 PM - 7:00 PM", "7:30 PM - 9:00 PM"],
+        times: [
+          "7:00 AM - 8:30 AM",
+          "3:30 PM - 5:00 PM",
+          "5:30 PM - 7:00 PM",
+          "7:30 PM - 9:00 PM",
+        ],
       },
       {
         days: "Wednesday to Friday",
-        times: ["7:00 AM - 8:30 AM", "3:30 PM - 5:00 PM", "5:30 PM - 7:00 PM", "7:30 PM - 9:00 PM"],
+        times: [
+          "7:00 AM - 8:30 AM",
+          "3:30 PM - 5:00 PM",
+          "5:30 PM - 7:00 PM",
+          "7:30 PM - 9:00 PM",
+        ],
       },
     ],
-    facilities: ["Spacious training area", "Changing rooms", "Viewing area for spectator"],
+    facilities: [
+      "Spacious training area",
+      "Changing rooms",
+      "Viewing area for spectator",
+    ],
   },
-]
+];
 
 export default function Branches() {
-  const [selectedBranch, setSelectedBranch] = useState(null)
+  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
 
   return (
-    <div className="bg-background min-h-screen pt-16">
-      <section className="bg-primary dark:bg-gray-900 text-primary-foreground py-20">
+    <div className="bg-background min-h-screen">
+      <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -136,9 +194,15 @@ export default function Branches() {
                   />
                 </div>
                 <div className="p-6">
-                  <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{branch.name}</h2>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">{branch.address}</p>
-                  <p className="text-sm text-primary font-semibold">Click for more details</p>
+                  <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+                    {branch.name}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                    {branch.address}
+                  </p>
+                  <p className="text-sm text-primary font-semibold">
+                    Click for more details
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -161,8 +225,12 @@ export default function Branches() {
             className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-8 max-w-2xl w-full my-4 mx-4 sm:mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900 dark:text-white">{selectedBranch.name}</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-2 text-sm sm:text-base">{selectedBranch.address}</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900 dark:text-white">
+              {selectedBranch.name}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-2 text-sm sm:text-base">
+              {selectedBranch.address}
+            </p>
             <div className="flex items-center mb-4 text-sm sm:text-base">
               <Phone className="h-5 w-5 mr-2 text-primary" />
               <a
@@ -172,11 +240,18 @@ export default function Branches() {
                 {selectedBranch.contactNumber}
               </a>
             </div>
-            <h3 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">Training Schedule:</h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+              Training Schedule:
+            </h3>
             <ul className="mb-4 space-y-2">
               {selectedBranch.schedule.map((item, index) => (
-                <li key={index} className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm sm:text-base">
-                  <span className="font-semibold text-gray-900 dark:text-white">{item.days}:</span>
+                <li
+                  key={index}
+                  className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm sm:text-base"
+                >
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {item.days}:
+                  </span>
                   <ul className="list-disc list-inside ml-2 sm:ml-4 text-gray-600 dark:text-gray-300">
                     {item.times.map((time, timeIndex) => (
                       <li key={timeIndex}>{time}</li>
@@ -185,7 +260,9 @@ export default function Branches() {
                 </li>
               ))}
             </ul>
-            <h3 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">Facilities:</h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+              Facilities:
+            </h3>
             <ul className="mb-4 list-disc list-inside text-gray-600 dark:text-gray-300 text-sm sm:text-base">
               {selectedBranch.facilities.map((facility, index) => (
                 <li key={index}>{facility}</li>
@@ -201,6 +278,5 @@ export default function Branches() {
         </motion.div>
       )}
     </div>
-  )
+  );
 }
-

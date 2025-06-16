@@ -1,36 +1,65 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Facebook, Youtube, Phone, Mail, MapPin, Clock, Users, Trophy, Dumbbell } from "lucide-react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import Image from "next/image"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Facebook,
+  Youtube,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Users,
+  Trophy,
+  Dumbbell,
+} from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function JoinUs() {
   const benefits = [
-    { icon: Users, title: "Expert Instruction", description: "Learn from experienced senseis" },
-    { icon: Dumbbell, title: "Comprehensive Training", description: "Master various Karate techniques" },
-    { icon: Clock, title: "Flexible Schedule", description: "Classes available at convenient times" },
+    {
+      icon: Users,
+      title: "Expert Instruction",
+      description: "Learn from experienced senseis",
+    },
+    {
+      icon: Dumbbell,
+      title: "Comprehensive Training",
+      description: "Master various Karate techniques",
+    },
+    {
+      icon: Clock,
+      title: "Flexible Schedule",
+      description: "Classes available at convenient times",
+    },
     {
       icon: Trophy,
       title: "Competition Opportunities",
-      description: "Participate in local national and international tournaments",
+      description:
+        "Participate in local national and international tournaments",
     },
-  ]
+  ];
 
   const branches = [
-    { name: "Bansree (C Block)", address: "House 36, Road 3, C Block, Bansree, Dhaka" },
+    {
+      name: "Bansree (C Block)",
+      address: "House 36, Road 3, C Block, Bansree, Dhaka",
+    },
     { name: "Aftabnagar", address: "Aftabnagar, Dhaka" },
-    { name: "Bansree (B Block)", address: "House 14, Road 5, B Block, Bansree, Dhaka" },
+    {
+      name: "Bansree (B Block)",
+      address: "House 14, Road 5, B Block, Bansree, Dhaka",
+    },
     { name: "Rampura TV Center", address: "TV Center, Rampura, Dhaka" },
     { name: "NSC Tower", address: "NSC Tower, Dhaka" },
     { name: "Demra", address: "Demra, Dhaka" },
-  ]
+  ];
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <section className="bg-[#dc2626] text-white py-20">
+      <section className="bg-[#dc2626] text-white py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -54,11 +83,18 @@ export default function JoinUs() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <h2 className="text-3xl font-bold mb-6 text-center">Become Part of Our Dojo</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-3xl font-bold mb-6 text-center">
+                Become Part of Our Dojo
+              </h2>
               <p className="mb-8 text-lg text-center">
-                At BWKD, we welcome students of all ages and skill levels. Whether you're a complete beginner or an
-                experienced martial artist, our programs are designed to help you grow and excel.
+                At BWKD, we welcome students of all ages and skill levels.
+                Whether you're a complete beginner or an experienced martial
+                artist, our programs are designed to help you grow and excel.
               </p>
             </motion.div>
 
@@ -89,12 +125,17 @@ export default function JoinUs() {
             >
               <Card className="bg-white">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-semibold">Our Branches</CardTitle>
+                  <CardTitle className="text-2xl font-semibold">
+                    Our Branches
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
                     {branches.map((branch, index) => (
-                      <li key={index} className="flex flex-col sm:flex-row sm:justify-between">
+                      <li
+                        key={index}
+                        className="flex flex-col sm:flex-row sm:justify-between"
+                      >
                         <span className="font-semibold">{branch.name}</span>
                         <span className="text-gray-600">{branch.address}</span>
                       </li>
@@ -112,7 +153,9 @@ export default function JoinUs() {
             >
               <Card className="bg-white">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-semibold">Contact Us</CardTitle>
+                  <CardTitle className="text-2xl font-semibold">
+                    Contact Us
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3">
@@ -136,12 +179,16 @@ export default function JoinUs() {
 
               <Card className="bg-white">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-semibold">How to Join</CardTitle>
+                  <CardTitle className="text-2xl font-semibold">
+                    How to Join
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="mb-4">
-                    To join BWKD, we encourage you to visit our dojo or give us a call. Our experienced staff will be
-                    happy to provide you with information about our programs, class schedules, and enrollment process.
+                    To join BWKD, we encourage you to visit our dojo or give us
+                    a call. Our experienced staff will be happy to provide you
+                    with information about our programs, class schedules, and
+                    enrollment process.
                   </p>
                   <Button className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold py-2 px-4 rounded">
                     <Phone className="w-5 h-5 mr-2" />
@@ -158,7 +205,9 @@ export default function JoinUs() {
             >
               <Card className="bg-white mb-12">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-semibold">Follow Us</CardTitle>
+                  <CardTitle className="text-2xl font-semibold">
+                    Follow Us
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="flex space-x-4">
                   <Link
@@ -210,6 +259,5 @@ export default function JoinUs() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

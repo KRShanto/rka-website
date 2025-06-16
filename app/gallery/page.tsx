@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import Image from "next/image"
-import { useState } from "react"
-import { X } from "lucide-react"
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useState } from "react";
+import { X } from "lucide-react";
 
 // Update the galleryImages array by adding the new image at the beginning
 const galleryImages = [
@@ -60,17 +60,17 @@ const galleryImages = [
     src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg",
     alt: "Karate competition",
   },
-]
+];
 
 export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<null | {
-    src: string
-    alt: string
-  }>(null)
+    src: string;
+    alt: string;
+  }>(null);
 
   return (
-    <div className="bg-background min-h-screen pt-16">
-      <section className="bg-primary dark:bg-gray-900 text-primary-foreground py-20">
+    <div className="bg-background min-h-screen">
+      <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -126,8 +126,8 @@ export default function Gallery() {
             <button
               className="absolute top-4 right-4 bg-white rounded-full p-2 text-black z-10"
               onClick={(e) => {
-                e.stopPropagation()
-                setSelectedImage(null)
+                e.stopPropagation();
+                setSelectedImage(null);
               }}
             >
               <X size={24} />
@@ -145,6 +145,5 @@ export default function Gallery() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

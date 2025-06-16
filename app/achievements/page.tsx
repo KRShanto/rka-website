@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { motion } from "framer-motion"
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 const achievements = [
   {
@@ -22,10 +22,12 @@ const achievements = [
     title: "Bangladesh Wadokai Karate do team achieved the Champion's Trophy",
     description:
       "Bangladesh Wadokai Karate do team achieved the Champion's Trophy and won 40 gold medals at the Narayanganj District 9th Open Karate Championship-2025",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ng_cover.jpg-qxMAklfiAFty8eaRC998kUhHFIqHrQ.jpeg",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ng_cover.jpg-qxMAklfiAFty8eaRC998kUhHFIqHrQ.jpeg",
   },
   {
-    title: "Runner-Up Trophy from India's 26th Bongo Bhumi Cup International Karate Championship",
+    title:
+      "Runner-Up Trophy from India's 26th Bongo Bhumi Cup International Karate Championship",
     description:
       "Bangladesh Wadokai Karate-Do proudly returns home with the Runner-Up Trophy from India's 26th Bongo Bhumi Cup International Karate Championship! This incredible achievement is a testament to our team's hard work, dedication, and unwavering spirit. We are honored to represent Bangladesh on the international stage.",
     image:
@@ -35,10 +37,12 @@ const achievements = [
     title: "Gold Medals Total 68",
     description:
       "The Bangladesh Open Karate Club Championship 2025 saw Victory Bangladesh Wadokai Karate-Do achieve significant success, securing the championship trophy in the boys' division and the runner-up trophy in the girls' division. This marks a strong start to their 2025 tournament season. Congratulations to all the students who performed exceptionally and earned gold medals. Appreciation is also extended to the organizers for hosting the event.",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/open_cover.jpg-KtCcUUxHvi5JFsdvSxdNVVHo74Cpta.jpeg",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/open_cover.jpg-KtCcUUxHvi5JFsdvSxdNVVHo74Cpta.jpeg",
   },
   {
-    title: "Bangladesh Wadokai Karate-do Triumphs at Winter Karate Championship 2024",
+    title:
+      "Bangladesh Wadokai Karate-do Triumphs at Winter Karate Championship 2024",
     description:
       "We are thrilled to announce that Bangladesh Wadokai Karate-do has emerged as the Winter Karate Championship 2024 champions! Our team secured an impressive medal haul: Gold: 14, Silver: 8, Bronze: 8, Total: 30 medals.  we have concluded the year on a high note with this championship win. Throughout 2024, we participated in numerous national and international tournaments, achieving remarkable success. Out of all the competitions we entered, we secured championship titles in the vast majority, except for four tournaments where we finished as runners-up. These runner-up positions included two tournaments in Bangladesh and two in India. This outstanding performance reflects our karatekas' hard work, dedication, and talent. ",
     image:
@@ -48,7 +52,8 @@ const achievements = [
     title: "Bangladesh Wadokai Karate-do added another feather to its cap",
     description:
       "On a day commemorating the nation's victory, Bangladesh Wadokai Karate-do added another feather to its cap. The team's dominant performance at the Savar Pappu Raj Shotokan Karate Competition 2024 secured the championship trophy and yielded an impressive medal haul of 12 Gold, 7 Silver, and 2 Bronze. This victory is a fitting tribute to the spirit of courage and determination that defines the nation's history and the team's ethos.",
-    image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/papu_cover.jpg-OtgfmU1udODkQSfmTmPkfaeasc3Um9.jpeg",
+    image:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/papu_cover.jpg-OtgfmU1udODkQSfmTmPkfaeasc3Um9.jpeg",
   },
   {
     title: "Our team clinched the championship title3",
@@ -57,12 +62,12 @@ const achievements = [
     image:
       "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gandari_cover.jpg-2CudSIBTKMkDFAboMeqHGvANQDnlyA.jpeg",
   },
-]
+];
 
 export default function Achievements() {
   return (
-    <div className="bg-background min-h-screen pt-16">
-      <section className="bg-primary dark:bg-gray-900 text-primary-foreground py-20">
+    <div className="bg-background min-h-screen">
+      <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -78,7 +83,8 @@ export default function Achievements() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl"
           >
-            Celebrating the success of BWKD students on national and international stages
+            Celebrating the success of BWKD students on national and
+            international stages
           </motion.p>
         </div>
       </section>
@@ -108,7 +114,9 @@ export default function Achievements() {
                   <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-900 dark:text-white">
                     {achievement.title}
                   </h2>
-                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">{achievement.description}</p>
+                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                    {achievement.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -116,6 +124,5 @@ export default function Achievements() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

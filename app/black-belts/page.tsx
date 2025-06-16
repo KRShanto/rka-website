@@ -1,37 +1,45 @@
-"use client"
-import Image from "next/image"
-import { Award, Calendar, Search, User } from "lucide-react"
-import { useState, useEffect } from "react"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
-import { blackBeltsBasic } from "@/lib/data/black-belt-profiles"
-import { Skeleton } from "@/components/ui/skeleton"
+"use client";
+import Image from "next/image";
+import { Award, Calendar, Search, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import { blackBeltsBasic } from "@/lib/data/black-belt-profiles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BlackBelts() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Simulate loading data
     const timer = setTimeout(() => {
-      setLoading(false)
-    }, 300)
+      setLoading(false);
+    }, 300);
 
-    return () => clearTimeout(timer)
-  }, [])
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filter black belts based on search query
   const filteredBlackBelts = blackBeltsBasic.filter((blackBelt) => {
-    const query = searchQuery.toLowerCase()
-    return blackBelt.name.toLowerCase().includes(query) || blackBelt.userId.toLowerCase().includes(query)
-  })
+    const query = searchQuery.toLowerCase();
+    return (
+      blackBelt.name.toLowerCase().includes(query) ||
+      blackBelt.userId.toLowerCase().includes(query)
+    );
+  });
 
   return (
-    <div className="bg-background min-h-screen pt-16">
-      <section className="bg-primary dark:bg-gray-900 text-primary-foreground py-20">
+    <div className="bg-background min-h-screen">
+      <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4 dark:text-white">BWKD Black Belts</h1>
-          <p className="text-xl">Honoring our dedicated practitioners who have achieved the rank of Black Belt</p>
+          <h1 className="text-4xl font-bold mb-4 dark:text-white">
+            BWKD Black Belts
+          </h1>
+          <p className="text-xl">
+            Honoring our dedicated practitioners who have achieved the rank of
+            Black Belt
+          </p>
         </div>
       </section>
 
@@ -39,7 +47,10 @@ export default function BlackBelts() {
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto mb-8">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={18}
+              />
               <Input
                 type="text"
                 placeholder="Search by name or ID (e.g., BWKD001)"
@@ -53,7 +64,10 @@ export default function BlackBelts() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <div
+                  key={i}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden"
+                >
                   <Skeleton className="h-64 w-full" />
                   <div className="p-6">
                     <Skeleton className="h-6 w-3/4 mb-4" />
@@ -66,8 +80,12 @@ export default function BlackBelts() {
             </div>
           ) : filteredBlackBelts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-lg text-gray-600 dark:text-gray-400">No black belts found matching your search.</p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Try a different name or ID.</p>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                No black belts found matching your search.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                Try a different name or ID.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -115,6 +133,5 @@ export default function BlackBelts() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

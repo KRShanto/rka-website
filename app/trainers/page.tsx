@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { motion } from "framer-motion"
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 const trainers = [
   {
@@ -59,12 +59,12 @@ const trainers = [
     rank: "1st Dan Black Belt",
     bio: "Ashikur is dedicated to nurturing young talent and has developed innovative training methods for beginners.",
   },
-]
+];
 
 export default function Trainers() {
   return (
     <div className="bg-background min-h-screen">
-      <section className="bg-primary dark:bg-gray-900 text-primary-foreground py-20">
+      <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -80,7 +80,8 @@ export default function Trainers() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl"
           >
-            Meet the experienced senseis who will guide you on your karate journey
+            Meet the experienced senseis who will guide you on your karate
+            journey
           </motion.p>
         </div>
       </section>
@@ -103,16 +104,16 @@ export default function Trainers() {
                       trainer.name === "Sehan Kitamora Tetsuro"
                         ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tetsuro%20Kitamura.jpg-2yGjyvbDVxWOa7gPUROXQ3VRrge59v.jpeg"
                         : trainer.name === "SK Mostofa Hasan"
-                          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/sk.jpg-p41OviwOQth8DcNq2CdWjq6XBhEQde.jpeg"
-                          : trainer.name === "TH Tanjim"
-                            ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tanjim-pyoBmEdeoAHaxOmndYQkWT6Gc92ETb.jpeg"
-                            : trainer.name === "Abdul Sukkur Ali Shikder"
-                              ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/sukkur-CPuPQFW1Y4pZogkeSgjHBsbEPnw5vP.jpeg"
-                              : trainer.name === "Sharuk Khan Raj"
-                                ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/srk-IaKF8bBdIYdep3yGT0Yoz2kwfR7H0a.jpeg"
-                                : trainer.name === "Forkan"
-                                  ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/forkan-70IUALFPGyIJTxqM4XVeaKrP08uv2x.jpeg"
-                                  : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg"
+                        ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/sk.jpg-p41OviwOQth8DcNq2CdWjq6XBhEQde.jpeg"
+                        : trainer.name === "TH Tanjim"
+                        ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/tanjim-pyoBmEdeoAHaxOmndYQkWT6Gc92ETb.jpeg"
+                        : trainer.name === "Abdul Sukkur Ali Shikder"
+                        ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/sukkur-CPuPQFW1Y4pZogkeSgjHBsbEPnw5vP.jpeg"
+                        : trainer.name === "Sharuk Khan Raj"
+                        ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/srk-IaKF8bBdIYdep3yGT0Yoz2kwfR7H0a.jpeg"
+                        : trainer.name === "Forkan"
+                        ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/forkan-70IUALFPGyIJTxqM4XVeaKrP08uv2x.jpeg"
+                        : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg"
                     }
                     alt={trainer.name}
                     layout="fill"
@@ -123,9 +124,15 @@ export default function Trainers() {
                   />
                 </div>
                 <div className="p-4 sm:p-6">
-                  <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-900 dark:text-white">{trainer.name}</h2>
-                  <p className="text-primary font-semibold mb-4">{trainer.rank}</p>
-                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">{trainer.bio}</p>
+                  <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+                    {trainer.name}
+                  </h2>
+                  <p className="text-primary font-semibold mb-4">
+                    {trainer.rank}
+                  </p>
+                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                    {trainer.bio}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -133,6 +140,5 @@ export default function Trainers() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

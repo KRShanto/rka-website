@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function About() {
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <section className="bg-primary dark:bg-gray-900 text-primary-foreground py-20">
+      <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
