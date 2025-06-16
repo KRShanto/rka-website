@@ -108,19 +108,6 @@ export default function HeroSection() {
 
           {/* Content */}
           <div className="text-center space-y-6">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="inline-flex items-center gap-2 bg-[#dc2626]/10 border border-[#dc2626]/20 rounded-full px-3 py-1.5"
-            >
-              <Award className="w-3 h-3 text-[#dc2626]" />
-              <span className="text-xs font-medium text-[#dc2626]">
-                Est. 2013
-              </span>
-            </motion.div>
-
             {/* Main Heading */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -128,6 +115,23 @@ export default function HeroSection() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="space-y-3"
             >
+              {/* Logo */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex justify-center mb-4"
+              >
+                <Image
+                  src="/bwkd-logo.png"
+                  alt="BWKD Logo"
+                  width={120}
+                  height={120}
+                  className="w-24 h-24 sm:w-28 sm:h-28"
+                  priority
+                />
+              </motion.div>
+
               <h1 className="text-3xl font-bold leading-tight">
                 <span className="text-gray-900 dark:text-white">
                   Bangladesh
@@ -217,19 +221,6 @@ export default function HeroSection() {
             transition={{ duration: 0.8 }}
             className="space-y-8"
           >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="inline-flex items-center gap-2 bg-[#dc2626]/10 border border-[#dc2626]/20 rounded-full px-4 py-2"
-            >
-              <Award className="w-4 h-4 text-[#dc2626]" />
-              <span className="text-sm font-medium text-[#dc2626]">
-                Est. 2013 • 12+ Years
-              </span>
-            </motion.div>
-
             {/* Main Heading - Simplified */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -237,6 +228,23 @@ export default function HeroSection() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="space-y-4"
             >
+              {/* Logo */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex justify-start mb-6"
+              >
+                <Image
+                  src="/bwkd-logo.png"
+                  alt="BWKD Logo"
+                  width={150}
+                  height={150}
+                  className="w-32 h-32 lg:w-36 lg:h-36"
+                  priority
+                />
+              </motion.div>
+
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
                 <span className="text-gray-900 dark:text-white">
                   Bangladesh
