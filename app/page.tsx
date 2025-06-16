@@ -1,93 +1,27 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { motion, useScroll, useTransform } from "framer-motion"
-import { useRef, lazy, Suspense } from "react"
-import { ArrowRight } from "lucide-react"
-import dynamic from "next/dynamic"
-import { useMediaQuery } from "@/hooks/use-media-query"
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { motion, useScroll } from "framer-motion";
+import { useRef, lazy, Suspense } from "react";
+import { ArrowRight } from "lucide-react";
 
-// Dynamically import components based on screen size
-const MobileHeroSection = dynamic(() => import("@/components/MobileHeroSection"), { ssr: false })
+import HeroSection from "@/components/Hero";
 
 // Optimized loading with placeholders for items below the fold
-const LazyEventCard = lazy(() => import("@/components/EventCard"))
-const LazyAchievementCard = lazy(() => import("@/components/AchievementCard"))
+const LazyAchievementCard = lazy(() => import("@/components/AchievementCard"));
 
 export default function Home() {
-  const ref = useRef(null)
+  const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
-  })
-
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8])
-
-  const isMobile = useMediaQuery("(max-width: 768px)")
+  });
 
   return (
     <div className="min-h-screen bg-background has-bottom-nav" ref={ref}>
-      {isMobile ? (
-        <MobileHeroSection />
-      ) : (
-        <motion.section
-          className="relative bg-cover bg-center h-[80vh] sm:h-screen flex items-center overflow-hidden"
-          style={{
-            opacity,
-            scale,
-          }}
-        >
-          <div className="absolute inset-0 bwkd-logo-banner"></div>
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-          <div className="relative z-10 container mx-auto text-center text-white px-4">
-            <motion.h1
-              initial={{ opacity: 0, y: -50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6 dark:text-white"
-            >
-              Bangladesh Wadokai Karate Do
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 dark:text-gray-200 max-w-3xl mx-auto"
-            >
-              Discover the art of Karate and embark on a journey of self-discipline and mastery.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row justify-center"
-            >
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-6 sm:px-8 py-3 text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover-effect"
-              >
-                <Link href="/join-us" className="flex items-center gap-2">
-                  Join Us <ArrowRight size={16} />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="bg-white/10 text-white hover:bg-white/20 dark:bg-gray-800/10 dark:text-white dark:hover:bg-gray-800/20 font-bold px-6 sm:px-8 py-3 text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover-effect"
-              >
-                <Link href="/about" className="flex items-center gap-2">
-                  Learn More <ArrowRight size={16} />
-                </Link>
-              </Button>
-            </motion.div>
-          </div>
-        </motion.section>
-      )}
+      <HeroSection />
 
       <section className="py-10 sm:py-16 md:py-20 bg-background">
         <div className="container mx-auto px-4">
@@ -105,17 +39,20 @@ export default function Home() {
               {
                 title: "Discipline",
                 icon: "/icon-discipline.jpeg",
-                description: "Develop mental and physical discipline through rigorous training.",
+                description:
+                  "Develop mental and physical discipline through rigorous training.",
               },
               {
                 title: "Fitness",
                 icon: "/icon-fitness.png",
-                description: "Improve your overall fitness, strength, and flexibility.",
+                description:
+                  "Improve your overall fitness, strength, and flexibility.",
               },
               {
                 title: "Community",
                 icon: "/icon-community.jpg",
-                description: "Join a supportive community of like-minded individuals.",
+                description:
+                  "Join a supportive community of like-minded individuals.",
               },
             ].map((item, index) => (
               <motion.div
@@ -140,7 +77,9 @@ export default function Home() {
                   <h3 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">
                     {item.title}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300">{item.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {item.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -167,7 +106,9 @@ export default function Home() {
             viewport={{ once: true }}
             className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center max-w-2xl mx-auto"
           >
-            <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">There are no upcoming events at the moment.</p>
+            <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
+              There are no upcoming events at the moment.
+            </p>
             <p className="text-gray-600 dark:text-gray-400">
               Please check back later for future events and activities.
             </p>
@@ -179,7 +120,10 @@ export default function Home() {
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground hover-effect mobile-btn"
             >
-              <Link href="/notice" className="flex items-center justify-center gap-2">
+              <Link
+                href="/notice"
+                className="flex items-center justify-center gap-2"
+              >
                 View All Notices <ArrowRight size={16} />
               </Link>
             </Button>
@@ -241,7 +185,10 @@ export default function Home() {
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground hover-effect mobile-btn"
             >
-              <Link href="/achievements" className="flex items-center justify-center gap-2">
+              <Link
+                href="/achievements"
+                className="flex items-center justify-center gap-2"
+              >
                 View All Achievements <ArrowRight size={16} />
               </Link>
             </Button>
@@ -298,7 +245,10 @@ export default function Home() {
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground hover-effect mobile-btn"
             >
-              <Link href="/gallery" className="flex items-center justify-center gap-2">
+              <Link
+                href="/gallery"
+                className="flex items-center justify-center gap-2"
+              >
                 View Full Gallery <ArrowRight size={16} />
               </Link>
             </Button>
@@ -306,6 +256,5 @@ export default function Home() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-
