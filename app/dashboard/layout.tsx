@@ -1,54 +1,73 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
-import { useAuth } from "@/providers/AuthProvider"
-import { CreditCard, History, BadgeIcon as IdCard, LogOut, Menu, User, X, Bell, Settings, Home } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/ThemeToggle"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/providers/AuthProvider";
+import {
+  CreditCard,
+  History,
+  BadgeIcon as IdCard,
+  LogOut,
+  Menu,
+  User,
+  X,
+  Bell,
+  Settings,
+  Home,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout, loading } = useAuth()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user, logout, loading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     // Close sidebar on route change
-    setSidebarOpen(false)
-  }, [pathname])
+    setSidebarOpen(false);
+  }, [pathname]);
 
   // Redirect if not logged in
   useEffect(() => {
     if (!loading && !user?.isLoggedIn) {
-      router.push("/login")
+      router.push("/login");
     }
-  }, [user, loading, router])
+  }, [user, loading, router]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
-    )
+    );
   }
 
   const navItems = [
     { href: "/dashboard", label: "ID", icon: IdCard },
     { href: "/dashboard/payment", label: "Payment", icon: CreditCard },
-    { href: "/dashboard/payment-history", label: "Payment History", icon: History },
-  ]
+    {
+      href: "/dashboard/payment-history",
+      label: "Payment History",
+      icon: History,
+    },
+  ];
 
   const topNavItems = [
     { href: "/", label: "Main Site", icon: Home },
     { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -63,8 +82,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className="flex-1 flex justify-center md:justify-start items-center">
           <Link href="/dashboard" className="flex items-center space-x-2">
-            <Image src="/bwkd-logo.png" alt="BWKD" width={40} height={40} className="rounded-full bg-white p-1" />
-            <span className="font-bold text-lg hidden md:inline-block">BWKD Admin Dashboard</span>
+            <Image
+              src="/bwkd-logo.png"
+              alt="BWKD"
+              width={40}
+              height={40}
+              className="rounded-full bg-white p-1"
+            />
+            <span className="font-bold text-lg hidden md:inline-block">
+              BWKD Admin Dashboard
+            </span>
             <span className="font-bold text-lg md:hidden">BWKD Admin</span>
           </Link>
         </div>
@@ -92,7 +119,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
             <div className="hidden lg:block">
               <p className="text-sm font-medium">{user?.name || "Admin"}</p>
-              <p className="text-xs text-white/70">{user?.role || "Administrator"}</p>
+              <p className="text-xs text-white/70">
+                {user?.role || "Administrator"}
+              </p>
             </div>
           </div>
 
@@ -112,7 +141,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-200 ease-in-out md:translate-x-0 pt-16",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
@@ -128,21 +157,52 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
         </div>
         <nav className="p-4 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors",
-                pathname === item.href
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700",
-              )}
-            >
-              <item.icon className="w-5 h-5" />
-              <span>{item.label}</span>
-            </Link>
-          ))}
+          {/* Top Navigation Items - Only visible on mobile in sidebar */}
+          <div className="md:hidden space-y-1 mb-4">
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 mb-2">
+              Quick Links
+            </div>
+            {topNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors",
+                  pathname === item.href
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+            <div className="border-t border-gray-200 dark:border-gray-700 my-3"></div>
+          </div>
+
+          {/* Main Navigation Items */}
+          <div className="space-y-1">
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 mb-2 md:hidden">
+              Dashboard
+            </div>
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors",
+                  pathname === item.href
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+
+          <div className="border-t border-gray-200 dark:border-gray-700 my-3"></div>
           <button
             onClick={logout}
             className="w-full flex items-center space-x-2 px-4 py-3 rounded-md transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -166,6 +226,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         ></div>
       )}
     </div>
-  )
+  );
 }
-

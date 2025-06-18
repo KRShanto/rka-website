@@ -160,7 +160,7 @@ export default function JoinUs() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <Phone className="w-5 h-5 text-[#dc2626]" />
-                    <span>Main Office: +880 1234 567890</span>
+                    <span>Main Office: :+880 1763531313</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Phone className="w-5 h-5 text-[#dc2626]" />
@@ -230,30 +230,6 @@ export default function JoinUs() {
                   </Link>
                 </CardContent>
               </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1 }}
-            >
-              <h3 className="text-2xl font-semibold mb-4">Our Facilities</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Image
-                  src="/dojo-interior.jpg"
-                  alt="BWKD Dojo Interior with red and blue tatami mats and punching bags"
-                  width={500}
-                  height={300}
-                  className="rounded-lg shadow-md"
-                />
-                <Image
-                  src="/training-area.jpg"
-                  alt="BWKD Training Area"
-                  width={500}
-                  height={300}
-                  className="rounded-lg shadow-md"
-                />
-              </div>
             </motion.div>
           </div>
         </div>
