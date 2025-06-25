@@ -1,14 +1,39 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronLeft, ChevronRight, Download, FileText, Search } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  FileText,
+  Search,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 // Sample payment history data
 const paymentHistoryData = [
@@ -78,7 +103,7 @@ const paymentHistoryData = [
   {
     id: "PAY-2023-008",
     date: "2023-11-05",
-    type: "Equipment Purchase",
+    type: "Monthly Fee",
     amount: 3500,
     status: "completed",
     method: "Credit Card",
@@ -120,51 +145,55 @@ const paymentHistoryData = [
     method: "Credit Card",
     receipt: false,
   },
-]
+];
 
 export default function PaymentHistoryPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  const itemsPerPage = 5
+  const itemsPerPage = 5;
 
   useEffect(() => {
     // Simulate loading data
     const timer = setTimeout(() => {
-      setLoading(false)
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
+      setLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filter and paginate data
   const filteredData = paymentHistoryData.filter((payment) => {
     const matchesSearch =
       payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payment.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.method.toLowerCase().includes(searchTerm.toLowerCase())
+      payment.method.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === "all" || payment.status === statusFilter
-    const matchesType = typeFilter === "all" || payment.type === typeFilter
+    const matchesStatus =
+      statusFilter === "all" || payment.status === statusFilter;
+    const matchesType = typeFilter === "all" || payment.type === typeFilter;
 
-    return matchesSearch && matchesStatus && matchesType
-  })
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
-  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleDownloadReceipt = (paymentId: string) => {
-    alert(`Downloading receipt for payment ${paymentId}`)
-  }
+    alert(`Downloading receipt for payment ${paymentId}`);
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -174,7 +203,9 @@ export default function PaymentHistoryPage() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Filter Payments</CardTitle>
-          <CardDescription>Search and filter your payment history</CardDescription>
+          <CardDescription>
+            Search and filter your payment history
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -183,7 +214,10 @@ export default function PaymentHistoryPage() {
                 Search
               </Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
                 <Input
                   id="search"
                   placeholder="Search by ID, type, or method"
@@ -222,9 +256,10 @@ export default function PaymentHistoryPage() {
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="Monthly Fee">Monthly Fee</SelectItem>
-                  <SelectItem value="Registration Fee">Registration Fee</SelectItem>
+                  <SelectItem value="Registration Fee">
+                    Registration Fee
+                  </SelectItem>
                   <SelectItem value="Exam Fee">Exam Fee</SelectItem>
-                  <SelectItem value="Equipment Purchase">Equipment Purchase</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -257,21 +292,28 @@ export default function PaymentHistoryPage() {
                 {paginatedData.length > 0 ? (
                   paginatedData.map((payment) => (
                     <TableRow key={payment.id}>
-                      <TableCell className="font-medium">{payment.id}</TableCell>
-                      <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
+                      <TableCell className="font-medium">
+                        {payment.id}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(payment.date).toLocaleDateString()}
+                      </TableCell>
                       <TableCell>{payment.type}</TableCell>
-                      <TableCell>{payment.amount.toLocaleString()} BDT</TableCell>
+                      <TableCell>
+                        {payment.amount.toLocaleString()} BDT
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={
                             payment.status === "completed"
                               ? "success"
                               : payment.status === "pending"
-                                ? "warning"
-                                : "destructive"
+                              ? "warning"
+                              : "destructive"
                           }
                         >
-                          {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                          {payment.status.charAt(0).toUpperCase() +
+                            payment.status.slice(1)}
                         </Badge>
                       </TableCell>
                       <TableCell>{payment.method}</TableCell>
@@ -294,7 +336,10 @@ export default function PaymentHistoryPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell
+                      colSpan={7}
+                      className="text-center py-8 text-gray-500"
+                    >
                       No payment records found matching your filters
                     </TableCell>
                   </TableRow>
@@ -308,13 +353,16 @@ export default function PaymentHistoryPage() {
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
                 Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-                {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} entries
+                {Math.min(currentPage * itemsPerPage, filteredData.length)} of{" "}
+                {filteredData.length} entries
               </div>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -325,7 +373,9 @@ export default function PaymentHistoryPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                   disabled={currentPage === totalPages}
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -343,6 +393,5 @@ export default function PaymentHistoryPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
