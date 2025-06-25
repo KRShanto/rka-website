@@ -67,143 +67,102 @@ export default function HeroSection() {
   // Mobile Hero Section
   if (isMobile) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <div className="container mx-auto px-4">
-          {/* Mobile Auto-scrolling Image */}
+      <section className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-12 mt-16">
+        <div className="container mx-auto px-4 text-center">
+          {/* Logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="flex justify-center mb-4"
+          >
+            <Image
+              src="/bwkd-logo.png"
+              alt="BWKD Logo"
+              width={120}
+              height={120}
+              className="w-24 h-24 sm:w-28 sm:h-28"
+              priority
+            />
+          </motion.div>
+
+          {/* Main Heading */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="relative h-64 mb-8 overflow-hidden rounded-2xl shadow-2xl"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="space-y-3 mb-6"
           >
-            <motion.div
-              key={currentImageIndex}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1 }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={karateImages[currentImageIndex].src || "/placeholder.svg"}
-                alt={karateImages[currentImageIndex].alt}
-                layout="fill"
-                objectFit="cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-            </motion.div>
+            <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
+              <span className="text-gray-900 dark:text-white">Bangladesh</span>
+              <br />
+              <span className="bg-gradient-to-r from-[#dc2626] to-[#b91c1c] bg-clip-text text-transparent">
+                Wadokai Karate Do
+              </span>
+            </h1>
 
-            {/* Mobile indicators */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {karateImages.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentImageIndex ? "bg-white w-6" : "bg-white/50"
-                  }`}
-                />
-              ))}
-            </div>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed px-4 max-w-md mx-auto">
+              Join Bangladesh's premier karate organization and discover your
+              potential.
+            </p>
           </motion.div>
 
-          {/* Content */}
-          <div className="text-center space-y-6">
-            {/* Main Heading */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-3"
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="space-y-3 mb-6"
+          >
+            <Button
+              asChild
+              size="lg"
+              className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold py-3 text-base w-full max-w-xs group"
             >
-              {/* Logo */}
+              <Link
+                href="/join-us"
+                className="flex items-center justify-center gap-2"
+              >
+                Start Your Journey
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-2 border-[#dc2626] text-[#dc2626] hover:bg-[#dc2626] hover:text-white font-bold py-3 text-base w-full max-w-xs"
+            >
+              <Link href="/gallery">View Gallery</Link>
+            </Button>
+          </motion.div>
+
+          {/* Mobile Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="grid grid-cols-3 gap-3 max-w-sm mx-auto"
+          >
+            {heroStats.map((stat, index) => (
               <motion.div
+                key={stat.label}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex justify-center mb-4"
+                transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg"
               >
-                <Image
-                  src="/bwkd-logo.png"
-                  alt="BWKD Logo"
-                  width={120}
-                  height={120}
-                  className="w-24 h-24 sm:w-28 sm:h-28"
-                  priority
-                />
+                <stat.icon className="w-5 h-5 mx-auto mb-1 text-[#dc2626]" />
+                <div className="text-sm font-bold text-gray-900 dark:text-white">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  {stat.label}
+                </div>
               </motion.div>
-
-              <h1 className="text-3xl font-bold leading-tight">
-                <span className="text-gray-900 dark:text-white">
-                  Bangladesh
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-[#dc2626] to-[#b91c1c] bg-clip-text text-transparent">
-                  Wadokai Karate Do
-                </span>
-              </h1>
-
-              <p className="text-base text-gray-600 dark:text-gray-300 leading-relaxed px-4">
-                Join Bangladesh's premier karate organization.
-              </p>
-            </motion.div>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="space-y-3 px-4"
-            >
-              <Button
-                asChild
-                size="lg"
-                className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold py-3 text-base w-full max-w-xs group"
-              >
-                <Link
-                  href="/join-us"
-                  className="flex items-center justify-center gap-2"
-                >
-                  Start Your Journey
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-2 border-[#dc2626] text-[#dc2626] hover:bg-[#dc2626] hover:text-white font-bold py-3 text-base w-full max-w-xs"
-              >
-                <Link href="/gallery">View Gallery</Link>
-              </Button>
-            </motion.div>
-
-            {/* Mobile Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="grid grid-cols-2 gap-4 max-w-xs mx-auto pt-6"
-            >
-              {heroStats.slice(0, 2).map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg"
-                >
-                  <stat.icon className="w-6 h-6 mx-auto mb-1 text-[#dc2626]" />
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
-                    {stat.value}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
+            ))}
+          </motion.div>
         </div>
       </section>
     );
