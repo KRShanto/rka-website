@@ -100,25 +100,22 @@ export default function ResponsiveNavigation({
               type="button"
               className={cn(
                 "inline-flex items-center justify-center p-1.5 rounded-md text-gray-700 dark:text-gray-200",
-                "hover:text-[#dc2626] hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#dc2626]"
+                "hover:text-[#dc2626] hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
               )}
               aria-expanded={isMobileMenuOpen}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => setIsMobileMenuOpen(true)}
             >
-              <span className="sr-only">
-                {isMobileMenuOpen ? "Close menu" : "Open menu"}
-              </span>
-              {isMobileMenuOpen ? (
-                <X className="block h-5 w-5" aria-hidden="true" />
-              ) : (
-                <Menu className="block h-5 w-5" aria-hidden="true" />
-              )}
+              <span className="sr-only">Open menu</span>
+              <Menu className="block h-5 w-5" aria-hidden="true" />
             </button>
           </div>
 
           {/* Logo - Centered on mobile */}
           <div className="flex-1 flex justify-center md:justify-start">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 focus:outline-none focus-visible:outline-none"
+            >
               <Image
                 src={logo || "/placeholder.svg"}
                 alt={logoAlt}
@@ -140,7 +137,7 @@ export default function ResponsiveNavigation({
                 {item.children ? (
                   <button
                     className={cn(
-                      "flex items-center space-x-1 py-1.5 focus-visible relative group",
+                      "flex items-center space-x-1 py-1.5 focus:outline-none focus-visible:outline-none relative group",
                       isActive(item.href)
                         ? "text-[#dc2626] font-medium"
                         : "text-gray-700 dark:text-gray-200",
@@ -160,7 +157,7 @@ export default function ResponsiveNavigation({
                   <Link
                     href={item.href}
                     className={cn(
-                      "block py-1.5 focus-visible relative group",
+                      "block py-1.5 focus:outline-none focus-visible:outline-none relative group",
                       isActive(item.href)
                         ? "text-[#dc2626] font-medium"
                         : "text-gray-700 dark:text-gray-200",
@@ -183,7 +180,7 @@ export default function ResponsiveNavigation({
                         key={child.href}
                         href={child.href}
                         className={cn(
-                          "block px-4 py-2 text-sm",
+                          "block px-4 py-2 text-sm focus:outline-none focus-visible:outline-none",
                           isActive(child.href)
                             ? "text-[#dc2626] font-medium bg-gray-50 dark:bg-gray-700 dark:text-white"
                             : "text-gray-700 dark:text-gray-200",
@@ -241,7 +238,19 @@ export default function ResponsiveNavigation({
           isMobileMenuOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
-        <div className="pt-16 pb-6 px-4 h-full overflow-y-auto">
+        {/* Close button - positioned at the top */}
+        <div className="flex justify-end p-4 pt-16">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-[#dc2626] hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <X className="block h-6 w-6" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="pb-6 px-4 h-full overflow-y-auto">
           <nav className="space-y-1">
             {filteredItems.map((item) => (
               <div key={item.href} className="py-1">
@@ -249,7 +258,7 @@ export default function ResponsiveNavigation({
                   <>
                     <button
                       className={cn(
-                        "flex items-center justify-between w-full px-3 py-3 rounded-md text-left",
+                        "flex items-center justify-between w-full px-3 py-3 rounded-md text-left focus:outline-none focus-visible:outline-none",
                         isActive(item.href)
                           ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-white"
                           : "text-gray-700 dark:text-gray-200",
@@ -277,7 +286,7 @@ export default function ResponsiveNavigation({
                             key={child.href}
                             href={child.href}
                             className={cn(
-                              "block px-3 py-2 rounded-md",
+                              "block px-3 py-2 rounded-md focus:outline-none focus-visible:outline-none",
                               isActive(child.href)
                                 ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-white"
                                 : "text-gray-700 dark:text-gray-200",
@@ -295,7 +304,7 @@ export default function ResponsiveNavigation({
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center px-3 py-3 rounded-md",
+                      "flex items-center px-3 py-3 rounded-md focus:outline-none focus-visible:outline-none",
                       isActive(item.href)
                         ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-[#dc2626]"
                         : "text-gray-700 dark:text-gray-200",
@@ -326,7 +335,7 @@ export default function ResponsiveNavigation({
             {user?.isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="flex items-center px-3 py-3 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="flex items-center px-3 py-3 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <User className="w-5 h-5 mr-3" />

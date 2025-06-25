@@ -61,25 +61,38 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="text-center bg-white dark:bg-black rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 hover-effect card-mobile-full mobile-card flex flex-col"
+                whileHover={{ y: -8 }}
+                className="group text-center bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-2xl hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] dark:hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] transition-all duration-500 transform hover-effect card-mobile-full mobile-card flex flex-col border border-gray-100 dark:border-gray-700"
               >
                 <div className="relative w-full h-48 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
                   <Image
                     src={item.icon || "/placeholder.svg"}
                     alt={item.title}
                     layout="fill"
                     objectFit="cover"
-                    className="transition-transform duration-300 hover:scale-105"
+                    className="transition-transform duration-500 group-hover:scale-110"
                     priority={true}
                   />
+                  <div className="absolute top-4 right-4 z-20">
+                    <div className="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
+                  </div>
                 </div>
-                <div className="p-5 sm:p-6 flex-grow">
-                  <h3 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-900 dark:text-white">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {item.description}
-                  </p>
+                <div className="p-6 sm:p-8 flex-grow relative">
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <div className="w-6 h-6 bg-white rounded-full"></div>
+                    </div>
+                  </div>
+                  <div className="pt-8">
+                    <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white group-hover:text-primary transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      {item.description}
+                    </p>
+                    <div className="mt-4 w-12 h-1 bg-primary rounded-full mx-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
                 </div>
               </motion.div>
             ))}
