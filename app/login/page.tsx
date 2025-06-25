@@ -103,33 +103,22 @@ export default function Login() {
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Enter your username (letters and numbers only).
-                    <br />
-                    This will be converted to an email format for login.
-                  </p>
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox" />
-                    <span className="ml-2 text-sm">Remember me</span>
-                  </label>
                   <Link
                     href="/forgot-password"
                     className="text-sm text-[#dc2626] hover:underline"
