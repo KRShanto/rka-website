@@ -40,6 +40,8 @@ export type UserProfile = {
   fatherName: string;
   profileImageUrl: string;
   currentBelt: string;
+  currentDan: string;
+  danExamDates: string[];
   weight: string;
   gender: string;
 };
@@ -64,6 +66,8 @@ export default function SettingsPage() {
     fatherName: "",
     profileImageUrl: "",
     currentBelt: "white",
+    currentDan: "1",
+    danExamDates: [],
     weight: "",
     gender: "male",
   });
@@ -103,6 +107,8 @@ export default function SettingsPage() {
             fatherName: response.fatherName || "",
             profileImageUrl: response.profileImageUrl || "",
             currentBelt: response.currentBelt || "white",
+            currentDan: response.currentDan || "1",
+            danExamDates: response.danExamDates || [],
             weight: response.weight || "",
             gender: response.gender || "male",
           });
@@ -124,6 +130,8 @@ export default function SettingsPage() {
             fatherName: "",
             profileImageUrl: "",
             currentBelt: "white",
+            currentDan: "1",
+            danExamDates: [],
             weight: "",
             gender: "male",
           });
@@ -343,7 +351,37 @@ export default function SettingsPage() {
 
   // Handle select input changes for profile fields
   const handleSelectChange = (name: string, value: string) => {
-    setProfile((prev) => ({ ...prev, [name]: value }));
+    setProfile((prev) => {
+      const updated = { ...prev, [name]: value };
+
+      // If changing current belt, reset dan-related fields
+      if (name === "currentBelt" && value !== "black-belt") {
+        updated.currentDan = "1";
+        updated.danExamDates = [];
+      }
+
+      // If changing current dan, update danExamDates array length
+      if (name === "currentDan") {
+        const danLevel = parseInt(value);
+        const currentDates = prev.danExamDates || [];
+        const newDates = Array(danLevel)
+          .fill("")
+          .map((_, index) => currentDates[index] || "");
+        updated.danExamDates = newDates;
+      }
+
+      return updated;
+    });
+  };
+
+  // Handle dan exam date changes
+  const handleDanDateChange = (index: number, value: string) => {
+    setProfile((prev) => {
+      const currentDates = prev.danExamDates || [];
+      const newDates = [...currentDates];
+      newDates[index] = value;
+      return { ...prev, danExamDates: newDates };
+    });
   };
 
   return (
@@ -462,6 +500,17 @@ export default function SettingsPage() {
                     onChange={handleInputChange}
                   />
                 </div>
+
+                {/* Mobile Save Button for Personal Information */}
+                <div className="lg:hidden pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={loading || profileLoading}
+                    className="w-full"
+                  >
+                    {loading ? "Saving..." : "Save Profile"}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -488,17 +537,87 @@ export default function SettingsPage() {
                       <SelectValue placeholder="Select your current belt" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="white">White Belt</SelectItem>
-                      <SelectItem value="yellow">Yellow Belt</SelectItem>
-                      <SelectItem value="orange">Orange Belt</SelectItem>
-                      <SelectItem value="green">Green Belt</SelectItem>
-                      <SelectItem value="blue">Blue Belt</SelectItem>
-                      <SelectItem value="purple">Purple Belt</SelectItem>
-                      <SelectItem value="brown">Brown Belt</SelectItem>
-                      <SelectItem value="black">Black Belt</SelectItem>
+                      <SelectItem value="white">White</SelectItem>
+                      <SelectItem value="yellow">Yellow</SelectItem>
+                      <SelectItem value="orange">Orange</SelectItem>
+                      <SelectItem value="green-junior">Green Junior</SelectItem>
+                      <SelectItem value="green-senior">Green Senior</SelectItem>
+                      <SelectItem value="blue-junior">Blue Junior</SelectItem>
+                      <SelectItem value="blue-senior">Blue Senior</SelectItem>
+                      <SelectItem value="brown-junior">Brown Junior</SelectItem>
+                      <SelectItem value="brown-senior">Brown Senior</SelectItem>
+                      <SelectItem value="black-belt">Black Belt</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Current Dan selection - only show for black belt */}
+                {profile.currentBelt === "black-belt" && (
+                  <div>
+                    <Label htmlFor="currentDan">Current Dan</Label>
+                    <Select
+                      value={profile.currentDan}
+                      onValueChange={(value) =>
+                        handleSelectChange("currentDan", value)
+                      }
+                    >
+                      <SelectTrigger id="currentDan">
+                        <SelectValue placeholder="Select your current dan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1st Dan</SelectItem>
+                        <SelectItem value="2">2nd Dan</SelectItem>
+                        <SelectItem value="3">3rd Dan</SelectItem>
+                        <SelectItem value="4">4th Dan</SelectItem>
+                        <SelectItem value="5">5th Dan</SelectItem>
+                        <SelectItem value="6">6th Dan</SelectItem>
+                        <SelectItem value="7">7th Dan</SelectItem>
+                        <SelectItem value="8">8th Dan</SelectItem>
+                        <SelectItem value="9">9th Dan</SelectItem>
+                        <SelectItem value="10">10th Dan</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Dan exam dates - only show for black belt */}
+                {profile.currentBelt === "black-belt" && profile.currentDan && (
+                  <div>
+                    <Label>Dan Exam Dates</Label>
+                    <div className="space-y-3 mt-2">
+                      {Array.from(
+                        { length: parseInt(profile.currentDan) },
+                        (_, index) => (
+                          <div key={index}>
+                            <Label
+                              htmlFor={`danDate${index + 1}`}
+                              className="text-sm"
+                            >
+                              {index + 1}
+                              {index === 0
+                                ? "st"
+                                : index === 1
+                                ? "nd"
+                                : index === 2
+                                ? "rd"
+                                : "th"}{" "}
+                              Dan Exam Date
+                            </Label>
+                            <Input
+                              id={`danDate${index + 1}`}
+                              type="date"
+                              value={profile.danExamDates[index] || ""}
+                              onChange={(e) =>
+                                handleDanDateChange(index, e.target.value)
+                              }
+                              className="mt-1"
+                            />
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <Label htmlFor="weight">Weight (kg)</Label>
@@ -528,11 +647,18 @@ export default function SettingsPage() {
                       <RadioGroupItem value="female" id="female" />
                       <Label htmlFor="female">Female</Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="other" id="other" />
-                      <Label htmlFor="other">Other</Label>
-                    </div>
                   </RadioGroup>
+                </div>
+
+                {/* Mobile Save Button for Karate Information */}
+                <div className="lg:hidden pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={loading || profileLoading}
+                    className="w-full"
+                  >
+                    {loading ? "Saving..." : "Save Profile"}
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -602,7 +728,7 @@ export default function SettingsPage() {
 
         <div>
           {/* Save Profile Section */}
-          <Card>
+          <Card className="hidden lg:block fixed top-32 left-[calc(66.666667%+2rem)] w-80 z-10 shadow-lg">
             <CardHeader>
               <CardTitle>Save Changes</CardTitle>
               <CardDescription>Apply your profile updates</CardDescription>

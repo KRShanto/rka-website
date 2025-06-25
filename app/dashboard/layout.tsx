@@ -72,7 +72,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Top Navbar */}
-      <header className="bg-primary dark:bg-gray-800 text-white shadow-sm fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4">
+      <header className="bg-primary dark:bg-gray-800 text-white shadow-sm border-b border-white/20 dark:border-gray-700 fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-2 rounded-md text-white hover:bg-primary-foreground/20 md:hidden"
@@ -167,9 +167,9 @@ export default function DashboardLayout({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors",
+                  "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors focus:outline-none focus:ring-0",
                   pathname === item.href
-                    ? "bg-primary/10 text-primary font-medium"
+                    ? "text-primary font-medium"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 )}
               >
@@ -190,9 +190,9 @@ export default function DashboardLayout({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors",
+                  "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors focus:outline-none focus:ring-0",
                   pathname === item.href
-                    ? "bg-primary/10 text-primary font-medium"
+                    ? "text-primary font-medium"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 )}
               >
