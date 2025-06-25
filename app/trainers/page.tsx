@@ -96,9 +96,9 @@ export default function Trainers() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ scale: 1.03 }}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden h-full"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden h-full"
               >
-                <div className="relative h-64">
+                <div className="relative aspect-[3/4]">
                   <Image
                     src={
                       trainer.name === "Sehan Kitamora Tetsuro"
@@ -116,10 +116,9 @@ export default function Trainers() {
                         : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg"
                     }
                     alt={trainer.name}
-                    layout="fill"
-                    objectFit="cover"
+                    fill
+                    className="object-contain p-2 transition-transform duration-300 hover:scale-105"
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="transition-transform duration-300 hover:scale-110"
                     loading={index < 6 ? "eager" : "lazy"}
                   />
                 </div>

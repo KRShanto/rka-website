@@ -68,7 +68,7 @@ export default function BlackBelts() {
                   key={i}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden"
                 >
-                  <Skeleton className="h-64 w-full" />
+                  <Skeleton className="aspect-[3/4] w-full" />
                   <div className="p-6">
                     <Skeleton className="h-6 w-3/4 mb-4" />
                     <Skeleton className="h-4 w-full mb-2" />
@@ -93,15 +93,15 @@ export default function BlackBelts() {
                 <Link
                   href={`/black-belts/${blackBelt.userId}`}
                   key={blackBelt.userId}
-                  className="block bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                  className="block bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden cursor-pointer hover:shadow-2xl transition-shadow"
                 >
-                  <div className="relative h-64">
+                  <div className="relative aspect-[3/4]">
                     <Image
                       src={blackBelt.image || "/placeholder.svg"}
                       alt={blackBelt.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="transition-transform duration-300 hover:scale-110"
+                      fill
+                      className="object-contain p-2 transition-transform duration-300 hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       loading={index < 6 ? "eager" : "lazy"}
                       priority={index < 3}
                     />
