@@ -17,74 +17,77 @@ This is the official website for Bangladesh Wadokai Karate Do (BWKD).
    ```
 
 ### Environment Variables
-Copy the environment example file and update the values:
+Create a `.env.local` file in the root directory and add the following variables:
+
 ```bash
-cp .env.example .env.local
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-Update the following variables in your `.env.local` file:
-- `NEXT_PUBLIC_APPWRITE_ENDPOINT`: Your Appwrite API endpoint
-- `NEXT_PUBLIC_APPWRITE_PROJECT_ID`: Your Appwrite project ID
-- `NEXT_PUBLIC_APPWRITE_USER_DATABASE_ID`: ID of the user profiles database
-- `NEXT_PUBLIC_APPWRITE_USER_PROFILES_COLLECTION_ID`: ID of the user profiles collection
-- `NEXT_PUBLIC_APPWRITE_PROFILE_IMAGES_BUCKET_ID`: ID of the storage bucket for profile images
+Replace the values with your actual Supabase project URL and anonymous key from your Supabase project dashboard.
 
-### Appwrite Setup
-1. Create an Appwrite project in the [Appwrite Console](https://cloud.appwrite.io/console)
-2. Enable Email/Password authentication in the "Auth" settings
-3. Create a Web App platform in "Settings" → "Platforms" with your development/production hostname
+### Supabase Setup
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Go to your project dashboard and copy your project URL and anon key
+3. Enable Email/Password authentication (enabled by default)
 
-#### Database and Collection Setup
-1. Go to Databases in your Appwrite Console
-2. Create a new database named "user_profiles" (or your preferred name)
-3. Create a new collection named "profiles" with the following attributes:
-   - `userId` (string, required) - This will be the document ID
-   - `firstName` (string)
-   - `lastName` (string)
-   - `email` (string)
-   - `phone` (string)
-   - `motherName` (string)
-   - `fatherName` (string)
-   - `profileImageUrl` (string)
-   - `currentBelt` (string)
-   - `weight` (string)
-   - `gender` (string)
-4. Set appropriate permissions for the collection:
-   - Allow Create, Read, Update, and Delete for users with documents where `userId` attribute is equal to their user ID
-   - Allow Read for all authenticated users if you want profiles to be visible to other users
+#### Database Setup
+Run the following SQL commands in your Supabase SQL editor:
+
+```sql
+-- Create profiles table
+CREATE TABLE public.profiles (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  name text,
+  email text,
+  phone text,
+  mother_name text,
+  father_name text,
+  profile_image_url text,
+  current_belt text,
+  current_dan numeric,
+  dan_exam_dates json,
+  weight numeric,
+  gender text,
+  branch text,
+  join_date timestamp without time zone DEFAULT now(),
+  auth_id uuid,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_auth_id_fkey FOREIGN KEY (auth_id) REFERENCES auth.users(id)
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies
+CREATE POLICY "Users can view own profile" ON public.profiles
+  FOR SELECT USING (auth.uid() = auth_id);
+
+CREATE POLICY "Users can insert own profile" ON public.profiles
+  FOR INSERT WITH CHECK (auth.uid() = auth_id);
+
+CREATE POLICY "Users can update own profile" ON public.profiles
+  FOR UPDATE USING (auth.uid() = auth_id);
+```
 
 #### Storage Setup
-1. Go to Storage in your Appwrite Console
-2. Create a new storage bucket named "profile_images" (or your preferred name)
-3. Set appropriate permissions for the bucket:
-   - Allow Upload, Read, and Delete for users with files where `userId` attribute is equal to their user ID
-   - Allow Read for all authenticated users if you want profile images to be visible to other users
-4. Set maximum file size as needed (5MB recommended for profile pictures)
-5. Allow file extensions: jpg, jpeg, png
+1. Go to Storage in your Supabase dashboard
+2. Create a new bucket named "profile-images"
+3. Set the bucket to be public for easy image access
+4. Configure upload restrictions as needed (5MB recommended for profile pictures)
 
-#### Important Platform Configuration
-To avoid the "User (role: guests) missing scope (account)" error:
+### Creating Users in Supabase
+Users can be created in several ways:
 
-1. Go to your Appwrite Console → Project Settings → Platforms
-2. Click on "Add Platform" → "Web App"
-3. Enter your app name
-4. In the Hostname field, add these values one at a time (add a new platform for each):
-   - `localhost` (for local development)
-   - Your production domain (if applicable)
-5. Make sure you're accessing your app from one of these registered hostnames
+1. **Through the dashboard**: Go to Authentication → Users in your Supabase dashboard
+2. **Self-registration**: Users can sign up directly through the app (if enabled)
+3. **Email format**: Use the format `[username]@bwkd.app` for consistency
 
-### Creating Users in Appwrite
-When creating users in Appwrite for this app, follow these guidelines:
-
-1. Each user ID must be created with a valid email format: `[userId]@bwkd.app`
-2. The `userId` part must follow Appwrite's rules:
-   - Maximum 36 characters
-   - Only use alphanumeric characters, periods, hyphens, and underscores (a-z, A-Z, 0-9, ., -, _)
-   - Cannot start with a special character
-   
-For example:
-- To create a user with ID "33939393", use email "33939393@bwkd.app"
-- To create a user with ID "student_01", use email "student01@bwkd.app" (avoid starting with underscore)
+Example:
+- Username: "student01" → Email: "student01@bwkd.app"
+- Username: "instructor" → Email: "instructor@bwkd.app"
 
 ### Running the Development Server
 ```bash
@@ -97,16 +100,23 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the r
 
 ## Troubleshooting
 
-### Permission Errors
-If you see the error **"User (role: guests) missing scope (account)"**, this means your app doesn't have permission to access Appwrite's account API. Fix it by:
+### Authentication Issues
+If you're having trouble with authentication:
 
-1. Make sure your platform is correctly registered in Appwrite (see "Important Platform Configuration" above)
-2. Verify you're accessing the app from the registered hostname (e.g., `localhost` not `127.0.0.1`)
-3. Clear your browser cookies and cache
-4. Make sure your `.env.local` file has the correct `NEXT_PUBLIC_APPWRITE_PROJECT_ID`
+1. Verify your Supabase project URL and anon key in `.env.local`
+2. Check that your Supabase project is active and not paused
+3. Ensure Row Level Security policies are properly configured
+4. Clear browser cookies and local storage
+
+### Database Connection Issues
+If you can't connect to the database:
+
+1. Confirm your Supabase project URL is correct
+2. Check that the profiles table exists with the correct schema
+3. Verify RLS policies allow the required operations
 
 ## Features
-- User authentication with Appwrite
+- User authentication with Supabase
 - Student/member dashboard
 - Event management
 - Responsive design for all devices 

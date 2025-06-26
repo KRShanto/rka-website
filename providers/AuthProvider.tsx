@@ -8,14 +8,14 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { appwrite } from "@/lib/appwrite";
-import { Account } from "appwrite";
+import { supabase } from "@/lib/supabase";
 
 type User = {
   isLoggedIn: boolean;
   role: string;
   name: string;
   email: string;
+  isAdmin?: boolean;
 };
 
 type AuthContextType = {
@@ -31,6 +31,7 @@ const defaultUser: User = {
   role: "",
   name: "",
   email: "",
+  isAdmin: false,
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -54,26 +55,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check if user is logged in on mount
     const checkSession = async () => {
       try {
-        // Try to get the current session
-        try {
-          // Get current session
-          const session = await appwrite.account.getSession("current");
-          console.log("Found existing session:", session.$id);
+        // Get current session from Supabase
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
-          // If session exists, get account details
-          const account = await appwrite.account.get();
-          console.log("Account details loaded:", account.name);
+        if (error) {
+          console.log("No active session found:", error.message);
+          return;
+        }
+
+        if (session && session.user) {
+          console.log(
+            "Found existing session:",
+            session.access_token.slice(0, 10) + "..."
+          );
+          console.log("User details loaded:", session.user.email);
+
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("auth_id", session.user.id)
+            .single();
 
           // Set user information
           setUser({
             isLoggedIn: true,
-            role: "student", // This could be fetched from database
-            name: account.name,
-            email: account.email,
+            role: profile?.role || "student",
+            name:
+              profile?.name ||
+              session.user.user_metadata?.name ||
+              session.user.email?.split("@")[0] ||
+              "Student",
+            email: session.user.email || "",
+            isAdmin: profile?.is_admin || false,
           });
-        } catch (error: any) {
-          // This is normal for non-authenticated users
-          console.log("No active session found:", error?.message);
+        } else {
+          console.log("No active session found");
         }
       } catch (error: any) {
         console.error("Session check failed:", error?.message);
@@ -103,38 +122,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const email = `${username}@bwkd.app`;
       console.log("Attempting login with email:", email);
 
-      // Use the Account SDK directly without additional parameters
-      // This method has overloads, and we're making sure we're using the right one
-      await appwrite.account.createEmailPasswordSession(email, password);
+      // Use Supabase auth to sign in
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-      // Now try to get user data
-      try {
-        const account = await appwrite.account.get();
-        console.log("Account retrieved successfully", account);
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        console.log("Login successful:", data.user.email);
+
+        // Get user profile to fetch role
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("auth_id", data.user.id)
+          .single();
 
         // Set user state
         setUser({
           isLoggedIn: true,
-          role: "student",
-          name: account.name || "Student",
-          email: account.email,
+          role: profile?.role || "student",
+          name:
+            profile?.name ||
+            data.user.user_metadata?.name ||
+            data.user.email?.split("@")[0] ||
+            "Student",
+          email: data.user.email || "",
+          isAdmin: profile?.is_admin || false,
         });
 
         // Navigate to dashboard
         router.push("/dashboard");
-      } catch (accountError: any) {
-        console.error("Error getting account after login:", accountError);
-        setError("Authentication succeeded but failed to get account data.");
       }
     } catch (error: any) {
       console.error("Login error:", error);
 
       // Create a more helpful error message
       if (error?.message) {
-        if (error.message.includes("userId")) {
-          setError("Login failed: There's an issue with the username format.");
-        } else if (error.message.includes("Invalid credentials")) {
+        if (error.message.includes("Invalid login credentials")) {
           setError("Invalid email or password. Please check your credentials.");
+        } else if (error.message.includes("Email not confirmed")) {
+          setError(
+            "Please check your email and confirm your account before logging in."
+          );
         } else {
           setError(error.message);
         }
@@ -150,8 +184,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
 
     try {
-      // Delete the current session
-      await appwrite.account.deleteSession("current");
+      // Sign out using Supabase
+      await supabase.auth.signOut();
       console.log("Session deleted successfully");
 
       // Clear user state

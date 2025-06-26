@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/AuthProvider";
-import { appwrite } from "@/lib/appwrite";
+import { supabase, type Profile } from "@/lib/supabase";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
@@ -25,25 +25,28 @@ import {
 import { toast } from "sonner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  USER_DATABASE_ID,
-  USER_PROFILES_COLLECTION_ID,
-  PROFILE_IMAGES_BUCKET_ID,
-} from "@/lib/appwrite-constants";
+  PROFILES_TABLE,
+  PROFILE_IMAGES_BUCKET,
+  getUserIdFromEmail,
+} from "@/lib/supabase-constants";
 
 export type UserProfile = {
-  userId: string;
-  firstName: string;
-  lastName: string;
+  id?: number;
+  name: string;
   email: string;
   phone: string;
-  motherName: string;
-  fatherName: string;
-  profileImageUrl: string;
-  currentBelt: string;
-  currentDan: string;
-  danExamDates: string[];
-  weight: string;
+  mother_name: string;
+  father_name: string;
+  profile_image_url: string;
+  current_belt: string;
+  current_dan: number;
+  dan_exam_dates: string[];
+  weight: number;
   gender: string;
+  branch: string;
+  auth_id: string;
+  role: "student" | "trainer";
+  is_admin: boolean;
 };
 
 export default function SettingsPage() {
@@ -57,19 +60,21 @@ export default function SettingsPage() {
 
   // User profile data
   const [profile, setProfile] = useState<UserProfile>({
-    userId: "",
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     phone: "",
-    motherName: "",
-    fatherName: "",
-    profileImageUrl: "",
-    currentBelt: "white",
-    currentDan: "1",
-    danExamDates: [],
-    weight: "",
+    mother_name: "",
+    father_name: "",
+    profile_image_url: "",
+    current_belt: "white",
+    current_dan: 1,
+    dan_exam_dates: [],
+    weight: 0,
     gender: "male",
+    branch: "Main Branch",
+    auth_id: "",
+    role: "student",
+    is_admin: false,
   });
 
   // Password change fields
@@ -77,7 +82,7 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Load user profile data from Appwrite
+  // Load user profile data from Supabase
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user?.isLoggedIn) return;
@@ -85,55 +90,70 @@ export default function SettingsPage() {
       try {
         setProfileLoading(true);
 
-        // Get user ID from the authenticated user
-        const userId = user.email.split("@")[0];
+        // Get current user from Supabase auth
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+        if (!authUser) return;
 
-        try {
-          // Try to get the user profile document
-          const response = await appwrite.databases.getDocument(
-            USER_DATABASE_ID,
-            USER_PROFILES_COLLECTION_ID,
-            userId
-          );
+        // Try to get the user profile from Supabase
+        const { data: profileData, error } = await supabase
+          .from(PROFILES_TABLE)
+          .select("*")
+          .eq("auth_id", authUser.id)
+          .single();
 
+        if (error && error.code !== "PGRST116") {
+          // PGRST116 is "not found" error
+          console.error("Error fetching profile:", error);
+          toast.error("Failed to load profile data");
+          return;
+        }
+
+        if (profileData) {
           // Update the profile state with the retrieved data
           setProfile({
-            userId: userId,
-            firstName: response.firstName || "",
-            lastName: response.lastName || "",
-            email: response.email || user.email,
-            phone: response.phone || "",
-            motherName: response.motherName || "",
-            fatherName: response.fatherName || "",
-            profileImageUrl: response.profileImageUrl || "",
-            currentBelt: response.currentBelt || "white",
-            currentDan: response.currentDan || "1",
-            danExamDates: response.danExamDates || [],
-            weight: response.weight || "",
-            gender: response.gender || "male",
+            id: profileData.id,
+            name: profileData.name || "",
+            email: profileData.email || user.email,
+            phone: profileData.phone || "",
+            mother_name: profileData.mother_name || "",
+            father_name: profileData.father_name || "",
+            profile_image_url: profileData.profile_image_url || "",
+            current_belt: profileData.current_belt || "white",
+            current_dan: profileData.current_dan || 1,
+            dan_exam_dates: profileData.dan_exam_dates || [],
+            weight: profileData.weight || 0,
+            gender: profileData.gender || "male",
+            branch: profileData.branch || "Main Branch",
+            auth_id: authUser.id,
+            role: profileData.role || "student",
+            is_admin: profileData.is_admin || false,
           });
 
           // Set image preview if profile image exists
-          if (response.profileImageUrl) {
-            setImagePreview(response.profileImageUrl);
+          if (profileData.profile_image_url) {
+            setImagePreview(profileData.profile_image_url);
           }
-        } catch (error) {
-          // If document doesn't exist, create a new profile with default values
-          console.log("Creating new user profile");
+        } else {
+          // If profile doesn't exist, create default values
+          console.log("No profile found, using defaults");
           setProfile({
-            userId: userId,
-            firstName: user.name.split(" ")[0] || "",
-            lastName: user.name.split(" ")[1] || "",
+            name: user.name || "",
             email: user.email,
             phone: "",
-            motherName: "",
-            fatherName: "",
-            profileImageUrl: "",
-            currentBelt: "white",
-            currentDan: "1",
-            danExamDates: [],
-            weight: "",
+            mother_name: "",
+            father_name: "",
+            profile_image_url: "",
+            current_belt: "white",
+            current_dan: 1,
+            dan_exam_dates: [],
+            weight: 0,
             gender: "male",
+            branch: "Main Branch",
+            auth_id: authUser.id,
+            role: "student",
+            is_admin: false,
           });
         }
       } catch (error) {
@@ -174,39 +194,45 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  // Upload profile image to Appwrite storage
+  // Upload profile image to Supabase storage
   const uploadProfileImage = async (): Promise<string> => {
-    if (!imageFile || !user?.isLoggedIn) return profile.profileImageUrl;
+    if (!imageFile || !user?.isLoggedIn) return profile.profile_image_url;
 
     try {
       setImageUploading(true);
 
-      // Extract user ID from email
-      const userId = user.email.split("@")[0];
+      // Get current user from Supabase auth
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+      if (!authUser) return profile.profile_image_url;
 
-      // Create a unique file ID combining user ID and timestamp
-      const fileId = `${userId}_${Date.now()}`;
+      // Create a unique file path combining user ID and timestamp
+      const fileExtension = imageFile.name.split(".").pop();
+      const fileName = `${authUser.id}_${Date.now()}.${fileExtension}`;
+      const filePath = `${authUser.id}/${fileName}`;
 
-      // Upload the file to Appwrite storage
-      const response = await appwrite.storage.createFile(
-        PROFILE_IMAGES_BUCKET_ID,
-        fileId,
-        imageFile
-      );
+      // Upload the file to Supabase storage
+      const { data, error } = await supabase.storage
+        .from(PROFILE_IMAGES_BUCKET)
+        .upload(filePath, imageFile);
 
-      // Get file view URL - returns a URL string
-      const fileUrl = appwrite.storage.getFileView(
-        PROFILE_IMAGES_BUCKET_ID,
-        response.$id
-      );
+      if (error) {
+        throw error;
+      }
+
+      // Get the public URL for the uploaded file
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(PROFILE_IMAGES_BUCKET).getPublicUrl(filePath);
 
       setImageUploading(false);
-      return fileUrl.toString();
+      return publicUrl;
     } catch (error) {
       console.error("Error uploading profile image:", error);
       toast.error("Failed to upload profile image");
       setImageUploading(false);
-      return profile.profileImageUrl;
+      return profile.profile_image_url;
     }
   };
 
@@ -217,52 +243,70 @@ export default function SettingsPage() {
     try {
       setLoading(true);
 
-      // Extract user ID from email
-      const userId = user.email.split("@")[0];
+      // Get current user from Supabase auth
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+      if (!authUser) return;
 
       // Upload image if a new one was selected
-      let profileImageUrl = profile.profileImageUrl;
+      let profileImageUrl = profile.profile_image_url;
       if (imageFile) {
         profileImageUrl = await uploadProfileImage();
       }
 
       // Prepare profile data
       const profileData = {
-        ...profile,
-        profileImageUrl,
-        userId,
+        name: profile.name,
+        email: profile.email,
+        phone: profile.phone,
+        mother_name: profile.mother_name,
+        father_name: profile.father_name,
+        profile_image_url: profileImageUrl,
+        current_belt: profile.current_belt,
+        current_dan: profile.current_dan,
+        dan_exam_dates: profile.dan_exam_dates,
+        weight: profile.weight,
+        gender: profile.gender,
+        branch: profile.branch,
+        auth_id: authUser.id,
+        role: profile.role,
+        is_admin: profile.is_admin,
       };
 
-      try {
-        // Try to get the document to see if it exists
-        await appwrite.databases.getDocument(
-          USER_DATABASE_ID,
-          USER_PROFILES_COLLECTION_ID,
-          userId
-        );
+      if (profile.id) {
+        // Profile exists, update it
+        const { error } = await supabase
+          .from(PROFILES_TABLE)
+          .update(profileData)
+          .eq("id", profile.id);
 
-        // Document exists, update it
-        await appwrite.databases.updateDocument(
-          USER_DATABASE_ID,
-          USER_PROFILES_COLLECTION_ID,
-          userId,
-          profileData
-        );
-      } catch (error) {
-        // Document doesn't exist, create a new one
-        await appwrite.databases.createDocument(
-          USER_DATABASE_ID,
-          USER_PROFILES_COLLECTION_ID,
-          userId,
-          profileData
-        );
+        if (error) throw error;
+      } else {
+        // Profile doesn't exist, create a new one
+        const { data, error } = await supabase
+          .from(PROFILES_TABLE)
+          .insert([profileData])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Update profile state with the new ID
+        setProfile({
+          ...profile,
+          id: data.id,
+          profile_image_url: profileImageUrl,
+        });
       }
 
-      // Update profile state with new data
-      setProfile({
-        ...profile,
-        profileImageUrl,
-      });
+      // Update profile state with new image URL if changed
+      if (profileImageUrl !== profile.profile_image_url) {
+        setProfile((prev) => ({
+          ...prev,
+          profile_image_url: profileImageUrl,
+        }));
+      }
 
       // Clear file input after successful upload
       setImageFile(null);
@@ -309,14 +353,14 @@ export default function SettingsPage() {
     try {
       setLoading(true);
 
-      // Get the user's email
-      const email = user.email;
+      // Update password using Supabase auth
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
 
-      // First create a session using the current password to verify it's correct
-      await appwrite.account.createEmailPasswordSession(email, currentPassword);
-
-      // Then update the password
-      await appwrite.account.updatePassword(newPassword, currentPassword);
+      if (error) {
+        throw error;
+      }
 
       // Clear password fields
       setCurrentPassword("");
@@ -355,19 +399,19 @@ export default function SettingsPage() {
       const updated = { ...prev, [name]: value };
 
       // If changing current belt, reset dan-related fields
-      if (name === "currentBelt" && value !== "black-belt") {
-        updated.currentDan = "1";
-        updated.danExamDates = [];
+      if (name === "current_belt" && value !== "black-belt") {
+        updated.current_dan = 1;
+        updated.dan_exam_dates = [];
       }
 
-      // If changing current dan, update danExamDates array length
-      if (name === "currentDan") {
+      // If changing current dan, update dan_exam_dates array length
+      if (name === "current_dan") {
         const danLevel = parseInt(value);
-        const currentDates = prev.danExamDates || [];
+        const currentDates = prev.dan_exam_dates || [];
         const newDates = Array(danLevel)
           .fill("")
           .map((_, index) => currentDates[index] || "");
-        updated.danExamDates = newDates;
+        updated.dan_exam_dates = newDates;
       }
 
       return updated;
@@ -377,10 +421,10 @@ export default function SettingsPage() {
   // Handle dan exam date changes
   const handleDanDateChange = (index: number, value: string) => {
     setProfile((prev) => {
-      const currentDates = prev.danExamDates || [];
+      const currentDates = prev.dan_exam_dates || [];
       const newDates = [...currentDates];
       newDates[index] = value;
-      return { ...prev, danExamDates: newDates };
+      return { ...prev, dan_exam_dates: newDates };
     });
   };
 
@@ -402,15 +446,14 @@ export default function SettingsPage() {
                 <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
                   <div className="relative">
                     <Avatar className="h-24 w-24">
-                      {imagePreview || profile.profileImageUrl ? (
+                      {imagePreview || profile.profile_image_url ? (
                         <AvatarImage
-                          src={imagePreview || profile.profileImageUrl}
-                          alt={profile.firstName}
+                          src={imagePreview || profile.profile_image_url}
+                          alt={profile.name}
                         />
                       ) : (
                         <AvatarFallback>
-                          {profile.firstName.charAt(0)}
-                          {profile.lastName.charAt(0)}
+                          {profile.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       )}
                     </Avatar>
@@ -436,26 +479,15 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* Name fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      value={profile.firstName}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      value={profile.lastName}
-                      onChange={handleInputChange}
-                    />
-                  </div>
+                {/* Name field */}
+                <div>
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={profile.name}
+                    onChange={handleInputChange}
+                  />
                 </div>
 
                 {/* Email and phone */}
@@ -482,21 +514,21 @@ export default function SettingsPage() {
 
                 {/* Parent names */}
                 <div>
-                  <Label htmlFor="fatherName">Father's Name</Label>
+                  <Label htmlFor="father_name">Father's Name</Label>
                   <Input
-                    id="fatherName"
-                    name="fatherName"
-                    value={profile.fatherName}
+                    id="father_name"
+                    name="father_name"
+                    value={profile.father_name}
                     onChange={handleInputChange}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="motherName">Mother's Name</Label>
+                  <Label htmlFor="mother_name">Mother's Name</Label>
                   <Input
-                    id="motherName"
-                    name="motherName"
-                    value={profile.motherName}
+                    id="mother_name"
+                    name="mother_name"
+                    value={profile.mother_name}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -526,14 +558,14 @@ export default function SettingsPage() {
             <CardContent>
               <div className="space-y-6">
                 <div>
-                  <Label htmlFor="currentBelt">Current Belt</Label>
+                  <Label htmlFor="current_belt">Current Belt</Label>
                   <Select
-                    value={profile.currentBelt}
+                    value={profile.current_belt}
                     onValueChange={(value) =>
-                      handleSelectChange("currentBelt", value)
+                      handleSelectChange("current_belt", value)
                     }
                   >
-                    <SelectTrigger id="currentBelt">
+                    <SelectTrigger id="current_belt">
                       <SelectValue placeholder="Select your current belt" />
                     </SelectTrigger>
                     <SelectContent>
@@ -552,16 +584,16 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Current Dan selection - only show for black belt */}
-                {profile.currentBelt === "black-belt" && (
+                {profile.current_belt === "black-belt" && (
                   <div>
-                    <Label htmlFor="currentDan">Current Dan</Label>
+                    <Label htmlFor="current_dan">Current Dan</Label>
                     <Select
-                      value={profile.currentDan}
+                      value={profile.current_dan.toString()}
                       onValueChange={(value) =>
-                        handleSelectChange("currentDan", value)
+                        handleSelectChange("current_dan", value)
                       }
                     >
-                      <SelectTrigger id="currentDan">
+                      <SelectTrigger id="current_dan">
                         <SelectValue placeholder="Select your current dan" />
                       </SelectTrigger>
                       <SelectContent>
@@ -581,43 +613,44 @@ export default function SettingsPage() {
                 )}
 
                 {/* Dan exam dates - only show for black belt */}
-                {profile.currentBelt === "black-belt" && profile.currentDan && (
-                  <div>
-                    <Label>Dan Exam Dates</Label>
-                    <div className="space-y-3 mt-2">
-                      {Array.from(
-                        { length: parseInt(profile.currentDan) },
-                        (_, index) => (
-                          <div key={index}>
-                            <Label
-                              htmlFor={`danDate${index + 1}`}
-                              className="text-sm"
-                            >
-                              {index + 1}
-                              {index === 0
-                                ? "st"
-                                : index === 1
-                                ? "nd"
-                                : index === 2
-                                ? "rd"
-                                : "th"}{" "}
-                              Dan Exam Date
-                            </Label>
-                            <Input
-                              id={`danDate${index + 1}`}
-                              type="date"
-                              value={profile.danExamDates[index] || ""}
-                              onChange={(e) =>
-                                handleDanDateChange(index, e.target.value)
-                              }
-                              className="mt-1"
-                            />
-                          </div>
-                        )
-                      )}
+                {profile.current_belt === "black-belt" &&
+                  profile.current_dan && (
+                    <div>
+                      <Label>Dan Exam Dates</Label>
+                      <div className="space-y-3 mt-2">
+                        {Array.from(
+                          { length: profile.current_dan },
+                          (_, index) => (
+                            <div key={index}>
+                              <Label
+                                htmlFor={`danDate${index + 1}`}
+                                className="text-sm"
+                              >
+                                {index + 1}
+                                {index === 0
+                                  ? "st"
+                                  : index === 1
+                                  ? "nd"
+                                  : index === 2
+                                  ? "rd"
+                                  : "th"}{" "}
+                                Dan Exam Date
+                              </Label>
+                              <Input
+                                id={`danDate${index + 1}`}
+                                type="date"
+                                value={profile.dan_exam_dates[index] || ""}
+                                onChange={(e) =>
+                                  handleDanDateChange(index, e.target.value)
+                                }
+                                className="mt-1"
+                              />
+                            </div>
+                          )
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 <div>
                   <Label htmlFor="weight">Weight (kg)</Label>
@@ -626,7 +659,12 @@ export default function SettingsPage() {
                     name="weight"
                     type="number"
                     value={profile.weight}
-                    onChange={handleInputChange}
+                    onChange={(e) =>
+                      setProfile((prev) => ({
+                        ...prev,
+                        weight: parseInt(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
 
@@ -649,6 +687,40 @@ export default function SettingsPage() {
                     </div>
                   </RadioGroup>
                 </div>
+
+                <div>
+                  <Label htmlFor="role">Role</Label>
+                  <Select
+                    value={profile.role}
+                    onValueChange={(value) => handleSelectChange("role", value)}
+                  >
+                    <SelectTrigger id="role">
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="trainer">Trainer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {profile.role === "trainer" && (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="is_admin"
+                      checked={profile.is_admin}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          is_admin: e.target.checked,
+                        }))
+                      }
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="is_admin">Administrator privileges</Label>
+                  </div>
+                )}
 
                 {/* Mobile Save Button for Karate Information */}
                 <div className="lg:hidden pt-4 border-t border-gray-200 dark:border-gray-700">

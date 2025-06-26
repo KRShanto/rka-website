@@ -12,28 +12,27 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
 import { Download, Printer } from "lucide-react";
 import Image from "next/image";
-import { appwrite } from "@/lib/appwrite";
-import {
-  USER_DATABASE_ID,
-  USER_PROFILES_COLLECTION_ID,
-} from "@/lib/appwrite-constants";
+import { supabase } from "@/lib/supabase";
+import { PROFILES_TABLE } from "@/lib/supabase-constants";
 import { toast } from "sonner";
 
 // Define user profile type
 type UserProfile = {
-  userId: string;
-  firstName: string;
-  lastName: string;
+  id?: number;
+  name: string;
   email: string;
   phone: string;
-  motherName: string;
-  fatherName: string;
-  profileImageUrl: string;
-  currentBelt: string;
-  weight: string;
+  mother_name: string;
+  father_name: string;
+  profile_image_url: string;
+  current_belt: string;
+  weight: number;
   gender: string;
   branch?: string;
-  joinDate?: string;
+  join_date?: string;
+  auth_id: string;
+  role?: "student" | "trainer";
+  is_admin?: boolean;
 };
 
 export default function IDPage() {
@@ -41,12 +40,12 @@ export default function IDPage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
-  // Generate a student ID based on user ID
-  const generateStudentId = (userId: string) => {
-    // Use the current year and the user ID to create a formatted ID
+  // Generate a student ID based on auth ID
+  const generateStudentId = (authId: string) => {
+    // Use the current year and the auth ID to create a formatted ID
     const year = new Date().getFullYear();
-    // Take the first 4 characters of the userId or pad with zeros
-    const idSuffix = userId.slice(0, 4).padEnd(4, "0");
+    // Take the first 4 characters of the authId or pad with zeros
+    const idSuffix = authId.slice(0, 4).padEnd(4, "0");
     return `BWKD-${year}-${idSuffix}`;
   };
 
@@ -64,51 +63,64 @@ export default function IDPage() {
       try {
         setLoading(true);
 
-        // Get user ID from the authenticated user
-        const userId = user.email.split("@")[0];
+        // Get current user from Supabase auth
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+        if (!authUser) return;
 
-        try {
-          // Try to get the user profile document
-          const response = await appwrite.databases.getDocument(
-            USER_DATABASE_ID,
-            USER_PROFILES_COLLECTION_ID,
-            userId
-          );
+        // Try to get the user profile from Supabase
+        const { data: profileData, error } = await supabase
+          .from(PROFILES_TABLE)
+          .select("*")
+          .eq("auth_id", authUser.id)
+          .single();
 
+        if (error && error.code !== "PGRST116") {
+          // PGRST116 is "not found" error
+          console.error("Error fetching profile:", error);
+          toast.error("Failed to load profile data");
+          return;
+        }
+
+        if (profileData) {
           // Set the profile data
           setProfile({
-            userId: userId,
-            firstName: response.firstName || "",
-            lastName: response.lastName || "",
-            email: response.email || user.email,
-            phone: response.phone || "",
-            motherName: response.motherName || "",
-            fatherName: response.fatherName || "",
-            profileImageUrl: response.profileImageUrl || "",
-            currentBelt: response.currentBelt || "white",
-            weight: response.weight || "",
-            gender: response.gender || "male",
-            branch: response.branch || "Main Branch",
-            joinDate:
-              response.joinDate || new Date().toISOString().split("T")[0],
+            id: profileData.id,
+            name: profileData.name || "",
+            email: profileData.email || user.email,
+            phone: profileData.phone || "",
+            mother_name: profileData.mother_name || "",
+            father_name: profileData.father_name || "",
+            profile_image_url: profileData.profile_image_url || "",
+            current_belt: profileData.current_belt || "white",
+            weight: profileData.weight || 0,
+            gender: profileData.gender || "male",
+            branch: profileData.branch || "Main Branch",
+            join_date:
+              profileData.join_date || new Date().toISOString().split("T")[0],
+            auth_id: authUser.id,
+            role: profileData.role || "student",
+            is_admin: profileData.is_admin || false,
           });
-        } catch (error) {
+        } else {
           // If document doesn't exist, use defaults
           console.log("Creating default profile for ID card");
           const defaultProfile = {
-            userId: userId,
-            firstName: user.name.split(" ")[0] || "",
-            lastName: user.name.split(" ")[1] || "",
+            name: user.name || "",
             email: user.email,
             phone: "",
-            motherName: "",
-            fatherName: "",
-            profileImageUrl: "",
-            currentBelt: "white",
-            weight: "",
+            mother_name: "",
+            father_name: "",
+            profile_image_url: "",
+            current_belt: "white",
+            weight: 0,
             gender: "male",
             branch: "Main Branch",
-            joinDate: new Date().toISOString().split("T")[0],
+            join_date: new Date().toISOString().split("T")[0],
+            auth_id: authUser.id,
+            role: "student" as const,
+            is_admin: false,
           };
           setProfile(defaultProfile);
         }
@@ -175,9 +187,9 @@ export default function IDPage() {
     }
   };
 
-  const studentId = generateStudentId(profile?.userId || "default");
-  const joinDate = formatJoinDate(profile?.joinDate);
-  const expiryDate = calculateExpiryDate(profile?.joinDate);
+  const studentId = generateStudentId(profile?.auth_id || "default");
+  const joinDate = formatJoinDate(profile?.join_date);
+  const expiryDate = calculateExpiryDate(profile?.join_date);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -199,23 +211,21 @@ export default function IDPage() {
                 </div>
                 <div className="relative w-24 h-24 mt-4 mb-2 rounded-full overflow-hidden border-2 border-primary">
                   <Image
-                    src={profile?.profileImageUrl || "/placeholder.svg"}
-                    alt={`${profile?.firstName || "Student"} Photo`}
+                    src={profile?.profile_image_url || "/placeholder.svg"}
+                    alt={`${profile?.name || "Student"} Photo`}
                     width={96}
                     height={96}
                     priority
                     className="object-cover w-full h-full"
                   />
                 </div>
-                <h3 className="font-bold text-lg">
-                  {profile?.firstName} {profile?.lastName}
-                </h3>
+                <h3 className="font-bold text-lg">{profile?.name}</h3>
                 <p className="text-gray-600 text-sm">Student ID: {studentId}</p>
                 <div className="w-full mt-4 space-y-2">
                   <div className="flex justify-between">
                     <span className="font-medium text-sm">Belt:</span>
                     <span className="text-sm">
-                      {formatBeltName(profile?.currentBelt || "")}
+                      {formatBeltName(profile?.current_belt || "")}
                     </span>
                   </div>
                   <div className="flex justify-between">
