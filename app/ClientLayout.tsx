@@ -116,6 +116,7 @@ export default function ClientLayout({
 
   // Don't render navigation and footer for dashboard pages
   const isDashboard = pathname?.startsWith("/dashboard");
+  const isAdmin = pathname?.startsWith("/admin");
 
   return (
     <div suppressHydrationWarning>
@@ -135,7 +136,7 @@ export default function ClientLayout({
         {mounted && (
           <AuthProvider>
             <AccessibilityProvider>
-              {!isDashboard && (
+              {!isDashboard && !isAdmin && (
                 <ResponsiveNavigation
                   logo="/bwkd-logo.png"
                   logoAlt="BWKD"
@@ -146,7 +147,7 @@ export default function ClientLayout({
 
               <main>{children}</main>
 
-              {!isDashboard && (
+              {!isDashboard && !isAdmin && (
                 <ResponsiveFooter
                   logo="/bwkd-logo.png"
                   logoAlt="BWKD"

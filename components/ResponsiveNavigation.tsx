@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, X, ChevronDown, User } from "lucide-react";
+import { Menu, X, ChevronDown, User, Shield } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/AuthProvider";
@@ -195,19 +195,34 @@ export default function ResponsiveNavigation({
               </div>
             ))}
 
-            {/* Profile or CTA Button */}
+            {/* Admin Link and Profile or CTA Button */}
             {user?.isLoggedIn ? (
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="text-gray-700 hover:text-[#dc2626] hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
-              >
-                <Link href="/dashboard">
-                  <User className="w-4 h-4 mr-2" />
-                  Profile
-                </Link>
-              </Button>
+              <div className="flex items-center space-x-2">
+                {user?.isAdmin && (
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800"
+                  >
+                    <Link href="/admin">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin
+                    </Link>
+                  </Button>
+                )}
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-700 hover:text-[#dc2626] hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                >
+                  <Link href="/dashboard">
+                    <User className="w-4 h-4 mr-2" />
+                    Profile
+                  </Link>
+                </Button>
+              </div>
             ) : (
               cta && (
                 <Button
@@ -331,16 +346,28 @@ export default function ResponsiveNavigation({
               </div>
             ))}
 
-            {/* Mobile Profile or CTA Button */}
+            {/* Mobile Admin and Profile or CTA Button */}
             {user?.isLoggedIn ? (
-              <Link
-                href="/dashboard"
-                className="flex items-center px-3 py-3 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <User className="w-5 h-5 mr-3" />
-                Profile
-              </Link>
+              <div className="space-y-2">
+                {user?.isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center px-3 py-3 rounded-md text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 focus:outline-none focus-visible:outline-none"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Shield className="w-5 h-5 mr-3" />
+                    Admin Panel
+                  </Link>
+                )}
+                <Link
+                  href="/dashboard"
+                  className="flex items-center px-3 py-3 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="w-5 h-5 mr-3" />
+                  Profile
+                </Link>
+              </div>
             ) : (
               cta && (
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">

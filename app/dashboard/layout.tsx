@@ -18,6 +18,7 @@ import {
   Bell,
   Settings,
   Home,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -65,6 +66,9 @@ export default function DashboardLayout({
 
   const topNavItems = [
     { href: "/", label: "Main Site", icon: Home },
+    ...(user?.isAdmin
+      ? [{ href: "/admin", label: "Admin Panel", icon: Shield }]
+      : []),
     { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];

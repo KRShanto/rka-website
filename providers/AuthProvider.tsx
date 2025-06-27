@@ -105,10 +105,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Protect dashboard routes
+    // Protect dashboard and admin routes
     if (!loading) {
       if (pathname?.startsWith("/dashboard") && !user?.isLoggedIn) {
         router.push("/login");
+      }
+      if (
+        pathname?.startsWith("/admin") &&
+        (!user?.isLoggedIn || !user?.isAdmin)
+      ) {
+        router.push("/");
       }
     }
   }, [pathname, user, loading, router]);

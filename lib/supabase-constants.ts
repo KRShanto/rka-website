@@ -1,6 +1,7 @@
 // Supabase table names and configuration
 export const PROFILES_TABLE = "profiles";
 export const GALLERY_TABLE = "gallery";
+export const BRANCHES_TABLE = "branches";
 
 // Storage bucket names
 export const PROFILE_IMAGES_BUCKET = "profile-images";
