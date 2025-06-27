@@ -484,7 +484,7 @@ export default function UserManagement() {
                               )}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {user.gender === "male" ? "M" : "F"} •{" "}
+                              {user.gender === "male" ? "Male" : "Female"} •{" "}
                               {user.weight}kg
                             </div>
                           </div>

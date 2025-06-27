@@ -2,6 +2,7 @@
 export const PROFILES_TABLE = "profiles";
 export const GALLERY_TABLE = "gallery";
 export const BRANCHES_TABLE = "branches";
+export const NOTICES_TABLE = "notices";
 
 // Storage bucket names
 export const PROFILE_IMAGES_BUCKET = "profile-images";
