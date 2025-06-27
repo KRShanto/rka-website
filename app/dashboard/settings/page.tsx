@@ -29,6 +29,7 @@ import {
   PROFILE_IMAGES_BUCKET,
   getUserIdFromEmail,
 } from "@/lib/supabase-constants";
+import ImageCropper from "@/components/ImageCropper";
 
 export type UserProfile = {
   id?: number;
@@ -57,6 +58,8 @@ export default function SettingsPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
 
   // User profile data
   const [profile, setProfile] = useState<UserProfile>({
@@ -184,14 +187,41 @@ export default function SettingsPage() {
       return;
     }
 
-    setImageFile(file);
+    // Create a preview URL for cropping
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImageToCrop(reader.result as string);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
 
-    // Create a preview URL
+  // Handle cropped image result
+  const handleCropComplete = (croppedFile: File) => {
+    setImageFile(croppedFile);
+
+    // Create preview URL for the cropped image
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result as string);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(croppedFile);
+
+    setCropperOpen(false);
+    setImageToCrop(null);
+  };
+
+  // Handle cropper close
+  const handleCropperClose = () => {
+    setCropperOpen(false);
+    setImageToCrop(null);
+    // Reset file input
+    const fileInput = document.getElementById(
+      "profileImage"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
 
   // Upload profile image to Supabase storage
@@ -823,6 +853,17 @@ export default function SettingsPage() {
           </Card>
         </div>
       </div>
+
+      {/* Image Cropper Modal */}
+      {imageToCrop && (
+        <ImageCropper
+          image={imageToCrop}
+          open={cropperOpen}
+          onClose={handleCropperClose}
+          onCropComplete={handleCropComplete}
+          aspectRatio={1} // 1:1 for square
+        />
+      )}
     </div>
   );
 }
