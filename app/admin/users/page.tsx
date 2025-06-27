@@ -75,7 +75,7 @@ interface User {
   current_dan: number;
   weight: number;
   gender: string;
-  branch: number;
+  branch: number | null;
   auth_id: string;
   role: "student" | "trainer";
   is_admin: boolean;
@@ -116,13 +116,13 @@ export default function UserManagement() {
     current_dan: 1,
     weight: 0,
     gender: "male",
-    branch: 0, // Will be set to first available branch
+    branch: null, // No branch assigned by default
     role: "student" as "student" | "trainer",
     is_admin: false,
     password: "",
   };
 
-  const [newUser, setNewUser] = useState(initialNewUser);
+  const [newUser, setNewUser] = useState<typeof initialNewUser>(initialNewUser);
 
   // Fetch branches from Supabase
   const fetchBranches = async () => {
@@ -135,11 +135,6 @@ export default function UserManagement() {
       if (error) throw error;
 
       setBranches(data || []);
-
-      // Set default branch for new user if branches exist
-      if (data && data.length > 0 && newUser.branch === 0) {
-        setNewUser((prev) => ({ ...prev, branch: data[0].id }));
-      }
     } catch (error) {
       console.error("Error fetching branches:", error);
       toast.error("Failed to load branches");
@@ -341,7 +336,8 @@ export default function UserManagement() {
   };
 
   // Get branch name by ID
-  const getBranchName = (branchId: number) => {
+  const getBranchName = (branchId: number | null) => {
+    if (branchId === null) return "No Branch";
     const branch = branches.find((b) => b.id === branchId);
     return branch ? branch.name : "Unknown Branch";
   };
@@ -619,15 +615,19 @@ export default function UserManagement() {
                 <div>
                   <Label htmlFor="edit-branch">Branch</Label>
                   <Select
-                    value={selectedUser.branch.toString()}
+                    value={selectedUser.branch?.toString() || "none"}
                     onValueChange={(value) =>
-                      handleEditInputChange("branch", parseInt(value))
+                      handleEditInputChange(
+                        "branch",
+                        value === "none" ? null : parseInt(value)
+                      )
                     }
                   >
                     <SelectTrigger id="edit-branch">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">No Branch</SelectItem>
                       {branches.map((branch) => (
                         <SelectItem
                           key={branch.id}
@@ -830,15 +830,21 @@ export default function UserManagement() {
               <div>
                 <Label htmlFor="create-branch">Branch</Label>
                 <Select
-                  value={newUser.branch.toString()}
+                  value={
+                    (newUser.branch as number | null)?.toString() || "none"
+                  }
                   onValueChange={(value) =>
-                    handleCreateInputChange("branch", parseInt(value))
+                    handleCreateInputChange(
+                      "branch",
+                      value === "none" ? null : parseInt(value)
+                    )
                   }
                 >
                   <SelectTrigger id="create-branch">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">No Branch</SelectItem>
                     {branches.map((branch) => (
                       <SelectItem key={branch.id} value={branch.id.toString()}>
                         {branch.name}
