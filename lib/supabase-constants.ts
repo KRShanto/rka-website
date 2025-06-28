@@ -8,6 +8,7 @@ export const ACHIEVEMENTS_TABLE = "achievements";
 // Storage bucket names
 export const PROFILE_IMAGES_BUCKET = "profile-images";
 export const ACHIEVEMENT_IMAGES_BUCKET = "achievements";
+export const GALLERY_IMAGES_BUCKET = "gallery";
 
 // Helper function to get user ID from email (maintaining compatibility)
 export const getUserIdFromEmail = (email: string): string => {
