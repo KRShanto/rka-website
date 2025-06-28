@@ -1,12 +1,13 @@
-import type React from "react"
-import ClientLayout from "./ClientLayout"
+import type React from "react";
+import ClientLayout from "./ClientLayout";
+import { Analytics } from "@vercel/analytics/next";
 
 export const viewport = {
   width: "device-width",
   initialScale: 1.0,
   maximumScale: 5.0,
   userScalable: true,
-}
+};
 
 export const metadata = {
   title: "Bangladesh Wadokai Karate Do",
@@ -14,23 +15,22 @@ export const metadata = {
   icons: {
     icon: "/bwkd-logo.png",
   },
-    generator: 'v0.dev'
-}
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
       <body>
         <ClientLayout>{children}</ClientLayout>
+        <Analytics />
       </body>
     </html>
-  )
+  );
 }
 
-
-
-import './globals.css'
+import "./globals.css";
