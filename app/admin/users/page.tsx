@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAdmin } from "@/lib/supabase";
 import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
 import {
   Card,
@@ -265,11 +265,13 @@ export default function UserManagement() {
         ? newUser.email
         : `${newUser.email}@bwkd.app`;
 
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: authEmail,
-        password: newUser.password,
-      });
+      // Create auth user using admin API to avoid logging in as the new user
+      const { data: authData, error: authError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: authEmail,
+          password: newUser.password,
+          email_confirm: true,
+        });
 
       if (authError) throw authError;
 
