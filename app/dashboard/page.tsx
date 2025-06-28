@@ -28,7 +28,8 @@ type UserProfile = {
   current_belt: string;
   weight: number;
   gender: string;
-  branch?: string;
+  branch?: number | null;
+  branch_name?: string;
   join_date?: string;
   auth_id: string;
   role?: "student" | "trainer";
@@ -84,6 +85,24 @@ export default function IDPage() {
         }
 
         if (profileData) {
+          // Fetch branch name if branch ID exists
+          let branchName = "No Branch Assigned";
+          if (profileData.branch) {
+            try {
+              const { data: branchData, error: branchError } = await supabase
+                .from("branches")
+                .select("name")
+                .eq("id", profileData.branch)
+                .single();
+
+              if (!branchError && branchData) {
+                branchName = branchData.name;
+              }
+            } catch (error) {
+              console.error("Error fetching branch name:", error);
+            }
+          }
+
           // Set the profile data
           setProfile({
             id: profileData.id,
@@ -96,7 +115,8 @@ export default function IDPage() {
             current_belt: profileData.current_belt || "white",
             weight: profileData.weight || 0,
             gender: profileData.gender || "male",
-            branch: profileData.branch || "Main Branch",
+            branch: profileData.branch || null,
+            branch_name: branchName,
             join_date:
               profileData.join_date || new Date().toISOString().split("T")[0],
             auth_id: authUser.id,
@@ -116,7 +136,8 @@ export default function IDPage() {
             current_belt: "white",
             weight: 0,
             gender: "male",
-            branch: "Main Branch",
+            branch: null,
+            branch_name: "No Branch Assigned",
             join_date: new Date().toISOString().split("T")[0],
             auth_id: authUser.id,
             role: "student" as const,
@@ -231,7 +252,7 @@ export default function IDPage() {
                   <div className="flex justify-between">
                     <span className="font-medium text-sm">Branch:</span>
                     <span className="text-sm">
-                      {profile?.branch || "Main Branch"}
+                      {profile?.branch_name || "No Branch Assigned"}
                     </span>
                   </div>
                   <div className="flex justify-between">
