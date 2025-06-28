@@ -29,12 +29,14 @@ export default function Login() {
     }
 
     // Sanitize username to ensure it only contains valid characters
-    // Only allow alphanumeric characters for simplicity and to avoid userId errors
-    const sanitizedUsername = username.trim().replace(/[^a-zA-Z0-9]/g, "");
+    // Allow alphanumeric characters, underscores, and hyphens
+    const sanitizedUsername = username.trim().replace(/[^a-zA-Z0-9_-]/g, "");
 
     // Make sure we have a username after sanitization
     if (!sanitizedUsername) {
-      setLocalError("Username must contain at least one letter or number");
+      setLocalError(
+        "Username must contain at least one valid character (letters, numbers, underscore, or hyphen)"
+      );
       return;
     }
 
