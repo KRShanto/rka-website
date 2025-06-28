@@ -21,6 +21,7 @@ import {
   Bell,
   Trophy,
   Images,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,7 @@ export default function AdminLayout({
     { href: "/admin/notices", label: "Notice Management", icon: Bell },
     { href: "/admin/achievements", label: "Achievements", icon: Trophy },
     { href: "/admin/gallery", label: "Gallery Management", icon: Images },
+    { href: "/admin/payments", label: "Payment Management", icon: CreditCard },
     { href: "/admin/content", label: "Content Management", icon: FileText },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/admin/system", label: "System Settings", icon: Settings },

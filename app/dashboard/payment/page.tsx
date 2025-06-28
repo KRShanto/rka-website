@@ -1,8 +1,9 @@
 "use client";
 
-import type React from "react";
-
 import { useState } from "react";
+import { useAuth } from "@/providers/AuthProvider";
+import { supabase } from "@/lib/supabase";
+import { PAYMENTS_TABLE, PROFILES_TABLE } from "@/lib/supabase-constants";
 import {
   Card,
   CardContent,
@@ -20,220 +21,270 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CreditCard, Wallet } from "lucide-react";
+
+import { Phone, CreditCard } from "lucide-react";
+import { toast } from "sonner";
+import Image from "next/image";
 
 export default function PaymentPage() {
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [paymentType, setPaymentType] = useState("");
+  const [amount, setAmount] = useState("");
+  const [studentId, setStudentId] = useState(user?.email?.split("@")[0] || "");
+  const [transactionId, setTransactionId] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!paymentType || !amount || !studentId || !transactionId) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      alert("Payment processed successfully!");
+    try {
+      // Get current user session
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        throw new Error("You must be logged in to submit a payment");
+      }
+
+      // Get user profile ID
+      const { data: profile, error: profileError } = await supabase
+        .from(PROFILES_TABLE)
+        .select("id")
+        .eq("auth_id", session.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error("Could not find your profile. Please contact support.");
+      }
+
+      // Insert payment record
+      const { data, error } = await supabase
+        .from(PAYMENTS_TABLE)
+        .insert({
+          user_id: profile.id,
+          type: paymentType,
+          amount: parseFloat(amount),
+          student_id: studentId,
+          bkash_transaction_id: transactionId,
+          status: "pending",
+        })
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success(
+        "Payment information submitted successfully! We'll verify your transaction within 24 hours."
+      );
+
+      // Reset form
+      setPaymentType("");
+      setAmount("");
+      setTransactionId("");
+    } catch (error: any) {
+      console.error("Payment submission error:", error);
+      toast.error(
+        error.message || "Failed to submit payment. Please try again."
+      );
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Make a Payment</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Details</CardTitle>
-              <CardDescription>Enter your payment information</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="payment-type">Payment Type</Label>
-                    <Select defaultValue="monthly">
-                      <SelectTrigger id="payment-type">
-                        <SelectValue placeholder="Select payment type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="monthly">Monthly Fee</SelectItem>
-                        <SelectItem value="registration">
-                          Registration Fee
-                        </SelectItem>
-                        <SelectItem value="exam">Exam Fee</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="amount">Amount (BDT)</Label>
-                    <Input id="amount" type="number" defaultValue="1500" />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="student-id">Student ID</Label>
-                    <Input
-                      id="student-id"
-                      placeholder="Enter student ID"
-                      defaultValue="BWKD-2023-001"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Payment Method</Label>
-                    <RadioGroup
-                      defaultValue="card"
-                      className="grid grid-cols-2 gap-4 mt-2"
-                      onValueChange={setPaymentMethod}
-                    >
-                      <div
-                        className={`flex items-center space-x-2 border rounded-lg p-4 cursor-pointer ${
-                          paymentMethod === "card"
-                            ? "border-primary bg-primary/5"
-                            : "border-gray-200"
-                        }`}
-                      >
-                        <RadioGroupItem value="card" id="card" />
-                        <Label
-                          htmlFor="card"
-                          className="flex items-center cursor-pointer"
-                        >
-                          <CreditCard className="w-5 h-5 mr-2" />
-                          Credit/Debit Card
-                        </Label>
-                      </div>
-                      <div
-                        className={`flex items-center space-x-2 border rounded-lg p-4 cursor-pointer ${
-                          paymentMethod === "mobile"
-                            ? "border-primary bg-primary/5"
-                            : "border-gray-200"
-                        }`}
-                      >
-                        <RadioGroupItem value="mobile" id="mobile" />
-                        <Label
-                          htmlFor="mobile"
-                          className="flex items-center cursor-pointer"
-                        >
-                          <Wallet className="w-5 h-5 mr-2" />
-                          Mobile Banking
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  {paymentMethod === "card" && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="card-number">Card Number</Label>
-                        <Input
-                          id="card-number"
-                          placeholder="1234 5678 9012 3456"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="expiry">Expiry Date</Label>
-                          <Input id="expiry" placeholder="MM/YY" />
-                        </div>
-                        <div>
-                          <Label htmlFor="cvc">CVC</Label>
-                          <Input id="cvc" placeholder="123" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {paymentMethod === "mobile" && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="mobile-number">Mobile Number</Label>
-                        <Input id="mobile-number" placeholder="01XXXXXXXXX" />
-                      </div>
-                      <div>
-                        <Label htmlFor="provider">Payment Provider</Label>
-                        <Select defaultValue="bkash">
-                          <SelectTrigger id="provider">
-                            <SelectValue placeholder="Select provider" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="bkash">bKash</SelectItem>
-                            <SelectItem value="nagad">Nagad</SelectItem>
-                            <SelectItem value="rocket">Rocket</SelectItem>
-                            <SelectItem value="upay">Upay</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <Label htmlFor="notes">Payment Notes (Optional)</Label>
-                    <Input
-                      id="notes"
-                      placeholder="Add any additional information"
-                    />
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Processing..." : "Make Payment"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Summary</CardTitle>
-              <CardDescription>Review your payment details</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Type:</span>
-                  <span className="font-medium">Monthly Fee</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Amount:</span>
-                  <span className="font-medium">1,500 BDT</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Student ID:</span>
-                  <span className="font-medium">BWKD-2023-001</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Method:</span>
-                  <span className="font-medium">
-                    {paymentMethod === "card"
-                      ? "Credit/Debit Card"
-                      : "Mobile Banking"}
-                  </span>
-                </div>
-
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                  <div className="flex justify-between font-bold">
-                    <span>Total:</span>
-                    <span>1,500 BDT</span>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mt-4">
-                  <h4 className="font-medium mb-2">Payment Policy</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    All payments are non-refundable. Monthly fees must be paid
-                    by the 10th of each month to avoid late fees.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          Make Payment
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Complete your payment using bKash mobile banking
+        </p>
       </div>
+
+      {/* bKash Logo and Instructions */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center space-y-6">
+            {/* bKash Logo */}
+            <div className="flex justify-center">
+              <div className="relative w-32 h-32">
+                <Image
+                  src="/bkash.png"
+                  alt="bKash Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+
+            {/* Payment Instructions */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center space-x-2 text-lg font-semibold text-gray-900 dark:text-white">
+                <Phone className="w-5 h-5 text-pink-600" />
+                <span>Send Money to this number:</span>
+              </div>
+
+              <div className="text-2xl font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/20 py-3 px-6 rounded-lg inline-block">
+                01301393129
+              </div>
+
+              <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                After sending money, copy and paste the transaction ID below
+                along with your payment details.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payment Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <CreditCard className="w-5 h-5" />
+            <span>Payment Details</span>
+          </CardTitle>
+          <CardDescription>
+            Fill in your payment information and transaction ID
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Payment Type */}
+            <div className="space-y-2">
+              <Label htmlFor="payment-type">Payment Type *</Label>
+              <Select value={paymentType} onValueChange={setPaymentType}>
+                <SelectTrigger id="payment-type">
+                  <SelectValue placeholder="Select payment type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Monthly fee</SelectItem>
+                  <SelectItem value="exam">Exam fee</SelectItem>
+                  <SelectItem value="registration">Registration Fee</SelectItem>
+                  <SelectItem value="event">Event/competition fee</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Amount */}
+            <div className="space-y-2">
+              <Label htmlFor="amount">Amount (BDT) *</Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="Enter amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                min="1"
+                step="1"
+                required
+              />
+            </div>
+
+            {/* Student ID */}
+            <div className="space-y-2">
+              <Label htmlFor="student-id">Student ID *</Label>
+              <Input
+                id="student-id"
+                type="text"
+                placeholder="Enter student ID"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+                required
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Your username (automatically filled from your account)
+              </p>
+            </div>
+
+            {/* Transaction ID */}
+            <div className="space-y-2">
+              <Label htmlFor="transaction-id">bKash Transaction ID *</Label>
+              <Input
+                id="transaction-id"
+                placeholder="Enter the transaction ID from bKash"
+                value={transactionId}
+                onChange={(e) => setTransactionId(e.target.value)}
+                required
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                You'll receive this ID after completing the bKash transaction
+              </p>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit Payment"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Payment Instructions Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Payment Instructions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-start space-x-2">
+              <span className="font-semibold text-pink-600 min-w-[20px]">
+                1.
+              </span>
+              <span>Open your bKash app and select "Send Money"</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <span className="font-semibold text-pink-600 min-w-[20px]">
+                2.
+              </span>
+              <span>
+                Enter the number: <strong>01301393129</strong>
+              </span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <span className="font-semibold text-pink-600 min-w-[20px]">
+                3.
+              </span>
+              <span>Enter the payment amount</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <span className="font-semibold text-pink-600 min-w-[20px]">
+                4.
+              </span>
+              <span>Complete the transaction with your bKash PIN</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <span className="font-semibold text-pink-600 min-w-[20px]">
+                5.
+              </span>
+              <span>Copy the transaction ID from the confirmation message</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <span className="font-semibold text-pink-600 min-w-[20px]">
+                6.
+              </span>
+              <span>
+                Fill out this form with your payment details and transaction ID
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
