@@ -159,7 +159,7 @@ export default function SettingsPage() {
             dan_exam_dates: profileData.dan_exam_dates || [],
             weight: profileData.weight || 0,
             gender: profileData.gender || "male",
-            branch: profileData.branch || "Main Branch",
+            branch: profileData.branch || null,
             auth_id: authUser.id,
             role: profileData.role || "student",
             is_admin: profileData.is_admin || false,
@@ -781,6 +781,7 @@ export default function SettingsPage() {
                       />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="">No Branch</SelectItem>
                       {branches.map((branch) => (
                         <SelectItem
                           key={branch.id}
