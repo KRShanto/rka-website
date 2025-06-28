@@ -8,10 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Settings,
   Users,
-  FileText,
-  BarChart3,
   Shield,
   Home,
   LogOut,
@@ -43,9 +40,6 @@ export default function AdminLayout({
     { href: "/admin/achievements", label: "Achievements", icon: Trophy },
     { href: "/admin/gallery", label: "Gallery Management", icon: Images },
     { href: "/admin/payments", label: "Payment Management", icon: CreditCard },
-    { href: "/admin/content", label: "Content Management", icon: FileText },
-    { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-    { href: "/admin/system", label: "System Settings", icon: Settings },
   ];
 
   // Redirect non-admin users
@@ -120,7 +114,7 @@ export default function AdminLayout({
       {/* Admin Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-200 ease-in-out md:translate-x-0 pt-16",
+          "fixed inset-y-0 left-0 z-40 w-72 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-200 ease-in-out md:translate-x-0 pt-16",
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
@@ -186,7 +180,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="md:ml-64 pt-16 min-h-screen">
+      <main className="md:ml-72 pt-16 min-h-screen">
         <div className="p-6">{children}</div>
       </main>
 
