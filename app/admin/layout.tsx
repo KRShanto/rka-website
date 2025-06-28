@@ -19,6 +19,7 @@ import {
   X,
   MapPin,
   Bell,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +38,7 @@ export default function AdminLayout({
     { href: "/admin/users", label: "User Management", icon: Users },
     { href: "/admin/branches", label: "Branch Management", icon: MapPin },
     { href: "/admin/notices", label: "Notice Management", icon: Bell },
+    { href: "/admin/achievements", label: "Achievements", icon: Trophy },
     { href: "/admin/content", label: "Content Management", icon: FileText },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/admin/system", label: "System Settings", icon: Settings },
