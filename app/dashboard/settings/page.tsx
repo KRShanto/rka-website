@@ -44,11 +44,17 @@ export type UserProfile = {
   dan_exam_dates: string[];
   weight: number;
   gender: string;
-  branch: string;
+  branch: number | null;
   auth_id: string;
   role: "student" | "trainer";
   is_admin: boolean;
 };
+
+interface Branch {
+  id: number;
+  name: string;
+  created_at: string;
+}
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -60,6 +66,8 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [cropperOpen, setCropperOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [branchesLoading, setBranchesLoading] = useState(true);
 
   // User profile data
   const [profile, setProfile] = useState<UserProfile>({
@@ -74,7 +82,7 @@ export default function SettingsPage() {
     dan_exam_dates: [],
     weight: 0,
     gender: "male",
-    branch: "Main Branch",
+    branch: null,
     auth_id: "",
     role: "student",
     is_admin: false,
@@ -84,6 +92,29 @@ export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Load branches from Supabase
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        setBranchesLoading(true);
+        const { data, error } = await supabase
+          .from("branches")
+          .select("*")
+          .order("name", { ascending: true });
+
+        if (error) throw error;
+        setBranches(data || []);
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+        toast.error("Failed to load branches");
+      } finally {
+        setBranchesLoading(false);
+      }
+    };
+
+    fetchBranches();
+  }, []);
 
   // Load user profile data from Supabase
   useEffect(() => {
@@ -153,7 +184,7 @@ export default function SettingsPage() {
             dan_exam_dates: [],
             weight: 0,
             gender: "male",
-            branch: "Main Branch",
+            branch: null,
             auth_id: authUser.id,
             role: "student",
             is_admin: false,
@@ -426,7 +457,20 @@ export default function SettingsPage() {
   // Handle select input changes for profile fields
   const handleSelectChange = (name: string, value: string) => {
     setProfile((prev) => {
-      const updated = { ...prev, [name]: value };
+      let updated = { ...prev };
+
+      // Handle specific field types
+      if (name === "branch") {
+        updated.branch = value ? parseInt(value) : null;
+      } else if (name === "current_dan") {
+        updated.current_dan = parseInt(value);
+      } else if (name === "current_belt") {
+        updated.current_belt = value;
+      } else if (name === "gender") {
+        updated.gender = value;
+      } else if (name === "role") {
+        updated.role = value as "student" | "trainer";
+      }
 
       // If changing current belt, reset dan-related fields
       if (name === "current_belt" && value !== "black-belt") {
@@ -719,38 +763,35 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="role">Role</Label>
+                  <Label htmlFor="branch">Branch</Label>
                   <Select
-                    value={profile.role}
-                    onValueChange={(value) => handleSelectChange("role", value)}
+                    value={profile.branch?.toString() || ""}
+                    onValueChange={(value) =>
+                      handleSelectChange("branch", value)
+                    }
+                    disabled={branchesLoading}
                   >
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Select your role" />
+                    <SelectTrigger id="branch">
+                      <SelectValue
+                        placeholder={
+                          branchesLoading
+                            ? "Loading branches..."
+                            : "Select your branch"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="trainer">Trainer</SelectItem>
+                      {branches.map((branch) => (
+                        <SelectItem
+                          key={branch.id}
+                          value={branch.id.toString()}
+                        >
+                          {branch.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
-
-                {profile.role === "trainer" && (
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="is_admin"
-                      checked={profile.is_admin}
-                      onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          is_admin: e.target.checked,
-                        }))
-                      }
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="is_admin">Administrator privileges</Label>
-                  </div>
-                )}
 
                 {/* Mobile Save Button for Karate Information */}
                 <div className="lg:hidden pt-4 border-t border-gray-200 dark:border-gray-700">
