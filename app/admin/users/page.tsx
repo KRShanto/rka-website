@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { supabase } from "@/lib/supabase";
 import { createUser, type CreateUserData } from "@/actions/create-user";
+import { deleteUser } from "@/actions/delete-user";
 import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
 import {
   Card,
@@ -228,20 +229,20 @@ export default function UserManagement() {
     try {
       setDeleteLoading(true);
 
-      // Delete from profiles table
-      const { error: profileError } = await supabase
-        .from(PROFILES_TABLE)
-        .delete()
-        .eq("id", selectedUser.id);
+      // Call server action to delete user from both Auth and profiles
+      const result = await deleteUser(selectedUser.id, selectedUser.auth_id);
 
-      if (profileError) throw profileError;
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
 
       // Remove from local state
       setUsers(users.filter((u) => u.id !== selectedUser.id));
       setDeleteDialogOpen(false);
       setSelectedUser(null);
 
-      toast.success("User deleted successfully");
+      toast.success("User deleted successfully from both Auth and profile");
     } catch (error) {
       console.error("Error deleting user:", error);
       toast.error("Failed to delete user");
