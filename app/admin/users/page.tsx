@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/providers/AuthProvider";
-import { supabase, supabaseAdmin } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
+import { createUser, type CreateUserData } from "@/actions/create-user";
 import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
 import {
   Card,
@@ -254,35 +255,11 @@ export default function UserManagement() {
     try {
       setCreateLoading(true);
 
-      // Validate required fields
-      if (!newUser.name || !newUser.email || !newUser.password) {
-        toast.error("Please fill in all required fields");
-        return;
-      }
-
-      // Format email for auth
-      const authEmail = newUser.email.includes("@")
-        ? newUser.email
-        : `${newUser.email}@bwkd.app`;
-
-      // Create auth user using admin API to avoid logging in as the new user
-      const { data: authData, error: authError } =
-        await supabaseAdmin.auth.admin.createUser({
-          email: authEmail,
-          password: newUser.password,
-          email_confirm: true,
-        });
-
-      if (authError) throw authError;
-
-      if (!authData.user) {
-        throw new Error("Failed to create user account");
-      }
-
-      // Create profile
-      const profileData = {
+      // Prepare user data for server action
+      const userData: CreateUserData = {
         name: newUser.name,
-        email: authEmail,
+        email: newUser.email,
+        password: newUser.password,
         phone: newUser.phone,
         mother_name: newUser.mother_name,
         father_name: newUser.father_name,
@@ -292,26 +269,20 @@ export default function UserManagement() {
         weight: newUser.weight,
         gender: newUser.gender,
         branch: newUser.branch,
-        auth_id: authData.user.id,
         role: newUser.role,
         is_admin: newUser.is_admin,
       };
 
-      const { data: profileResponse, error: profileError } = await supabase
-        .from(PROFILES_TABLE)
-        .insert([profileData])
-        .select()
-        .single();
+      // Call server action to create user
+      const result = await createUser(userData);
 
-      if (profileError) throw profileError;
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
 
       // Add to local state
-      const newUserRecord: User = {
-        ...profileResponse,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
+      const newUserRecord: User = result.user;
       setUsers([newUserRecord, ...users]);
       setCreateDialogOpen(false);
       setNewUser(initialNewUser);
