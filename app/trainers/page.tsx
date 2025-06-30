@@ -74,9 +74,9 @@ export default function Trainers() {
 
   // Get branch name by ID
   const getBranchName = (branchId: number | null) => {
-    if (branchId === null) return "Main Dojo";
+    if (branchId === null) return null;
     const branch = branches.find((b) => b.id === branchId);
-    return branch ? branch.name : "Main Dojo";
+    return branch ? branch.name : null;
   };
 
   // Format belt rank for display
@@ -159,23 +159,11 @@ export default function Trainers() {
                         trainer.current_dan
                       )}
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                      {getBranchName(trainer.branch)}
-                    </p>
-                    <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
-                      {trainer.email && (
-                        <p>
-                          <span className="font-medium">Email:</span>{" "}
-                          {trainer.email}
-                        </p>
-                      )}
-                      {trainer.phone && (
-                        <p>
-                          <span className="font-medium">Phone:</span>{" "}
-                          {trainer.phone}
-                        </p>
-                      )}
-                    </div>
+                    {getBranchName(trainer.branch) && (
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                        {getBranchName(trainer.branch)}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               ))}
