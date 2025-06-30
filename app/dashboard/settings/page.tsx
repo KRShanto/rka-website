@@ -564,9 +564,24 @@ export default function SettingsPage() {
                   />
                 </div>
 
+                {/* Auth Username (read-only) */}
+                <div>
+                  <Label htmlFor="authUsername">Login Username</Label>
+                  <Input
+                    id="authUsername"
+                    type="text"
+                    value={user?.email?.split("@")[0] || ""}
+                    disabled
+                    className="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This is your login username (cannot be changed)
+                  </p>
+                </div>
+
                 {/* Email and phone */}
                 <div>
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">Display Email Address</Label>
                   <Input
                     id="email"
                     type="email"
@@ -574,6 +589,9 @@ export default function SettingsPage() {
                     value={profile.email}
                     onChange={handleInputChange}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This email is shown in your public profile
+                  </p>
                 </div>
 
                 <div>
@@ -818,6 +836,21 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                {/* Auth Email Information */}
+                <div>
+                  <Label htmlFor="authEmail">Authentication Email</Label>
+                  <Input
+                    id="authEmail"
+                    type="email"
+                    value={user?.email || ""}
+                    disabled
+                    className="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This is your full authentication email used for login
+                  </p>
+                </div>
+
                 <div>
                   <Label htmlFor="currentPassword">Current Password</Label>
                   <Input
