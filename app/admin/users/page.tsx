@@ -61,6 +61,8 @@ import {
   MoreHorizontal,
   Shield,
   Eye,
+  Upload,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -105,6 +107,8 @@ export default function UserManagement() {
   const [editLoading, setEditLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Initial state for new user
   const initialNewUser = {
@@ -168,6 +172,89 @@ export default function UserManagement() {
     fetchBranches();
   }, []);
 
+  // Handle image upload
+  const uploadImage = async (file: File): Promise<string> => {
+    try {
+      setImageUploading(true);
+
+      // Generate unique filename
+      const timestamp = new Date().getTime();
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${timestamp}-${Math.random()
+        .toString(36)
+        .substring(2)}.${fileExt}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from("profile-images")
+        .upload(fileName, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("profile-images").getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  // Handle image file selection
+  const handleImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    isEdit: boolean = false
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    try {
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Upload image
+      const imageUrl = await uploadImage(file);
+
+      if (isEdit && selectedUser) {
+        handleEditInputChange("profile_image_url", imageUrl);
+      } else {
+        handleCreateInputChange("profile_image_url", imageUrl);
+      }
+
+      toast.success("Image uploaded successfully");
+    } catch (error) {
+      console.error("Error handling image:", error);
+      toast.error("Failed to upload image");
+      setImagePreview(null);
+    }
+  };
+
   // Filter users based on search and role filter
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -197,6 +284,7 @@ export default function UserManagement() {
           weight: selectedUser.weight,
           gender: selectedUser.gender,
           branch: selectedUser.branch,
+          profile_image_url: selectedUser.profile_image_url,
         })
         .eq("id", selectedUser.id);
 
@@ -287,6 +375,7 @@ export default function UserManagement() {
       setUsers([newUserRecord, ...users]);
       setCreateDialogOpen(false);
       setNewUser(initialNewUser);
+      setImagePreview(null);
 
       toast.success("User created successfully");
     } catch (error: any) {
@@ -354,7 +443,12 @@ export default function UserManagement() {
           <Badge variant="outline" className="text-sm">
             {filteredUsers.length} users
           </Badge>
-          <Button onClick={() => setCreateDialogOpen(true)}>
+          <Button
+            onClick={() => {
+              setCreateDialogOpen(true);
+              setImagePreview(null);
+            }}
+          >
             <UserPlus className="w-4 h-4 mr-2" />
             Create User
           </Button>
@@ -504,6 +598,7 @@ export default function UserManagement() {
                             onClick={() => {
                               setSelectedUser(user);
                               setEditDialogOpen(true);
+                              setImagePreview(null);
                             }}
                           >
                             <Edit className="w-4 h-4" />
@@ -541,7 +636,13 @@ export default function UserManagement() {
       </Card>
 
       {/* Edit User Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+      <Dialog
+        open={editDialogOpen}
+        onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) setImagePreview(null);
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
@@ -552,6 +653,72 @@ export default function UserManagement() {
 
           {selectedUser && (
             <div className="space-y-4 max-h-96 overflow-y-auto px-2 py-2">
+              {/* Profile Image Upload */}
+              <div className="space-y-2">
+                <Label>Profile Image</Label>
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    <Avatar className="h-20 w-20">
+                      {imagePreview || selectedUser.profile_image_url ? (
+                        <AvatarImage
+                          src={imagePreview || selectedUser.profile_image_url}
+                          alt={selectedUser.name}
+                        />
+                      ) : (
+                        <AvatarFallback>
+                          {selectedUser.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    {imageUploading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                        <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          document.getElementById("edit-image-upload")?.click()
+                        }
+                        disabled={imageUploading}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        {imageUploading ? "Uploading..." : "Upload Image"}
+                      </Button>
+                      {(imagePreview || selectedUser.profile_image_url) && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setImagePreview(null);
+                            handleEditInputChange("profile_image_url", "");
+                          }}
+                          disabled={imageUploading}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <input
+                      id="edit-image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageChange(e, true)}
+                      className="hidden"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      JPG, PNG or WebP. Max size 5MB.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-name">Name</Label>
@@ -701,7 +868,10 @@ export default function UserManagement() {
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setEditDialogOpen(false)}
+              onClick={() => {
+                setEditDialogOpen(false);
+                setImagePreview(null);
+              }}
               disabled={editLoading}
             >
               Cancel
@@ -714,7 +884,13 @@ export default function UserManagement() {
       </Dialog>
 
       {/* Create User Dialog */}
-      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+      <Dialog
+        open={createDialogOpen}
+        onOpenChange={(open) => {
+          setCreateDialogOpen(open);
+          if (!open) setImagePreview(null);
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Create New User</DialogTitle>
@@ -724,6 +900,72 @@ export default function UserManagement() {
           </DialogHeader>
 
           <div className="space-y-4 max-h-96 overflow-y-auto px-2 py-2">
+            {/* Profile Image Upload */}
+            <div className="space-y-2">
+              <Label>Profile Image</Label>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Avatar className="h-20 w-20">
+                    {imagePreview || newUser.profile_image_url ? (
+                      <AvatarImage
+                        src={imagePreview || newUser.profile_image_url}
+                        alt="Preview"
+                      />
+                    ) : (
+                      <AvatarFallback>
+                        <Upload className="w-8 h-8 text-gray-400" />
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  {imageUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                      <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        document.getElementById("create-image-upload")?.click()
+                      }
+                      disabled={imageUploading}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {imageUploading ? "Uploading..." : "Upload Image"}
+                    </Button>
+                    {(imagePreview || newUser.profile_image_url) && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setImagePreview(null);
+                          handleCreateInputChange("profile_image_url", "");
+                        }}
+                        disabled={imageUploading}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <input
+                    id="create-image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e, false)}
+                    className="hidden"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    JPG, PNG or WebP. Max size 5MB.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="create-name">
@@ -951,6 +1193,7 @@ export default function UserManagement() {
               onClick={() => {
                 setCreateDialogOpen(false);
                 setNewUser(initialNewUser);
+                setImagePreview(null);
               }}
               disabled={createLoading}
             >
