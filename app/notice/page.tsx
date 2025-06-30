@@ -3,12 +3,7 @@
 import { useState, useEffect } from "react";
 import { CalendarIcon, MapPinIcon, BellIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import {
-  NOTICES_TABLE,
-  BRANCHES_TABLE,
-  PROFILES_TABLE,
-} from "@/lib/supabase-constants";
-import { useAuth } from "@/providers/AuthProvider";
+import { NOTICES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
 import { toast } from "sonner";
 
 interface Notice {
@@ -26,33 +21,9 @@ interface Branch {
 }
 
 export default function Notice() {
-  const { user } = useAuth();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userBranch, setUserBranch] = useState<number | null>(null);
-
-  // Fetch user's branch if logged in
-  const fetchUserBranch = async () => {
-    if (!user?.isLoggedIn) return;
-
-    try {
-      const { data: authUser } = await supabase.auth.getUser();
-      if (!authUser.user) return;
-
-      const { data: profile } = await supabase
-        .from(PROFILES_TABLE)
-        .select("branch")
-        .eq("auth_id", authUser.user.id)
-        .single();
-
-      if (profile) {
-        setUserBranch(profile.branch);
-      }
-    } catch (error) {
-      console.error("Error fetching user branch:", error);
-    }
-  };
 
   // Fetch branches for name lookup
   const fetchBranches = async () => {
@@ -90,22 +61,10 @@ export default function Notice() {
   useEffect(() => {
     fetchNotices();
     fetchBranches();
-    fetchUserBranch();
-  }, [user]);
+  }, []);
 
-  // Filter notices based on user's branch
-  const filteredNotices = notices.filter((notice) => {
-    // Show global notices (no specific branch)
-    if (notice.branch === null) return true;
-
-    // If user is logged in and has a branch, show notices for their branch
-    if (user?.isLoggedIn && userBranch) {
-      return notice.branch === userBranch;
-    }
-
-    // If user is not logged in, only show global notices
-    return notice.branch === null;
-  });
+  // Show all notices regardless of user's branch or authentication status
+  const filteredNotices = notices;
 
   // Get branch name by ID
   const getBranchName = (branchId: number | null) => {
