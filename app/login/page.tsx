@@ -12,7 +12,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState("");
@@ -22,36 +22,47 @@ export default function Login() {
     e.preventDefault();
     setLocalError("");
 
-    // Validation for empty username
-    if (!username.trim()) {
-      setLocalError("Please enter your username");
+    // Validation for empty input
+    if (!usernameOrEmail.trim()) {
+      setLocalError("Please enter your username or email");
       return;
     }
 
-    // Sanitize username to ensure it only contains valid characters
-    // Allow alphanumeric characters, underscores, and hyphens
-    const sanitizedUsername = username.trim().replace(/[^a-zA-Z0-9_-]/g, "");
+    const trimmedInput = usernameOrEmail.trim();
 
-    // Make sure we have a username after sanitization
-    if (!sanitizedUsername) {
-      setLocalError(
-        "Username must contain at least one valid character (letters, numbers, underscore, or hyphen)"
-      );
+    // Basic validation
+    if (trimmedInput.length === 0) {
+      setLocalError("Please enter a valid username or email");
       return;
     }
 
-    // Check length - Appwrite has a 36 character limit
-    if (sanitizedUsername.length > 36) {
-      setLocalError("Username must be less than 36 characters");
-      return;
+    // If it contains @, validate as email format
+    if (trimmedInput.includes("@")) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedInput)) {
+        setLocalError("Please enter a valid email address");
+        return;
+      }
+    } else {
+      // If no @, validate as username (alphanumeric, underscore, hyphen, dots)
+      const usernameRegex = /^[a-zA-Z0-9._-]+$/;
+      if (!usernameRegex.test(trimmedInput)) {
+        setLocalError(
+          "Username can only contain letters, numbers, dots, underscores, and hyphens"
+        );
+        return;
+      }
+
+      if (trimmedInput.length > 50) {
+        setLocalError("Username must be less than 50 characters");
+        return;
+      }
     }
 
-    console.log(
-      `Original username: ${username}, Sanitized: ${sanitizedUsername}`
-    );
+    console.log(`Login input: ${trimmedInput}`);
 
     try {
-      await login(sanitizedUsername, password);
+      await login(trimmedInput, password);
       // Successful login is handled by the AuthProvider
     } catch (error) {
       // Error handling is done in the AuthProvider
@@ -83,7 +94,7 @@ export default function Login() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl"
           >
-            Access your BWKD student account
+            Access your BWKD student account with username or email
           </motion.p>
         </div>
       </section>
@@ -107,14 +118,18 @@ export default function Login() {
               )}
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="usernameOrEmail">Username or Email</Label>
                   <Input
-                    id="username"
+                    id="usernameOrEmail"
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter username (e.g., shanto) or email (e.g., shanto@bwkd.app)"
+                    value={usernameOrEmail}
+                    onChange={(e) => setUsernameOrEmail(e.target.value)}
                     required
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    You can use either your username or full email address
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>

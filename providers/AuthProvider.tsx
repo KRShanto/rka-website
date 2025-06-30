@@ -124,8 +124,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      // Format email according to our convention
-      const email = `${username}@bwkd.app`;
+      // Support both username and email formats
+      let email: string;
+
+      if (username.includes("@")) {
+        // If input contains @, use it as email directly
+        email = username;
+      } else {
+        // If no @, treat as username and append @bwkd.app
+        email = `${username}@bwkd.app`;
+      }
+
       console.log("Attempting login with email:", email);
 
       // Use Supabase auth to sign in
