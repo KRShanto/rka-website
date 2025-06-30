@@ -122,7 +122,7 @@ export default function Login() {
                   <Input
                     id="usernameOrEmail"
                     type="text"
-                    placeholder="Enter username (e.g., shanto) or email (e.g., shanto@bwkd.app)"
+                    placeholder=""
                     value={usernameOrEmail}
                     onChange={(e) => setUsernameOrEmail(e.target.value)}
                     required
