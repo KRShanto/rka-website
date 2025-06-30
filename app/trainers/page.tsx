@@ -129,7 +129,7 @@ export default function Trainers() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {trainers.map((trainer, index) => (
                 <motion.div
                   key={trainer.id}
@@ -139,7 +139,7 @@ export default function Trainers() {
                   whileHover={{ scale: 1.03 }}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden h-full"
                 >
-                  <div className="relative aspect-[3/4]">
+                  <div className="relative h-64 bg-gray-100 dark:bg-gray-700">
                     <Image
                       src={
                         trainer.profile_image_url ||
@@ -147,25 +147,25 @@ export default function Trainers() {
                       }
                       alt={trainer.name}
                       fill
-                      className="object-contain p-2 transition-transform duration-300 hover:scale-105"
+                      className="object-cover transition-transform duration-300 hover:scale-105"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       loading={index < 6 ? "eager" : "lazy"}
                     />
                   </div>
-                  <div className="p-4 sm:p-6">
-                    <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+                  <div className="p-4">
+                    <h2 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">
                       {trainer.name}
                     </h2>
-                    <p className="text-primary font-semibold mb-2">
+                    <p className="text-primary font-semibold mb-2 text-sm">
                       {formatBeltRank(
                         trainer.current_belt,
                         trainer.current_dan
                       )}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
                       {getBranchName(trainer.branch)}
                     </p>
-                    <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                    <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
                       {trainer.email && (
                         <p>
                           <span className="font-medium">Email:</span>{" "}

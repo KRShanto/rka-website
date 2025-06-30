@@ -6,11 +6,29 @@ import { Award, Calendar, User, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import {
-  getProfileById,
-  type BlackBeltProfile,
-} from "@/lib/data/black-belt-profiles";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/lib/supabase";
+import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
+
+interface BlackBeltProfile {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  profile_image_url: string;
+  current_belt: string;
+  current_dan: number;
+  weight: number;
+  gender: string;
+  branch: number | null;
+  created_at: string;
+  dan_exam_dates: string[];
+}
+
+interface Branch {
+  id: number;
+  name: string;
+}
 
 // Helper function to get ordinal suffix
 function getOrdinalSuffix(num: number): string {
@@ -32,30 +50,91 @@ export default function BlackBeltProfilePage() {
   const params = useParams();
   const id = params.id as string;
   const [profile, setProfile] = useState<BlackBeltProfile | null>(null);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // Extract numeric ID from BWKD001 format
+  const extractDatabaseId = (bwkdId: string): number | null => {
+    const match = bwkdId.match(/^BWKD(\d+)$/);
+    return match ? parseInt(match[1], 10) : null;
+  };
+
+  // Generate user ID for display
+  const generateUserId = (dbId: number) => {
+    return `BWKD${String(dbId).padStart(3, "0")}`;
+  };
+
+  // Get branch name by ID
+  const getBranchName = (branchId: number | null) => {
+    if (branchId === null) return "Main Dojo";
+    const branch = branches.find((b) => b.id === branchId);
+    return branch ? branch.name : "Main Dojo";
+  };
+
+  // Format dan for display
+  const formatDan = (dan: number) => {
+    const suffix =
+      dan === 1 ? "st" : dan === 2 ? "nd" : dan === 3 ? "rd" : "th";
+    return `${dan}${suffix} Dan`;
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   useEffect(() => {
-    // Simulate async data fetching
+    // Fetch branches
+    const fetchBranches = async () => {
+      try {
+        const { data, error } = await supabase
+          .from(BRANCHES_TABLE)
+          .select("id, name");
+        if (error) throw error;
+        setBranches(data || []);
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+
+    // Fetch profile from database
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        // Add a small delay to ensure loading state is shown
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        const databaseId = extractDatabaseId(id);
 
-        const profileData = getProfileById(id);
-        if (profileData) {
-          setProfile(profileData);
-        } else {
+        if (!databaseId) {
           setError(true);
+          return;
         }
+
+        const { data, error } = await supabase
+          .from(PROFILES_TABLE)
+          .select("*")
+          .eq("id", databaseId)
+          .eq("current_belt", "black-belt")
+          .single();
+
+        if (error || !data) {
+          setError(true);
+          return;
+        }
+
+        setProfile(data);
       } catch (err) {
+        console.error("Error fetching profile:", err);
         setError(true);
       } finally {
         setLoading(false);
       }
     };
 
+    fetchBranches();
     fetchProfile();
   }, [id]);
 
@@ -84,9 +163,12 @@ export default function BlackBeltProfilePage() {
       <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-white">
+            <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white">
               <Image
-                src={profile.image || "/placeholder.svg"}
+                src={
+                  profile.profile_image_url ||
+                  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg"
+                }
                 alt={profile.name}
                 layout="fill"
                 objectFit="cover"
@@ -96,12 +178,14 @@ export default function BlackBeltProfilePage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold mb-2 dark:text-white">
-                {profile.fullName}
+                {profile.name}
               </h1>
-              <p className="text-xl mb-2">{profile.dan} Black Belt</p>
+              <p className="text-xl mb-2">
+                {formatDan(profile.current_dan)} Black Belt
+              </p>
               <div className="flex items-center gap-2 text-primary-foreground/80">
                 <Award className="w-5 h-5" />
-                <span>BWKD ID: {profile.userId}</span>
+                <span>BWKD ID: {generateUserId(profile.id)}</span>
               </div>
             </div>
           </div>
@@ -114,75 +198,83 @@ export default function BlackBeltProfilePage() {
             <div className="md:col-span-2">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
                 <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white border-b pb-2">
-                  Achievements
+                  Contact Information
                 </h2>
-                <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-2">
-                  {profile.achievements.map((achievement, index) => (
-                    <li key={index} className="leading-relaxed">
-                      {achievement}
-                    </li>
-                  ))}
-                </ul>
+                <div className="space-y-4">
+                  {profile.email && (
+                    <div className="flex items-start gap-3">
+                      <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                      <div>
+                        <p className="font-medium text-gray-700 dark:text-gray-300">
+                          Email
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {profile.email}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {profile.phone && (
+                    <div className="flex items-start gap-3">
+                      <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                      <div>
+                        <p className="font-medium text-gray-700 dark:text-gray-300">
+                          Phone
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {profile.phone}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-start gap-3">
+                    <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                    <div>
+                      <p className="font-medium text-gray-700 dark:text-gray-300">
+                        Branch
+                      </p>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {getBranchName(profile.branch)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Add a new section for Karate Journey here to make it more prominent */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                 <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white border-b pb-2">
-                  Karate Journey
+                  Dan Progression
                 </h2>
                 <div className="mb-4">
                   <div className="flex items-start gap-3 mb-4">
-                    <Clock className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                    <Award className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
-                        Joined BWKD
-                      </p>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {profile.joinDate}
+                        Current Rank: {formatDan(profile.current_dan)} Black
+                        Belt
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 mb-4">
-                    <Award className="w-5 h-5 mt-0.5 text-[#dc2626]" />
-                    <p className="font-medium text-gray-700 dark:text-gray-300">
-                      Current Rank
-                    </p>
-                  </div>
-
-                  <div className="ml-8 space-y-4 border-l-2 border-primary/30 pl-4">
-                    {/* Generate previous dan ranks based on current rank */}
-                    {Array.from(
-                      { length: Number.parseInt(profile.dan.split("")[0]) },
-                      (_, i) => i + 1
-                    ).map((dan) => (
-                      <div key={dan} className="relative">
-                        <div className="absolute -left-6 top-1 w-2 h-2 rounded-full bg-primary"></div>
-                        <p className="font-medium text-gray-700 dark:text-gray-300">
-                          {dan}
-                          {getOrdinalSuffix(dan)} Dan Black Belt
-                        </p>
-                        <p className="text-gray-600 dark:text-gray-400">
-                          {/* Calculate approximate dates based on current date and rank */}
-                          {new Date(
-                            new Date(profile.blackBeltDate).getTime() -
-                              (Number.parseInt(profile.dan.split("")[0]) -
-                                dan) *
-                                3 *
-                                365 *
-                                24 *
-                                60 *
-                                60 *
-                                1000
-                          ).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
+                  {profile.dan_exam_dates &&
+                    profile.dan_exam_dates.length > 0 && (
+                      <div className="ml-8 space-y-4 border-l-2 border-primary/30 pl-4">
+                        {profile.dan_exam_dates.map((date, index) => (
+                          <div key={index} className="relative">
+                            <div className="absolute -left-6 top-1 w-2 h-2 rounded-full bg-primary"></div>
+                            <p className="font-medium text-gray-700 dark:text-gray-300">
+                              {index + 1}
+                              {getOrdinalSuffix(index + 1)} Dan Black Belt
+                            </p>
+                            {date && (
+                              <p className="text-gray-600 dark:text-gray-400">
+                                {formatDate(date)}
+                              </p>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    )}
                 </div>
               </div>
             </div>
@@ -197,10 +289,10 @@ export default function BlackBeltProfilePage() {
                     <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
-                        Full Name
+                        Name
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {profile.fullName}
+                        {profile.name}
                       </p>
                     </div>
                   </div>
@@ -209,10 +301,10 @@ export default function BlackBeltProfilePage() {
                     <Calendar className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
-                        Birthday
+                        Member Since
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {profile.birthday}
+                        {formatDate(profile.created_at)}
                       </p>
                     </div>
                   </div>
@@ -224,7 +316,8 @@ export default function BlackBeltProfilePage() {
                         Gender
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {profile.gender}
+                        {profile.gender.charAt(0).toUpperCase() +
+                          profile.gender.slice(1)}
                       </p>
                     </div>
                   </div>
@@ -236,10 +329,24 @@ export default function BlackBeltProfilePage() {
                         BWKD ID
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {profile.userId}
+                        {generateUserId(profile.id)}
                       </p>
                     </div>
                   </div>
+
+                  {profile.weight > 0 && (
+                    <div className="flex items-start gap-3">
+                      <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                      <div>
+                        <p className="font-medium text-gray-700 dark:text-gray-300">
+                          Weight
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {profile.weight} kg
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
