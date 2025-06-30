@@ -461,7 +461,7 @@ export default function SettingsPage() {
 
       // Handle specific field types
       if (name === "branch") {
-        updated.branch = value ? parseInt(value) : null;
+        updated.branch = value === "none" ? null : parseInt(value);
       } else if (name === "current_dan") {
         updated.current_dan = parseInt(value);
       } else if (name === "current_belt") {
@@ -765,7 +765,7 @@ export default function SettingsPage() {
                 <div>
                   <Label htmlFor="branch">Branch</Label>
                   <Select
-                    value={profile.branch?.toString() || ""}
+                    value={profile.branch?.toString() || "none"}
                     onValueChange={(value) =>
                       handleSelectChange("branch", value)
                     }
@@ -781,7 +781,7 @@ export default function SettingsPage() {
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No Branch</SelectItem>
+                      <SelectItem value="none">No Branch</SelectItem>
                       {branches.map((branch) => (
                         <SelectItem
                           key={branch.id}
