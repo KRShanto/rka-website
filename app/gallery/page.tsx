@@ -199,7 +199,7 @@ export default function Gallery() {
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             className="text-4xl font-bold mb-4 dark:text-white"
           >
             Photo Gallery
@@ -207,7 +207,7 @@ export default function Gallery() {
           <motion.p
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
             className="text-xl"
           >
             Capturing moments of discipline, strength, and community
@@ -241,7 +241,7 @@ export default function Gallery() {
                   key={image.id}
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  transition={{ duration: 0.3, delay: index * 0.02 }}
                   className="relative overflow-hidden rounded-lg cursor-pointer mb-4 group"
                   onClick={() =>
                     setSelectedImage({

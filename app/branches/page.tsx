@@ -15,8 +15,8 @@ interface Branch {
 
 const branches = [
   {
-    name: "Bansree (C Block)",
-    address: "House 36, Road 3, C Block, Bansree, Dhaka",
+    name: "Banasree (C Block)",
+    address: "House 36, Road 3, C Block, Banasree, Dhaka",
     contactNumber: "+880 1712-345678",
     schedule: [
       {
@@ -79,8 +79,8 @@ const branches = [
     ],
   },
   {
-    name: "Bansree (B Block)",
-    address: "House 14, Road 5, B Block, Bansree, Dhaka",
+    name: "Banasree (B Block)",
+    address: "House 14, Road 5, B Block, Banasree, Dhaka",
     contactNumber: "+880 1912-345678",
     schedule: [
       { days: " Wednesday to  saterday", times: ["5:00 PM - 6:30 PM"] },

@@ -156,7 +156,7 @@ export default function ResponsiveFooter({
                         className="text-gray-400 hover:text-white transition-colors"
                       >
                         {link.label === "123 Karate Street, Dhaka"
-                          ? "House 36, Road 3, C Block, Bansree, Dhaka"
+                          ? "House 36, Road 3, C Block, Banasree, Dhaka"
                           : link.label}
                       </Link>
                     )}
@@ -296,7 +296,7 @@ export default function ResponsiveFooter({
                           className="text-gray-400 hover:text-white transition-colors"
                         >
                           {link.label === "123 Karate Street, Dhaka"
-                            ? "House 36, Road 3, C Block, Bansree, Dhaka"
+                            ? "House 36, Road 3, C Block, Banasree, Dhaka"
                             : link.label}
                         </Link>
                       )}

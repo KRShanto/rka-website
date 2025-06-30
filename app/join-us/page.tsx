@@ -44,13 +44,13 @@ export default function JoinUs() {
 
   const branches = [
     {
-      name: "Bansree (C Block)",
-      address: "House 36, Road 3, C Block, Bansree, Dhaka",
+      name: "Banasree (C Block)",
+      address: "House 36, Road 3, C Block, Banasree, Dhaka",
     },
     { name: "Aftabnagar", address: "Aftabnagar, Dhaka" },
     {
-      name: "Bansree (B Block)",
-      address: "House 14, Road 5, B Block, Bansree, Dhaka",
+      name: "Banasree (B Block)",
+      address: "House 14, Road 5, B Block, Banasree, Dhaka",
     },
     { name: "Rampura TV Center", address: "TV Center, Rampura, Dhaka" },
     { name: "NSC Tower", address: "NSC Tower, Dhaka" },

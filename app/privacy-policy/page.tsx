@@ -159,7 +159,7 @@ export default function PrivacyPolicy() {
               <p>
                 Bangladesh Wadokai Karate Do
                 <br />
-                123 Karate Street, Bansree
+                123 Karate Street, Banasreee
                 <br />
                 Dhaka, Bangladesh
                 <br />

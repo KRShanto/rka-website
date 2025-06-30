@@ -262,7 +262,7 @@ export default function TermsOfService() {
               <p>
                 Bangladesh Wadokai Karate Do
                 <br />
-                123 Karate Street, Bansree
+                123 Karate Street, Banasree
                 <br />
                 Dhaka, Bangladesh
                 <br />
