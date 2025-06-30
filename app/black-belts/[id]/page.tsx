@@ -165,10 +165,7 @@ export default function BlackBeltProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white">
               <Image
-                src={
-                  profile.profile_image_url ||
-                  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg"
-                }
+                src={profile.profile_image_url || "/placeholder-user.png"}
                 alt={profile.name}
                 layout="fill"
                 objectFit="cover"

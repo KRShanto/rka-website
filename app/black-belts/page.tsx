@@ -182,8 +182,7 @@ export default function BlackBelts() {
                     <div className="relative h-64 bg-gray-100 dark:bg-gray-700">
                       <Image
                         src={
-                          blackBelt.profile_image_url ||
-                          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg"
+                          blackBelt.profile_image_url || "/placeholder-user.png"
                         }
                         alt={blackBelt.name}
                         fill

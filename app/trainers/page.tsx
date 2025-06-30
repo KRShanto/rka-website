@@ -141,10 +141,7 @@ export default function Trainers() {
                 >
                   <div className="relative h-64 bg-gray-100 dark:bg-gray-700">
                     <Image
-                      src={
-                        trainer.profile_image_url ||
-                        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg"
-                      }
+                      src={trainer.profile_image_url || "/placeholder-user.png"}
                       alt={trainer.name}
                       fill
                       className="object-cover transition-transform duration-300 hover:scale-105"
