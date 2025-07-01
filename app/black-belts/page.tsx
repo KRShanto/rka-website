@@ -73,11 +73,6 @@ export default function BlackBelts() {
     fetchBranches();
   }, []);
 
-  // Generate user ID for display
-  const generateUserId = (id: number) => {
-    return `BWKD${String(id).padStart(3, "0")}`;
-  };
-
   // Get branch name by ID
   const getBranchName = (branchId: number | null) => {
     if (branchId === null) return "Main Dojo";
@@ -104,10 +99,9 @@ export default function BlackBelts() {
   // Filter black belts based on search query
   const filteredBlackBelts = blackBelts.filter((blackBelt) => {
     const query = searchQuery.toLowerCase();
-    const userId = generateUserId(blackBelt.id);
     return (
       blackBelt.name.toLowerCase().includes(query) ||
-      userId.toLowerCase().includes(query)
+      blackBelt.id.toString().includes(query)
     );
   });
 
@@ -135,7 +129,7 @@ export default function BlackBelts() {
               />
               <Input
                 type="text"
-                placeholder="Search by name or ID (e.g., BWKD001)"
+                placeholder="Search by name or ID"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 py-2 w-full rounded-lg border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -171,54 +165,51 @@ export default function BlackBelts() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredBlackBelts.map((blackBelt, index) => {
-                const userId = generateUserId(blackBelt.id);
-                return (
-                  <Link
-                    href={`/black-belts/${userId}`}
-                    key={blackBelt.id}
-                    className="block bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden cursor-pointer hover:shadow-2xl transition-shadow"
-                  >
-                    <div className="relative h-64 bg-gray-100 dark:bg-gray-700">
-                      <Image
-                        src={
-                          blackBelt.profile_image_url || "/placeholder-user.png"
-                        }
-                        alt={blackBelt.name}
-                        fill
-                        className="object-cover transition-transform duration-300 hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        loading={index < 6 ? "eager" : "lazy"}
-                        priority={index < 3}
-                      />
-                      <div className="absolute top-0 right-0 m-4 bg-[#dc2626]/90 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                        {formatDan(blackBelt.current_dan)}
-                      </div>
+              {filteredBlackBelts.map((blackBelt, index) => (
+                <Link
+                  href={`/black-belts/${blackBelt.id}`}
+                  key={blackBelt.id}
+                  className="block bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden cursor-pointer hover:shadow-2xl transition-shadow"
+                >
+                  <div className="relative h-64 bg-gray-100 dark:bg-gray-700">
+                    <Image
+                      src={
+                        blackBelt.profile_image_url || "/placeholder-user.png"
+                      }
+                      alt={blackBelt.name}
+                      fill
+                      className="object-cover transition-transform duration-300 hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      loading={index < 6 ? "eager" : "lazy"}
+                      priority={index < 3}
+                    />
+                    <div className="absolute top-0 right-0 m-4 bg-[#dc2626]/90 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      {formatDan(blackBelt.current_dan)}
                     </div>
-                    <div className="p-4">
-                      <h2 className="text-lg font-bold mb-2 text-gray-900 dark:text-white hover:text-primary transition-colors">
-                        {blackBelt.name}
-                      </h2>
-                      <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
-                        <User className="w-3 h-3 mr-2 text-[#dc2626]" />
-                        <span className="text-sm">ID: {userId}</span>
-                      </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
-                        <Award className="w-3 h-3 mr-2 text-[#dc2626]" />
-                        <span className="text-sm">
-                          {formatDan(blackBelt.current_dan)} Black Belt
-                        </span>
-                      </div>
-                      <div className="flex items-center text-gray-600 dark:text-gray-300">
-                        <Calendar className="w-3 h-3 mr-2 text-[#dc2626]" />
-                        <span className="text-sm">
-                          Awarded: {formatBlackBeltDate(blackBelt.created_at)}
-                        </span>
-                      </div>
+                  </div>
+                  <div className="p-4">
+                    <h2 className="text-lg font-bold mb-2 text-gray-900 dark:text-white hover:text-primary transition-colors">
+                      {blackBelt.name}
+                    </h2>
+                    <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
+                      <User className="w-3 h-3 mr-2 text-[#dc2626]" />
+                      <span className="text-sm">ID: {blackBelt.id}</span>
                     </div>
-                  </Link>
-                );
-              })}
+                    <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
+                      <Award className="w-3 h-3 mr-2 text-[#dc2626]" />
+                      <span className="text-sm">
+                        {formatDan(blackBelt.current_dan)} Black Belt
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-600 dark:text-gray-300">
+                      <Calendar className="w-3 h-3 mr-2 text-[#dc2626]" />
+                      <span className="text-sm">
+                        Awarded: {formatBlackBeltDate(blackBelt.created_at)}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
           )}
         </div>

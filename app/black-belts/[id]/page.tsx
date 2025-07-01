@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase";
 import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
+import { getAuthEmail } from "@/actions/get-auth-email";
 
 interface BlackBeltProfile {
   id: number;
@@ -23,6 +24,7 @@ interface BlackBeltProfile {
   branch: number | null;
   created_at: string;
   dan_exam_dates: string[];
+  auth_id: string;
 }
 
 interface Branch {
@@ -53,17 +55,7 @@ export default function BlackBeltProfilePage() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-
-  // Extract numeric ID from BWKD001 format
-  const extractDatabaseId = (bwkdId: string): number | null => {
-    const match = bwkdId.match(/^BWKD(\d+)$/);
-    return match ? parseInt(match[1], 10) : null;
-  };
-
-  // Generate user ID for display
-  const generateUserId = (dbId: number) => {
-    return `BWKD${String(dbId).padStart(3, "0")}`;
-  };
+  const [authEmail, setAuthEmail] = useState<string | null>(null);
 
   // Get branch name by ID
   const getBranchName = (branchId: number | null) => {
@@ -106,26 +98,34 @@ export default function BlackBeltProfilePage() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const databaseId = extractDatabaseId(id);
 
-        if (!databaseId) {
-          setError(true);
-          return;
-        }
-
-        const { data, error } = await supabase
+        // Get profile by ID
+        const { data: profileData, error: profileError } = await supabase
           .from(PROFILES_TABLE)
           .select("*")
-          .eq("id", databaseId)
+          .eq("id", id)
           .eq("current_belt", "black-belt")
           .single();
 
-        if (error || !data) {
+        if (profileError) {
           setError(true);
           return;
         }
 
-        setProfile(data);
+        if (!profileData) {
+          setError(true);
+          return;
+        }
+
+        setProfile(profileData);
+
+        // Get auth email using server action
+        if (profileData.auth_id) {
+          const result = await getAuthEmail(profileData.auth_id);
+          if (result.success && result.email) {
+            setAuthEmail(result.email);
+          }
+        }
       } catch (err) {
         console.error("Error fetching profile:", err);
         setError(true);
@@ -182,7 +182,7 @@ export default function BlackBeltProfilePage() {
               </p>
               <div className="flex items-center gap-2 text-primary-foreground/80">
                 <Award className="w-5 h-5" />
-                <span>BWKD ID: {generateUserId(profile.id)}</span>
+                <span>BWKD ID: {authEmail?.replace("@bwkd.app", "")}</span>
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function BlackBeltProfilePage() {
                   Contact Information
                 </h2>
                 <div className="space-y-4">
-                  {profile.email && (
+                  {authEmail && (
                     <div className="flex items-start gap-3">
                       <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                       <div>
@@ -206,7 +206,7 @@ export default function BlackBeltProfilePage() {
                           Email
                         </p>
                         <p className="text-gray-600 dark:text-gray-400">
-                          {profile.email}
+                          {authEmail}
                         </p>
                       </div>
                     </div>
@@ -326,7 +326,7 @@ export default function BlackBeltProfilePage() {
                         BWKD ID
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {generateUserId(profile.id)}
+                        {authEmail?.replace("@bwkd.app", "")}
                       </p>
                     </div>
                   </div>
