@@ -349,7 +349,7 @@ export default function ResponsiveFooter({
             </a>
             {" & "}
             <a
-              href="https://linkedin.com/in/krshanto"
+              href="https://www.krshanto.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline transition-colors"
