@@ -176,28 +176,29 @@ export default function About() {
                 event: "BWKD founded by Sensei Abdul Sukkur Ali Shikder",
               },
               {
-                year: "1990",
+                year: "2015",
                 event: "First national championship organized by BWKD",
               },
               {
-                year: "1995",
-                event: "BWKD gains affiliation with World Karate Federation",
+                year: "2017",
+                event:
+                  "BWKD gains affiliation with Bangladesh Karate Federation",
               },
               {
-                year: "2000",
+                year: "2018",
                 event: "Opening of BWKD's first purpose-built dojo in Dhaka",
               },
               {
-                year: "2010",
+                year: "2020",
                 event: "BWKD athletes win first international medals",
               },
               {
-                year: "2024",
+                year: "2022",
                 event:
                   "BWKD players achieved numerous national and international medals, and the organization won multiple championship trophies",
               },
               {
-                year: "2025",
+                year: "2024",
                 event: "BWKD celebrates 12 years of excellence in Karate",
               },
             ].map((item, index) => (
