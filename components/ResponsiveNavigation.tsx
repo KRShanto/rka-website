@@ -100,7 +100,7 @@ export default function ResponsiveNavigation({
               type="button"
               className={cn(
                 "inline-flex items-center justify-center p-1.5 rounded-md text-gray-700 dark:text-gray-200",
-                "hover:text-[#dc2626] hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
+                "hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
               )}
               aria-expanded={isMobileMenuOpen}
               onClick={() => setIsMobileMenuOpen(true)}
@@ -139,7 +139,7 @@ export default function ResponsiveNavigation({
                     className={cn(
                       "flex items-center space-x-1 py-1.5 focus:outline-none focus-visible:outline-none relative group",
                       isActive(item.href)
-                        ? "text-[#dc2626] font-medium"
+                        ? "text-primary font-medium"
                         : "text-gray-700 dark:text-gray-200",
                       "transition-colors duration-200"
                     )}
@@ -148,9 +148,9 @@ export default function ResponsiveNavigation({
                   >
                     <span>{item.label}</span>
                     <ChevronDown className="w-4 h-4" />
-                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#dc2626] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
                     {isActive(item.href) && (
-                      <span className="absolute bottom-0 left-0 w-full h-0.5 rounded-full bg-[#dc2626]"></span>
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 rounded-full bg-primary"></span>
                     )}
                   </button>
                 ) : (
@@ -159,15 +159,15 @@ export default function ResponsiveNavigation({
                     className={cn(
                       "block py-1.5 focus:outline-none focus-visible:outline-none relative group",
                       isActive(item.href)
-                        ? "text-[#dc2626] font-medium"
+                        ? "text-primary font-medium"
                         : "text-gray-700 dark:text-gray-200",
                       "transition-colors duration-200"
                     )}
                   >
                     {item.label}
-                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[#dc2626] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
+                    <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-200 rounded-full"></span>
                     {isActive(item.href) && (
-                      <span className="absolute bottom-0 left-0 w-full h-0.5 rounded-full bg-[#dc2626]"></span>
+                      <span className="absolute bottom-0 left-0 w-full h-0.5 rounded-full bg-primary"></span>
                     )}
                   </Link>
                 )}
@@ -182,9 +182,9 @@ export default function ResponsiveNavigation({
                         className={cn(
                           "block px-4 py-2 text-sm focus:outline-none focus-visible:outline-none",
                           isActive(child.href)
-                            ? "text-[#dc2626] font-medium bg-gray-50 dark:bg-gray-700 dark:text-white"
+                            ? "text-primary font-medium bg-gray-50 dark:bg-gray-700 dark:text-white"
                             : "text-gray-700 dark:text-gray-200",
-                          "hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-[#dc2626] dark:hover:text-white"
+                          "hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-white"
                         )}
                       >
                         {child.label}
@@ -215,7 +215,7 @@ export default function ResponsiveNavigation({
                   asChild
                   variant="ghost"
                   size="sm"
-                  className="text-gray-700 hover:text-[#dc2626] hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+                  className="text-gray-700 hover:text-primary hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
                 >
                   <Link href="/dashboard">
                     <User className="w-4 h-4 mr-2" />
@@ -228,7 +228,7 @@ export default function ResponsiveNavigation({
                 <Button
                   asChild
                   size="sm"
-                  className="bg-[#dc2626] hover:bg-[#b91c1c] text-white"
+                  className="bg-primary hover:bg-primary/90 text-white"
                 >
                   <Link href={cta.href}>{cta.label}</Link>
                 </Button>
@@ -257,7 +257,7 @@ export default function ResponsiveNavigation({
         <div className="flex justify-end p-4 pt-16">
           <button
             type="button"
-            className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-[#dc2626] hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
+            className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus-visible:outline-none"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-label="Close menu"
           >
@@ -275,7 +275,7 @@ export default function ResponsiveNavigation({
                       className={cn(
                         "flex items-center justify-between w-full px-3 py-3 rounded-md text-left focus:outline-none focus-visible:outline-none",
                         isActive(item.href)
-                          ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-white"
+                          ? "bg-primary/10 text-primary font-medium dark:bg-primary/20 dark:text-white"
                           : "text-gray-700 dark:text-gray-200",
                         "hover:bg-gray-50 dark:hover:bg-gray-800"
                       )}
@@ -303,7 +303,7 @@ export default function ResponsiveNavigation({
                             className={cn(
                               "block px-3 py-2 rounded-md focus:outline-none focus-visible:outline-none",
                               isActive(child.href)
-                                ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-white"
+                                ? "bg-primary/10 text-primary font-medium dark:bg-primary/20 dark:text-white"
                                 : "text-gray-700 dark:text-gray-200",
                               "hover:bg-gray-50 dark:hover:bg-gray-800"
                             )}
@@ -321,7 +321,7 @@ export default function ResponsiveNavigation({
                     className={cn(
                       "flex items-center px-3 py-3 rounded-md focus:outline-none focus-visible:outline-none",
                       isActive(item.href)
-                        ? "bg-[#dc2626]/10 text-[#dc2626] font-medium dark:bg-[#dc2626]/20 dark:text-[#dc2626]"
+                        ? "bg-primary/10 text-primary font-medium dark:bg-primary/20 dark:text-white"
                         : "text-gray-700 dark:text-gray-200",
                       "hover:bg-gray-50 dark:hover:bg-gray-800"
                     )}
@@ -331,13 +331,13 @@ export default function ResponsiveNavigation({
                       <item.icon
                         className={cn(
                           "mr-3 h-5 w-5",
-                          isActive(item.href) && "text-[#dc2626]"
+                          isActive(item.href) && "text-primary"
                         )}
                       />
                     )}
                     <span>{item.label}</span>
                     {isActive(item.href) && (
-                      <span className="ml-auto bg-[#dc2626]/20 text-[#dc2626] text-xs font-medium py-1 px-2 rounded-full">
+                      <span className="ml-auto bg-primary/20 text-primary text-xs font-medium py-1 px-2 rounded-full">
                         Active
                       </span>
                     )}
@@ -373,7 +373,7 @@ export default function ResponsiveNavigation({
                 <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <Button
                     asChild
-                    className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white"
+                    className="w-full bg-primary hover:bg-primary/90 text-white"
                   >
                     <Link
                       href={cta.href}

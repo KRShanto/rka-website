@@ -16,6 +16,15 @@ import {
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function JoinUs() {
   const benefits = [
@@ -59,7 +68,7 @@ export default function JoinUs() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <section className="bg-[#dc2626] text-white py-10 mt-14">
+      <section className="bg-primary text-white py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -101,13 +110,105 @@ export default function JoinUs() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="mb-12"
+            >
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-semibold">
+                    Registration Form
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form
+                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="fullName">Full Name</Label>
+                      <Input
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Enter full name"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="fatherName">Father's Name</Label>
+                      <Input
+                        id="fatherName"
+                        name="fatherName"
+                        placeholder="Enter father's name"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="motherName">Mother's Name</Label>
+                      <Input
+                        id="motherName"
+                        name="motherName"
+                        placeholder="Enter mother's name"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="dob">Date of Birth</Label>
+                      <Input id="dob" name="dob" type="date" required />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="bloodGroup">Blood Group</Label>
+                      <Select name="bloodGroup">
+                        <SelectTrigger id="bloodGroup">
+                          <SelectValue placeholder="Select blood group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="A+">A+</SelectItem>
+                          <SelectItem value="A-">A-</SelectItem>
+                          <SelectItem value="B+">B+</SelectItem>
+                          <SelectItem value="B-">B-</SelectItem>
+                          <SelectItem value="O+">O+</SelectItem>
+                          <SelectItem value="O-">O-</SelectItem>
+                          <SelectItem value="AB+">AB+</SelectItem>
+                          <SelectItem value="AB-">AB-</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="contactNumber">Contact Number</Label>
+                      <Input
+                        id="contactNumber"
+                        name="contactNumber"
+                        type="tel"
+                        inputMode="tel"
+                        placeholder="e.g. +8801XXXXXXXXX"
+                        required
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Button
+                        type="submit"
+                        className="w-full bg-primary hover:bg-primary/90"
+                      >
+                        Submit Registration
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
               className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
             >
               {benefits.map((benefit, index) => (
                 <Card key={index} className="bg-white">
                   <CardHeader className="flex flex-row items-center space-x-4 pb-2">
-                    <benefit.icon className="h-8 w-8 text-[#dc2626]" />
+                    <benefit.icon className="h-8 w-8 text-primary" />
                     <CardTitle>{benefit.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -115,34 +216,6 @@ export default function JoinUs() {
                   </CardContent>
                 </Card>
               ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mb-12"
-            >
-              <Card className="bg-white">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-semibold">
-                    Our Branches
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {branches.map((branch, index) => (
-                      <li
-                        key={index}
-                        className="flex flex-col sm:flex-row sm:justify-between"
-                      >
-                        <span className="font-semibold">{branch.name}</span>
-                        <span className="text-gray-600">{branch.address}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
             </motion.div>
 
             <motion.div
@@ -159,19 +232,19 @@ export default function JoinUs() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <Phone className="w-5 h-5 text-[#dc2626]" />
+                    <Phone className="w-5 h-5 text-primary" />
                     <span>Main Office: :+880 1763531313</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Phone className="w-5 h-5 text-[#dc2626]" />
+                    <Phone className="w-5 h-5 text-primary" />
                     <span>Admissions: +880 1234 567891</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Mail className="w-5 h-5 text-[#dc2626]" />
+                    <Mail className="w-5 h-5 text-primary" />
                     <span>Email: info@rka.com</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <MapPin className="w-5 h-5 text-[#dc2626]" />
+                    <MapPin className="w-5 h-5 text-primary" />
                     <span>123 Karate Street, Dhaka, Bangladesh</span>
                   </div>
                 </CardContent>
@@ -190,7 +263,7 @@ export default function JoinUs() {
                     with information about our programs, class schedules, and
                     enrollment process.
                   </p>
-                  <Button className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold py-2 px-4 rounded">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded">
                     <Phone className="w-5 h-5 mr-2" />
                     Call Us Now
                   </Button>

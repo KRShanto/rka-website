@@ -132,7 +132,7 @@
   left: 0;
   right: 0;
   z-index: 50;
-  background-color: #dc2626;
+  background-color: #009da9;
   color: white;
   box-shadow: var(--shadow-md);
   transition: transform var(--transition-duration) ease;
@@ -731,7 +731,7 @@ section {
   top: 0;
   bottom: 0;
   width: 4px;
-  background-color: #dc2626;
+  background-color: #009da9;
   border-radius: 0 4px 4px 0;
 }
 
@@ -769,13 +769,13 @@ section {
 
 /* Fix for mobile navigation active state */
 .mobile-nav-active {
-  background-color: rgba(220, 38, 38, 0.15) !important;
+  background-color: rgba(0, 157, 169, 0.15) !important;
   font-weight: 600 !important;
-  border-left: 3px solid #dc2626 !important;
+  border-left: 3px solid #009da9 !important;
 }
 
 .dark .mobile-nav-active {
-  background-color: rgba(220, 38, 38, 0.25) !important;
+  background-color: rgba(0, 157, 169, 0.25) !important;
 }
 
 /* Remove animations that might slow down the experience */
@@ -870,13 +870,13 @@ section {
 }
 
 .focus-visible:focus-visible {
-  outline: 2px solid #dc2626;
+  outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
 }
 
 /* Improved focus styles */
-:focus {
-  outline: 2px solid #dc2626;
+::focus {
+  outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
 }
 
@@ -1025,11 +1025,11 @@ section {
 }
 
 /* Make sure the black animation is visible on the red background */
-.bg-\[\#dc2626\] .navbar-link-hover-animation::after {
+.bg-\[\#009da9\] .navbar-link-hover-animation::after {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
-.dark .bg-\[\#dc2626\] .navbar-link-hover-animation::after {
+.dark .bg-\[\#009da9\] .navbar-link-hover-animation::after {
   background-color: rgba(255, 255, 255, 0.7);
 }
 

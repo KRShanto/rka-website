@@ -78,7 +78,7 @@ export default function Login() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <section className="bg-[#dc2626] text-white py-10 mt-14">
+      <section className="bg-primary text-white py-10 mt-14">
         <div className="container mx-auto px-4">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -94,7 +94,7 @@ export default function Login() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl"
           >
-            Access your BWKD student account with username or email
+            Access your RKA student account with username or email
           </motion.p>
         </div>
       </section>
@@ -161,7 +161,7 @@ export default function Login() {
                 <div className="flex items-center justify-between">
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-[#dc2626] hover:underline"
+                    className="text-sm text-primary hover:underline"
                   >
                     Forgot password?
                   </Link>
@@ -175,7 +175,7 @@ export default function Login() {
                   Don't have an account?{" "}
                   <Link
                     href="/join-us"
-                    className="text-[#dc2626] hover:underline"
+                    className="text-primary hover:underline"
                   >
                     Apply for admission
                   </Link>
