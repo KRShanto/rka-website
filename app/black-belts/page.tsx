@@ -110,7 +110,7 @@ export default function BlackBelts() {
       <section className="bg-primary text-primary-foreground py-10 mt-14">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold mb-4 dark:text-white">
-            BWKD Black Belts
+            RKA Black Belts
           </h1>
           <p className="text-xl">
             Honoring our dedicated practitioners who have achieved the rank of

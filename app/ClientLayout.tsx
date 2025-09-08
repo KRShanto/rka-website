@@ -70,7 +70,7 @@ const footerColumns = [
     links: [
       { label: "Join Us", href: "/join-us" },
       { label: "+880 1234 567890", href: "tel:+8801234567890" },
-      { label: "info@bwkd.com", href: "mailto:info@bwkd.com" },
+      { label: "info@rka.com", href: "mailto:info@rka.com" },
       { label: "123 Karate Street, Dhaka", href: "https://maps.google.com" },
     ],
   },
@@ -80,12 +80,12 @@ const footerColumns = [
 const socialLinks = [
   {
     icon: Facebook,
-    href: "https://www.facebook.com/bangladeshwadokaikaratedo",
+    href: "https://www.facebook.com/ronikarateacademy",
     label: "Facebook",
   },
   {
     icon: Youtube,
-    href: "https://www.youtube.com/@BangladeshWadokaiKaratedo",
+    href: "https://www.youtube.com/@ronikarateacademy",
     label: "YouTube",
   },
   {
@@ -138,8 +138,8 @@ export default function ClientLayout({
             <AccessibilityProvider>
               {!isDashboard && !isAdmin && (
                 <ResponsiveNavigation
-                  logo="/bwkd-logo.png"
-                  logoAlt="BWKD"
+                  logo="/rka-logo.png"
+                  logoAlt="RKA"
                   items={navItems}
                   cta={{ href: "/join-us", label: "Join Us" }}
                 />
@@ -149,13 +149,13 @@ export default function ClientLayout({
 
               {!isDashboard && !isAdmin && (
                 <ResponsiveFooter
-                  logo="/bwkd-logo.png"
-                  logoAlt="BWKD"
-                  description="Bangladesh Wadokai Karate Do - Empowering individuals through the art of Karate since 2013. Join our community and discover your potential."
+                  logo="/rka-logo.png"
+                  logoAlt="RKA"
+                  description="Roni Karate Academy - Empowering individuals through the art of Karate since 2013. Join our community and discover your potential."
                   columns={footerColumns}
                   socialLinks={socialLinks}
                   newsletter={false}
-                  copyright={`© ${new Date().getFullYear()} Bangladesh Wadokai Karate Do. All rights reserved.`}
+                  copyright={`© ${new Date().getFullYear()} Roni Karate Academy. All rights reserved.`}
                 />
               )}
             </AccessibilityProvider>

@@ -67,7 +67,7 @@ export default function JoinUs() {
             transition={{ duration: 0.5 }}
             className="text-4xl font-bold mb-4"
           >
-            Join BWKD
+            Join RKA
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: -20 }}
@@ -92,7 +92,7 @@ export default function JoinUs() {
                 Become Part of Our Dojo
               </h2>
               <p className="mb-8 text-lg text-center">
-                At BWKD, we welcome students of all ages and skill levels.
+                At RKA, we welcome students of all ages and skill levels.
                 Whether you're a complete beginner or an experienced martial
                 artist, our programs are designed to help you grow and excel.
               </p>
@@ -168,7 +168,7 @@ export default function JoinUs() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <Mail className="w-5 h-5 text-[#dc2626]" />
-                    <span>Email: info@bwkd.com</span>
+                    <span>Email: info@rka.com</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <MapPin className="w-5 h-5 text-[#dc2626]" />
@@ -185,8 +185,8 @@ export default function JoinUs() {
                 </CardHeader>
                 <CardContent>
                   <p className="mb-4">
-                    To join BWKD, we encourage you to visit our dojo or give us
-                    a call. Our experienced staff will be happy to provide you
+                    To join RKA, we encourage you to visit our dojo or give us a
+                    call. Our experienced staff will be happy to provide you
                     with information about our programs, class schedules, and
                     enrollment process.
                   </p>
@@ -211,7 +211,7 @@ export default function JoinUs() {
                 </CardHeader>
                 <CardContent className="flex space-x-4">
                   <Link
-                    href="https://www.facebook.com/BWKD"
+                    href="https://www.facebook.com/RKA"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-blue-600 hover:text-blue-800"
@@ -220,7 +220,7 @@ export default function JoinUs() {
                     <span>Facebook</span>
                   </Link>
                   <Link
-                    href="https://www.youtube.com/BWKD"
+                    href="https://www.youtube.com/RKA"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center text-red-600 hover:text-red-800"

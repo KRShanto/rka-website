@@ -77,8 +77,8 @@ export default function HeroSection() {
             className="flex justify-center mb-4"
           >
             <Image
-              src="/bwkd-logo.png"
-              alt="BWKD Logo"
+              src="/rka-logo.png"
+              alt="RKA Logo"
               width={120}
               height={120}
               className="w-24 h-24 sm:w-28 sm:h-28"
@@ -94,11 +94,9 @@ export default function HeroSection() {
             className="space-y-3 mb-6"
           >
             <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
-              <span className="text-gray-900 dark:text-white">Bangladesh</span>
+              <span className="text-gray-900 dark:text-white">Roni</span>
               <br />
-              <span className="bg-gradient-to-r from-[#dc2626] to-[#b91c1c] bg-clip-text text-transparent">
-                Wadokai Karate Do
-              </span>
+              <span className="text-primary">Karate Academy</span>
             </h1>
 
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed px-4 max-w-md mx-auto">
@@ -117,7 +115,7 @@ export default function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold py-3 text-base w-full max-w-xs group"
+              className="bg-primary hover:bg-primary/90 text-white font-bold py-3 text-base w-full max-w-xs group"
             >
               <Link
                 href="/join-us"
@@ -132,7 +130,7 @@ export default function HeroSection() {
               asChild
               size="lg"
               variant="outline"
-              className="border-2 border-[#dc2626] text-[#dc2626] hover:bg-[#dc2626] hover:text-white font-bold py-3 text-base w-full max-w-xs"
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold py-3 text-base w-full max-w-xs"
             >
               <Link href="/gallery">View Gallery</Link>
             </Button>
@@ -153,7 +151,7 @@ export default function HeroSection() {
                 transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
                 className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg"
               >
-                <stat.icon className="w-5 h-5 mx-auto mb-1 text-[#dc2626]" />
+                <stat.icon className="w-5 h-5 mx-auto mb-1 text-primary" />
                 <div className="text-sm font-bold text-gray-900 dark:text-white">
                   {stat.value}
                 </div>
@@ -195,8 +193,8 @@ export default function HeroSection() {
                 className="flex justify-start mb-6"
               >
                 <Image
-                  src="/bwkd-logo.png"
-                  alt="BWKD Logo"
+                  src="/rka-logo.png"
+                  alt="RKA Logo"
                   width={150}
                   height={150}
                   className="w-32 h-32 lg:w-36 lg:h-36"
@@ -205,12 +203,10 @@ export default function HeroSection() {
               </motion.div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="text-gray-900 dark:text-white">
-                  Bangladesh
-                </span>
+                <span className="text-gray-900 dark:text-white">Roni</span>
                 <br />
-                <span className="bg-gradient-to-r from-[#dc2626] to-[#b91c1c] bg-clip-text text-transparent">
-                  Wadokai Karate Do
+                <span className="bg-gradient-to-r from-primary to-primary/90 bg-clip-text text-transparent">
+                  Karate Academy
                 </span>
               </h1>
 
@@ -230,7 +226,7 @@ export default function HeroSection() {
               <Button
                 asChild
                 size="lg"
-                className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 group"
+                className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-4 text-lg shadow-xl hover:shadow-2xl transition-all duration-300 group"
               >
                 <Link href="/join-us" className="flex items-center gap-2">
                   Start Your Journey
@@ -242,7 +238,7 @@ export default function HeroSection() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-2 border-[#dc2626] text-[#dc2626] hover:bg-[#dc2626] hover:text-white font-bold px-8 py-4 text-lg transition-all duration-300"
+                className="border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold px-8 py-4 text-lg transition-all duration-300"
               >
                 <Link href="/gallery" className="flex items-center gap-2">
                   <Play className="w-5 h-5" />
@@ -266,7 +262,7 @@ export default function HeroSection() {
                   transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
                   className="text-center"
                 >
-                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-[#dc2626]" />
+                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {stat.value}
                   </div>

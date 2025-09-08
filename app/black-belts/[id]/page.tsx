@@ -182,7 +182,7 @@ export default function BlackBeltProfilePage() {
               </p>
               <div className="flex items-center gap-2 text-primary-foreground/80">
                 <Award className="w-5 h-5" />
-                <span>BWKD ID: {authEmail?.replace("@bwkd.app", "")}</span>
+                <span>RKA ID: {authEmail?.replace("@bwkd.app", "")}</span>
               </div>
             </div>
           </div>
@@ -323,7 +323,7 @@ export default function BlackBeltProfilePage() {
                     <Award className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
-                        BWKD ID
+                        RKA ID
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
                         {authEmail?.replace("@bwkd.app", "")}

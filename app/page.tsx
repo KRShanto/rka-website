@@ -32,7 +32,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-6 sm:mb-12 text-foreground dark:text-white mobile-heading"
           >
-            Why Choose BWKD?
+            Why Choose RKA?
           </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 md:gap-12">
             {[
@@ -242,7 +242,7 @@ export default function Home() {
               >
                 <Image
                   src={src || "/placeholder.svg"}
-                  alt={`BWKD gallery image ${index + 1}`}
+                  alt={`RKA gallery image ${index + 1}`}
                   layout="fill"
                   objectFit="cover"
                   className="transition-transform duration-300"

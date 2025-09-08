@@ -62,7 +62,7 @@ export default function Achievements() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl"
           >
-            Celebrating the success of BWKD students on national and
+            Celebrating the success of RKA students on national and
             international stages
           </motion.p>
         </div>

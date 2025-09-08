@@ -1,13 +1,15 @@
-# BWKD Website
+# RKD Website
 
-This is the official website for Bangladesh Wadokai Karate Do (BWKD).
+This is the official website for Roni Karate Do
 
 ## Setup Instructions
 
 ### Prerequisites
+
 - Node.js 18+ and npm or pnpm
 
 ### Installation
+
 1. Clone the repository
 2. Install dependencies
    ```bash
@@ -17,6 +19,7 @@ This is the official website for Bangladesh Wadokai Karate Do (BWKD).
    ```
 
 ### Environment Variables
+
 Create a `.env.local` file in the root directory and add the following variables:
 
 ```bash
@@ -28,11 +31,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 Replace the values with your actual Supabase project URL and anonymous key from your Supabase project dashboard.
 
 ### Supabase Setup
+
 1. Create a Supabase project at [supabase.com](https://supabase.com)
 2. Go to your project dashboard and copy your project URL and anon key
 3. Enable Email/Password authentication (enabled by default)
 
 #### Database Setup
+
 Run the following SQL commands in your Supabase SQL editor:
 
 ```sql
@@ -73,12 +78,14 @@ CREATE POLICY "Users can update own profile" ON public.profiles
 ```
 
 #### Storage Setup
+
 1. Go to Storage in your Supabase dashboard
 2. Create a new bucket named "profile-images"
 3. Set the bucket to be public for easy image access
 4. Configure upload restrictions as needed (5MB recommended for profile pictures)
 
 ### Creating Users in Supabase
+
 Users can be created in several ways:
 
 1. **Through the dashboard**: Go to Authentication → Users in your Supabase dashboard
@@ -86,10 +93,12 @@ Users can be created in several ways:
 3. **Email format**: Use the format `[username]@bwkd.app` for consistency
 
 Example:
+
 - Username: "student01" → Email: "student01@bwkd.app"
 - Username: "instructor" → Email: "instructor@bwkd.app"
 
 ### Running the Development Server
+
 ```bash
 npm run dev
 # or
@@ -101,6 +110,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the r
 ## Troubleshooting
 
 ### Authentication Issues
+
 If you're having trouble with authentication:
 
 1. Verify your Supabase project URL and anon key in `.env.local`
@@ -109,6 +119,7 @@ If you're having trouble with authentication:
 4. Clear browser cookies and local storage
 
 ### Database Connection Issues
+
 If you can't connect to the database:
 
 1. Confirm your Supabase project URL is correct
@@ -116,7 +127,8 @@ If you can't connect to the database:
 3. Verify RLS policies allow the required operations
 
 ## Features
+
 - User authentication with Supabase
 - Student/member dashboard
 - Event management
-- Responsive design for all devices 
+- Responsive design for all devices

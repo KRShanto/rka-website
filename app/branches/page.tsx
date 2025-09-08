@@ -168,7 +168,7 @@ export default function Branches() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl"
           >
-            Find a BWKD dojo near you and start your karate journey today
+            Find a RKA dojo near you and start your karate journey today
           </motion.p>
         </div>
       </section>

@@ -88,15 +88,15 @@ export default function DashboardLayout({
           <Link href="/dashboard" className="flex items-center space-x-2">
             <Image
               src="/bwkd-logo.png"
-              alt="BWKD"
+              alt="RKA"
               width={40}
               height={40}
               className="rounded-full bg-white p-1"
             />
             <span className="font-bold text-lg hidden md:inline-block">
-              BWKD Admin Dashboard
+              RKA Admin Dashboard
             </span>
-            <span className="font-bold text-lg md:hidden">BWKD Admin</span>
+            <span className="font-bold text-lg md:hidden">RKA Admin</span>
           </Link>
         </div>
 

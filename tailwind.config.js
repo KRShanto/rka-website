@@ -24,7 +24,7 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#dc2626", // Red-600
+          DEFAULT: "#009da9", // Blueish
           foreground: "#ffffff",
         },
         secondary: {
@@ -74,5 +74,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
-
+};

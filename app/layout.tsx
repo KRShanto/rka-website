@@ -10,10 +10,10 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "Bangladesh Wadokai Karate Do",
-  description: "Official website of Bangladesh Wadokai Karate Do",
+  title: "Roni Karate Academy",
+  description: "Official website of Roni Karate Academy",
   icons: {
-    icon: "/bwkd-logo.png",
+    icon: "/rka-logo.png",
   },
   generator: "v0.dev",
 };
