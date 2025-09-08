@@ -31,8 +31,8 @@ export default function PrivacyPolicy() {
             <div className="prose dark:prose-invert max-w-none">
               <h2>Introduction</h2>
               <p>
-                Bangladesh Wadokai Karate Do (BWKD) is committed to protecting
-                your privacy. This Privacy Policy explains how we collect, use,
+                Roni Karate Academy (RKA) is committed to protecting your
+                privacy. This Privacy Policy explains how we collect, use,
                 disclose, and safeguard your information when you visit our
                 website or use our services.
               </p>
@@ -157,13 +157,13 @@ export default function PrivacyPolicy() {
                 please contact us at:
               </p>
               <p>
-                Bangladesh Wadokai Karate Do
+                Roni Karate Academy
                 <br />
-                123 Karate Street, Banasreee
+                123 Karate Street, Dhaka
                 <br />
                 Dhaka, Bangladesh
                 <br />
-                Email: info@bwkd.com
+                Email: info@rka.com
                 <br />
                 Phone: +880 1234 567890
               </p>

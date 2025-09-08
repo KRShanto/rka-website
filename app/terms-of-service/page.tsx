@@ -32,11 +32,11 @@ export default function TermsOfService() {
               <h2>Agreement to Terms</h2>
               <p>
                 These Terms of Service constitute a legally binding agreement
-                made between you and Bangladesh Wadokai Karate Do (BWKD),
-                concerning your access to and use of our website and services.
-                You agree that by accessing the website and/or services, you
-                have read, understood, and agree to be bound by all of these
-                Terms of Service.
+                made between you and Roni Karate Academy (RKA), concerning your
+                access to and use of our website and services. You agree that by
+                accessing the website and/or services, you have read,
+                understood, and agree to be bound by all of these Terms of
+                Service.
               </p>
               <p>
                 IF YOU DO NOT AGREE WITH ALL OF THESE TERMS OF SERVICE, THEN YOU
@@ -260,13 +260,13 @@ export default function TermsOfService() {
                 please contact us at:
               </p>
               <p>
-                Bangladesh Wadokai Karate Do
+                Roni Karate Academy
                 <br />
-                123 Karate Street, Banasree
+                123 Karate Street, Dhaka
                 <br />
                 Dhaka, Bangladesh
                 <br />
-                Email: info@bwkd.com
+                Email: info@rka.com
                 <br />
                 Phone: +880 1234 567890
               </p>
