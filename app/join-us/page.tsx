@@ -16,6 +16,9 @@ import {
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useState, useMemo } from "react";
+// Using custom API route to upload via UploadThing server SDK
+import { createAdmission } from "@/actions/create-admission";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,8 +28,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { genUploader } from "uploadthing/client";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import { useRouter } from "next/navigation";
 
 export default function JoinUs() {
+  const router = useRouter();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const previewUrl = useMemo(
+    () => (selectedFile ? URL.createObjectURL(selectedFile) : null),
+    [selectedFile]
+  );
+  const { uploadFiles } = genUploader<OurFileRouter>();
+  const [successOpen, setSuccessOpen] = useState(false);
+
+  // UploadThing endpoint name: imageUploader
   const benefits = [
     {
       icon: Users,
@@ -51,20 +75,73 @@ export default function JoinUs() {
     },
   ];
 
-  const branches = [
-    {
-      name: "Banasree (C Block)",
-      address: "House 36, Road 3, C Block, Banasree, Dhaka",
-    },
-    { name: "Aftabnagar", address: "Aftabnagar, Dhaka" },
-    {
-      name: "Banasree (B Block)",
-      address: "House 14, Road 5, B Block, Banasree, Dhaka",
-    },
-    { name: "Rampura TV Center", address: "TV Center, Rampura, Dhaka" },
-    { name: "NSC Tower", address: "NSC Tower, Dhaka" },
-    { name: "Demra", address: "Demra, Dhaka" },
-  ];
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      setIsSubmitting(true);
+      const form = e.currentTarget as HTMLFormElement;
+      const formData = new FormData(form);
+
+      // Gather form values
+      const name = String(formData.get("fullName") || "");
+      const fatherName = String(formData.get("fatherName") || "");
+      const motherName = String(formData.get("motherName") || "");
+      const dateOfBirth = String(formData.get("dob") || "");
+      const bloodGroup = String(formData.get("bloodGroup") || "");
+      const email = String(formData.get("email") || "");
+      const phone = String(formData.get("contactNumber") || "");
+      const gender = String(formData.get("gender") || "");
+
+      // Upload image if selected
+      let imageUrl: string | undefined;
+      if (selectedFile) {
+        const res = await uploadFiles("imageUploader", {
+          files: [selectedFile],
+        });
+        console.log(res);
+        imageUrl = res?.[0]?.ufsUrl ?? imageUrl;
+      }
+
+      // Normalize enums
+      const genderEnum = gender.toUpperCase() === "MALE" ? "MALE" : "FEMALE";
+      const bloodMap: Record<string, any> = {
+        "A+": "A_POS",
+        "A-": "A_NEG",
+        "B+": "B_POS",
+        "B-": "B_NEG",
+        "O+": "O_POS",
+        "O-": "O_NEG",
+        "AB+": "AB_POS",
+        "AB-": "AB_NEG",
+      };
+      const bloodEnum = bloodMap[bloodGroup] ?? undefined;
+
+      const res = await createAdmission({
+        name,
+        fatherName,
+        motherName,
+        dateOfBirth,
+        bloodGroup: bloodEnum,
+        email,
+        phone,
+        gender: genderEnum as "MALE" | "FEMALE",
+        imageUrl,
+      });
+
+      if (!res.ok) {
+        console.error(res.error);
+        alert(res.error);
+        return;
+      }
+      setSuccessOpen(true);
+      form.reset();
+      setSelectedFile(null);
+    } catch (err) {
+      alert("Failed to submit admission");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -122,9 +199,7 @@ export default function JoinUs() {
                 <CardContent>
                   <form
                     className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                    }}
+                    onSubmit={handleSubmit}
                   >
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="fullName">Full Name</Label>
@@ -209,15 +284,109 @@ export default function JoinUs() {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="flex flex-col gap-2 md:col-span-2">
+                      <Label htmlFor="image">Profile Image</Label>
+                      <div className="flex flex-col items-start gap-3">
+                        <input
+                          id="image"
+                          name="image"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] ?? null;
+                            setSelectedFile(file);
+                          }}
+                        />
+                        <label
+                          htmlFor="image"
+                          className="w-full cursor-pointer rounded-md border-2 border-dashed border-gray-300 p-4 text-center hover:border-primary/60"
+                        >
+                          {previewUrl ? (
+                            <div className="flex items-center gap-4">
+                              <Image
+                                src={previewUrl}
+                                alt="Preview"
+                                width={80}
+                                height={80}
+                                className="rounded-md object-cover"
+                              />
+                              <div className="text-left">
+                                <p className="text-sm text-muted-foreground">
+                                  Change profile image
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Click to select a different image
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="text-sm text-muted-foreground">
+                                Click to select a profile image
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                PNG, JPG up to 16MB
+                              </p>
+                            </div>
+                          )}
+                        </label>
+                        {selectedFile && (
+                          <div className="flex items-center gap-3">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              onClick={() =>
+                                document.getElementById("image")?.click()
+                              }
+                            >
+                              Change Image
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => setSelectedFile(null)}
+                            >
+                              Remove
+                            </Button>
+                            <span className="text-xs text-gray-500">
+                              {selectedFile.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     <div className="md:col-span-2">
                       <Button
                         type="submit"
                         className="w-full bg-primary hover:bg-primary/90"
+                        disabled={isSubmitting}
                       >
-                        Submit Registration
+                        {isSubmitting ? "Submitting..." : "Submit Registration"}
                       </Button>
                     </div>
                   </form>
+                  <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Admission submitted</DialogTitle>
+                        <DialogDescription>
+                          Your admission has been submitted successfully. We
+                          will contact you soon.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          onClick={() => {
+                            setSuccessOpen(false);
+                            router.push("/");
+                          }}
+                        >
+                          Okay
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
             </motion.div>
