@@ -186,6 +186,29 @@ export default function JoinUs() {
                         required
                       />
                     </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        inputMode="email"
+                        placeholder="e.g. name@example.com"
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="gender">Gender</Label>
+                      <Select name="gender">
+                        <SelectTrigger id="gender">
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="md:col-span-2">
                       <Button
                         type="submit"
