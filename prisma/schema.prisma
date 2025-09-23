@@ -65,12 +65,12 @@ enum PaymentStatus {
 // ------------
 
 model Branch {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   notices   Notice[]
-  profiles  Profile[]
+  users     User[]
 }
 
 model Gallery {
@@ -100,27 +100,28 @@ model Notice {
   branchId    String
 }
 
-model Profile {
-  id              String    @id @default(cuid())
-  name            String
-  email           String    @unique
-  phone           String
-  motherName      String
-  fatherName      String
-  profileImageUrl String?
-  currentBelt     String?
-  currentDan      Int?
-  danExamDates    Json?
-  weight          Float?
-  gender          Gender
-  joinDate        DateTime?
-  role            Role      @default(USER)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  branch          Branch    @relation(fields: [branchId], references: [id])
-  branchId        String
-
-  payments Payment[]
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  username     String    @unique
+  password     String
+  email        String?
+  phone        String?
+  motherName   String?
+  fatherName   String?
+  imageUrl     String?
+  currentBelt  String?
+  currentDan   Int?
+  danExamDates Json?
+  weight       Float?
+  gender       Gender?
+  joinDate     DateTime?
+  role         Role      @default(USER)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  branch       Branch?   @relation(fields: [branchId], references: [id])
+  branchId     String?
+  payments     Payment[]
 }
 
 model Admission {
@@ -147,6 +148,6 @@ model Payment {
   status             PaymentStatus @default(PENDING)
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
-  user               Profile       @relation(fields: [userId], references: [id])
+  user               User          @relation(fields: [userId], references: [id])
   userId             String
 }
