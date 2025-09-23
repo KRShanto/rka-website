@@ -1,0 +1,20 @@
+---
+description: Main rules
+globs:
+alwaysApply: true
+---
+
+# RKAD website
+
+This website is basically a clone and modified version of my another project `https://bwkd.org`.
+
+In the previous project, we were using Supabase for handling everything.
+
+So here we will be using:
+
+- Next.js 15
+- Uploadthing
+- Prisma with Postgres
+- Custom JWT authentication
+
+Most of the UI is done already. We need to change the backend mostly.
