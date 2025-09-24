@@ -578,7 +578,7 @@ export default function NoticeManagement() {
                     onChange={(e) =>
                       setSelectedNotice({
                         ...selectedNotice,
-                        date: e.target.value || null,
+                        date: e.target.value || "",
                       })
                     }
                   />
