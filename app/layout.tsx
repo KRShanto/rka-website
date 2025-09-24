@@ -24,10 +24,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getUser();
+
   return (
     <html lang="en">
       <body>
-        <ClientLayout>{children}</ClientLayout>
+        <ClientLayout user={user}>{children}</ClientLayout>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>

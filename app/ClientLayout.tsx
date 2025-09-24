@@ -20,6 +20,7 @@ import ResponsiveNavigation from "@/components/ResponsiveNavigation";
 import ResponsiveFooter from "@/components/ResponsiveFooter";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import { Toaster } from "sonner";
+import { AuthUser } from "@/lib/auth";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -94,8 +95,10 @@ const socialLinks = [
 
 export default function ClientLayout({
   children,
+  user,
 }: {
   children: React.ReactNode;
+  user: AuthUser | null;
 }) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -125,6 +128,7 @@ export default function ClientLayout({
                 logoAlt="RKA"
                 items={navItems}
                 cta={{ href: "/join-us", label: "Join Us" }}
+                user={user}
               />
             )}
 

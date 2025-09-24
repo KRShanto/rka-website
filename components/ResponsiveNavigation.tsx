@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown, User, Shield } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/providers/AuthProvider";
+import { AuthUser } from "@/lib/auth";
 
 interface NavItem {
   href: string;
@@ -27,6 +27,7 @@ interface ResponsiveNavigationProps {
     href: string;
     label: string;
   };
+  user: AuthUser | null;
 }
 
 export default function ResponsiveNavigation({
@@ -34,12 +35,12 @@ export default function ResponsiveNavigation({
   logoAlt,
   items,
   cta,
+  user,
 }: ResponsiveNavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const { user } = useAuth();
 
   // Handle scroll events
   useEffect(() => {
@@ -82,7 +83,7 @@ export default function ResponsiveNavigation({
 
   // Filter out login item if user is logged in
   const filteredItems = items.filter(
-    (item) => !(user?.isLoggedIn && item.href === "/login")
+    (item) => !(user && item.href === "/login")
   );
 
   return (
@@ -196,9 +197,9 @@ export default function ResponsiveNavigation({
             ))}
 
             {/* Admin Link and Profile or CTA Button */}
-            {user?.isLoggedIn ? (
+            {user ? (
               <div className="flex items-center space-x-2">
-                {user?.isAdmin && (
+                {user.role === "ADMIN" && (
                   <Button
                     asChild
                     variant="ghost"
@@ -347,9 +348,9 @@ export default function ResponsiveNavigation({
             ))}
 
             {/* Mobile Admin and Profile or CTA Button */}
-            {user?.isLoggedIn ? (
+            {user ? (
               <div className="space-y-2">
-                {user?.isAdmin && (
+                {user.role === "ADMIN" && (
                   <Link
                     href="/admin"
                     className="flex items-center px-3 py-3 rounded-md text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 focus:outline-none focus-visible:outline-none"
