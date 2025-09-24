@@ -8,7 +8,9 @@ export type DbUser = NonNullable<Awaited<ReturnType<typeof getDbUser>>>;
 export async function getUser() {
   try {
     // Get token from cookies
-    const token = (await cookies()).get("token")?.value;
+    const token = (await cookies()).get(
+      process.env.JWT_COOKIE_NAME || "token"
+    )?.value;
 
     if (!token) {
       return null;

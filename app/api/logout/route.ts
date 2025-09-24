@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 export async function POST() {
   try {
     // Properly clear the token cookie by setting it to an empty value with the same options and maxAge: 0
-    (await cookies()).set("token", "", {
+    (await cookies()).set(process.env.JWT_COOKIE_NAME || "token", "", {
       httpOnly: true,
       sameSite: "lax",
       path: "/",

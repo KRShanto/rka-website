@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     });
 
     // Set cookie with proper options
-    (await cookies()).set("token", token, {
+    (await cookies()).set(process.env.JWT_COOKIE_NAME || "token", token, {
       httpOnly: true,
       // TODO: Uncomment this when we use a domain for production
       // secure: process.env.NODE_ENV === "production",
