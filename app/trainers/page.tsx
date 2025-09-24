@@ -3,85 +3,79 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
-import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
-
-interface Trainer {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  profile_image_url: string;
-  current_belt: string;
-  current_dan: number;
-  weight: number;
-  gender: string;
-  branch: number | null;
-  created_at: string;
-}
-
-interface Branch {
-  id: number;
-  name: string;
-}
+import { User, Branch } from "@prisma/client";
+import { getBranches, getTrainers } from "@/actions/public";
 
 export default function Trainers() {
-  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [trainers, setTrainers] = useState<User[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch branches for name lookup
-  const fetchBranches = async () => {
+  // // Fetch branches for name lookup
+  // const fetchBranches = async () => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from(BRANCHES_TABLE)
+  //       .select("id, name");
+
+  //     if (error) throw error;
+  //     setBranches(data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching branches:", error);
+  //   }
+  // };
+
+  // // Fetch trainers from database
+  // const fetchTrainers = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const { data, error } = await supabase
+  //       .from(PROFILES_TABLE)
+  //       .select("*")
+  //       .eq("role", "trainer")
+  //       .order("current_dan", { ascending: false });
+
+  //     if (error) throw error;
+
+  //     // Set trainers from database
+  //     setTrainers(data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching trainers:", error);
+  //     // Set empty array on error
+  //     setTrainers([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  async function fetchTrainersAndBranches() {
     try {
-      const { data, error } = await supabase
-        .from(BRANCHES_TABLE)
-        .select("id, name");
-
-      if (error) throw error;
-      setBranches(data || []);
+      const trainers = await getTrainers();
+      const branches = await getBranches();
+      setTrainers(trainers);
+      setBranches(branches);
     } catch (error) {
-      console.error("Error fetching branches:", error);
-    }
-  };
-
-  // Fetch trainers from database
-  const fetchTrainers = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from(PROFILES_TABLE)
-        .select("*")
-        .eq("role", "trainer")
-        .order("current_dan", { ascending: false });
-
-      if (error) throw error;
-
-      // Set trainers from database
-      setTrainers(data || []);
-    } catch (error) {
-      console.error("Error fetching trainers:", error);
-      // Set empty array on error
-      setTrainers([]);
+      console.error("Error fetching trainers and branches:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
-    fetchTrainers();
-    fetchBranches();
+    fetchTrainersAndBranches();
   }, []);
 
   // Get branch name by ID
-  const getBranchName = (branchId: number | null) => {
+  const getBranchName = (branchId: string | null) => {
     if (branchId === null) return null;
     const branch = branches.find((b) => b.id === branchId);
     return branch ? branch.name : null;
   };
 
   // Format belt rank for display
-  const formatBeltRank = (belt: string, dan: number) => {
-    if (belt === "black-belt") {
+  const formatBeltRank = (belt: string | null, dan: number) => {
+    if (belt === null) return null;
+    if (belt === "BLACK_BELT") {
       return `${dan}${
         dan === 1 ? "st" : dan === 2 ? "nd" : dan === 3 ? "rd" : "th"
       } Dan Black Belt`;
@@ -141,7 +135,7 @@ export default function Trainers() {
                 >
                   <div className="relative h-64 bg-gray-100 dark:bg-gray-700">
                     <Image
-                      src={trainer.profile_image_url || "/placeholder-user.png"}
+                      src={trainer.imageUrl || "/placeholder-user.png"}
                       alt={trainer.name}
                       fill
                       className="object-cover transition-transform duration-300 hover:scale-105"
@@ -155,13 +149,13 @@ export default function Trainers() {
                     </h2>
                     <p className="text-primary font-semibold mb-2 text-sm">
                       {formatBeltRank(
-                        trainer.current_belt,
-                        trainer.current_dan
+                        trainer.currentBelt,
+                        trainer.currentDan ?? 0
                       )}
                     </p>
-                    {getBranchName(trainer.branch) && (
+                    {getBranchName(trainer.branchId) && (
                       <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                        {getBranchName(trainer.branch)}
+                        {getBranchName(trainer.branchId)}
                       </p>
                     )}
                   </div>
