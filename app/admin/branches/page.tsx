@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/lib/supabase";
+import { useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -50,16 +48,17 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  adminListBranches,
+  adminCreateBranch,
+  adminUpdateBranch,
+  adminDeleteBranch,
+  type AdminBranch,
+} from "@/actions/admin-branches";
 
-interface Branch {
-  id: number;
-  name: string;
-  created_at: string;
-  user_count?: number;
-}
+type Branch = AdminBranch;
 
 export default function BranchManagement() {
-  const { user: currentUser } = useAuth();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,41 +77,12 @@ export default function BranchManagement() {
 
   const [newBranch, setNewBranch] = useState(initialNewBranch);
 
-  // Fetch branches from Supabase
+  // Fetch branches from server (Prisma actions)
   const fetchBranches = async () => {
     try {
       setLoading(true);
-
-      // Fetch branches
-      const { data: branchData, error: branchError } = await supabase
-        .from("branches")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (branchError) throw branchError;
-
-      // Fetch user counts for each branch
-      const branchesWithCounts = await Promise.all(
-        (branchData || []).map(async (branch) => {
-          const { count, error: countError } = await supabase
-            .from("profiles")
-            .select("*", { count: "exact", head: true })
-            .eq("branch", branch.id);
-
-          if (countError) {
-            console.error(
-              "Error fetching user count for branch:",
-              branch.id,
-              countError
-            );
-            return { ...branch, user_count: 0 };
-          }
-
-          return { ...branch, user_count: count || 0 };
-        })
-      );
-
-      setBranches(branchesWithCounts);
+      const data = await adminListBranches();
+      setBranches(data);
     } catch (error) {
       console.error("Error fetching branches:", error);
       toast.error("Failed to load branches");
@@ -121,7 +91,7 @@ export default function BranchManagement() {
     }
   };
 
-  useEffect(() => {
+  useMemo(() => {
     fetchBranches();
   }, []);
 
@@ -134,32 +104,15 @@ export default function BranchManagement() {
   const handleCreateBranch = async () => {
     try {
       setCreateLoading(true);
-
-      // Validate required fields
-      if (!newBranch.name.trim()) {
-        toast.error("Please enter a branch name");
-        return;
+      const res = await adminCreateBranch(newBranch.name);
+      if (!res.success) {
+        toast.error(res.error || "Please enter a branch name");
+      } else {
+        setBranches([res.branch, ...branches]);
+        setCreateDialogOpen(false);
+        setNewBranch(initialNewBranch);
+        toast.success("Branch created successfully");
       }
-
-      const { data, error } = await supabase
-        .from("branches")
-        .insert([{ name: newBranch.name.trim() }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Add to local state
-      const newBranchRecord: Branch = {
-        ...data,
-        user_count: 0,
-      };
-
-      setBranches([newBranchRecord, ...branches]);
-      setCreateDialogOpen(false);
-      setNewBranch(initialNewBranch);
-
-      toast.success("Branch created successfully");
     } catch (error: any) {
       console.error("Error creating branch:", error);
       toast.error(error.message || "Failed to create branch");
@@ -174,18 +127,14 @@ export default function BranchManagement() {
 
     try {
       setEditLoading(true);
-
-      if (!selectedBranch.name.trim()) {
-        toast.error("Please enter a branch name");
+      const res = await adminUpdateBranch(
+        selectedBranch.id,
+        selectedBranch.name
+      );
+      if (!res.success) {
+        toast.error(res.error || "Failed to update branch");
         return;
       }
-
-      const { error } = await supabase
-        .from("branches")
-        .update({ name: selectedBranch.name.trim() })
-        .eq("id", selectedBranch.id);
-
-      if (error) throw error;
 
       // Update local state
       setBranches(
@@ -218,12 +167,7 @@ export default function BranchManagement() {
         return;
       }
 
-      const { error } = await supabase
-        .from("branches")
-        .delete()
-        .eq("id", selectedBranch.id);
-
-      if (error) throw error;
+      await adminDeleteBranch(selectedBranch.id);
 
       // Remove from local state
       setBranches(branches.filter((b) => b.id !== selectedBranch.id));
