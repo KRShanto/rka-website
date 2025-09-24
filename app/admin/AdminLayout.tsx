@@ -57,12 +57,12 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Admin Header */}
-      <header className="bg-red-600 dark:bg-red-700 text-white shadow-lg border-b border-red-500 fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4">
+      <header className="bg-primary dark:bg-primary text-white shadow-lg border-b border-primary/70 fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-4">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-md text-white hover:bg-red-500 md:hidden"
+          className="p-2 rounded-md text-white hover:bg-primary/80 md:hidden"
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -72,7 +72,7 @@ export default function AdminLayout({
             <div className="flex items-center space-x-2 bg-white/10 px-3 py-1 rounded-lg">
               <Shield className="w-6 h-6" />
               <span className="font-bold text-lg hidden md:inline-block">
-                BWKD Admin Panel
+                RKA Admin Panel
               </span>
               <span className="font-bold text-lg md:hidden">Admin</span>
             </div>
@@ -96,7 +96,7 @@ export default function AdminLayout({
             variant="ghost"
             size="icon"
             onClick={logout}
-            className="text-white hover:bg-red-500"
+            className="text-white hover:bg-primary/80"
             title="Logout"
           >
             <LogOut className="w-5 h-5" />
@@ -107,13 +107,13 @@ export default function AdminLayout({
       {/* Admin Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-72 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-200 ease-in-out md:translate-x-0 pt-16",
+          "fixed inset-y-0 left-0 z-40 w-72 bg-background dark:bg-background shadow-lg transform transition-transform duration-200 ease-in-out md:translate-x-0 pt-16",
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Shield className="w-5 h-5 text-red-600" />
+            <Shield className="w-5 h-5 text-primary" />
             <div>
               <span className="font-medium block">{user?.name || "Admin"}</span>
               <span className="text-xs text-gray-500">Administrator</span>
@@ -128,7 +128,7 @@ export default function AdminLayout({
         </div>
 
         <nav className="p-4 space-y-1">
-          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 mb-3">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-3">
             Admin Panel
           </div>
           {adminNavItems.map((item) => (
@@ -137,7 +137,7 @@ export default function AdminLayout({
               href={item.href}
               className={cn(
                 "flex items-center space-x-2 px-4 py-3 rounded-md transition-colors focus:outline-none focus:ring-0",
-                "text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-300"
+                "text-foreground hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/15"
               )}
               onClick={() => setSidebarOpen(false)}
             >
@@ -146,15 +146,15 @@ export default function AdminLayout({
             </Link>
           ))}
 
-          <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+          <div className="border-t border-border my-4"></div>
 
-          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 mb-3">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-3">
             Quick Links
           </div>
 
           <Link
             href="/dashboard"
-            className="flex items-center space-x-2 px-4 py-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="flex items-center space-x-2 px-4 py-3 rounded-md text-foreground hover:bg-accent transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <Home className="w-5 h-5" />
@@ -163,7 +163,7 @@ export default function AdminLayout({
 
           <Link
             href="/"
-            className="flex items-center space-x-2 px-4 py-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="flex items-center space-x-2 px-4 py-3 rounded-md text-foreground hover:bg-accent transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
             <Home className="w-5 h-5" />
