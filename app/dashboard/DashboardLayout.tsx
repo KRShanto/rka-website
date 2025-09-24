@@ -116,8 +116,18 @@ export default function DashboardLayout({
           <ThemeToggle />
 
           <div className="hidden md:flex items-center space-x-2 border-l border-white/20 pl-3">
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-              <UserIcon className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+              {user?.imageUrl ? (
+                <Image
+                  src={user?.imageUrl}
+                  alt="User"
+                  width={50}
+                  height={50}
+                  className="rounded-full"
+                />
+              ) : (
+                <UserIcon className="w-7 h-7 text-white" />
+              )}
             </div>
             <div className="hidden lg:block">
               <p className="text-sm font-medium">{user?.name || "Admin"}</p>
