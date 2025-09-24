@@ -122,9 +122,6 @@ export default function DashboardLayout({
             <div className="hidden lg:block">
               <p className="text-sm font-medium">{user?.name || "Admin"}</p>
               <div className="flex items-center space-x-1">
-                <p className="text-xs text-white/70 capitalize">
-                  {user?.role || "Student"}
-                </p>
                 {user?.role === "ADMIN" && (
                   <span className="text-xs bg-yellow-500 text-black px-1 rounded">
                     Admin
@@ -159,9 +156,6 @@ export default function DashboardLayout({
             <div>
               <span className="font-medium block">{user?.name || "Admin"}</span>
               <div className="flex items-center space-x-1">
-                <span className="text-xs text-gray-500 capitalize">
-                  {user?.role || "Student"}
-                </span>
                 {user?.role === "ADMIN" && (
                   <span className="text-xs bg-yellow-500 text-black px-1 rounded">
                     Admin
