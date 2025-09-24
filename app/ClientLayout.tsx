@@ -165,10 +165,6 @@ export default function ClientLayout({
 
       {/* Add Sonner Toaster component for toast notifications */}
       <Toaster position="top-right" closeButton richColors />
-
-      {/* Performance optimization scripts - moved outside HTML structure */}
-      <script src="/performance-optimizations.js" defer />
-      <script src="/image-optimization.js" defer />
     </div>
   );
 }
