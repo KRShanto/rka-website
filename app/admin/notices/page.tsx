@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/lib/supabase";
-import { BRANCHES_TABLE, NOTICES_TABLE } from "@/lib/supabase-constants";
 import {
   Card,
   CardContent,
@@ -61,24 +58,29 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { listBranches } from "@/actions/branches";
+import {
+  adminListNotices,
+  adminCreateNotice,
+  adminUpdateNotice,
+  adminDeleteNotice,
+} from "@/actions/admin-notices";
 
 interface Notice {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  date: string | null;
-  branch: number | null;
-  created_at: string;
+  date: string; // ISO
+  branchId: string; // may be empty string for global
+  created_at: string; // ISO
 }
 
 interface Branch {
-  id: number;
+  id: string;
   name: string;
-  created_at: string;
 }
 
 export default function NoticeManagement() {
-  const { user: currentUser } = useAuth();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,40 +99,28 @@ export default function NoticeManagement() {
     title: "",
     description: "",
     date: "",
-    branch: null as number | null,
+    branch: null as string | null,
   };
 
   const [newNotice, setNewNotice] = useState(initialNewNotice);
 
-  // Fetch branches from Supabase
+  // Fetch branches via Prisma
   const fetchBranches = async () => {
     try {
-      const { data, error } = await supabase
-        .from(BRANCHES_TABLE)
-        .select("*")
-        .order("name", { ascending: true });
-
-      if (error) throw error;
-
-      setBranches(data || []);
+      const data = await listBranches();
+      setBranches(data);
     } catch (error) {
       console.error("Error fetching branches:", error);
       toast.error("Failed to load branches");
     }
   };
 
-  // Fetch notices from Supabase
+  // Fetch notices via Prisma
   const fetchNotices = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(NOTICES_TABLE)
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setNotices(data || []);
+      const data = await adminListNotices();
+      setNotices(data as any);
     } catch (error) {
       console.error("Error fetching notices:", error);
       toast.error("Failed to load notices");
@@ -151,8 +141,8 @@ export default function NoticeManagement() {
       notice.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesBranch =
       branchFilter === "all" ||
-      (branchFilter === "none" && notice.branch === null) ||
-      notice.branch?.toString() === branchFilter;
+      (branchFilter === "none" && !notice.branchId) ||
+      notice.branchId === branchFilter;
     return matchesSearch && matchesBranch;
   });
 
@@ -172,23 +162,14 @@ export default function NoticeManagement() {
         return;
       }
 
-      const noticeData = {
+      const res = await adminCreateNotice({
         title: newNotice.title.trim(),
         description: newNotice.description.trim(),
         date: newNotice.date || null,
-        branch: newNotice.branch,
-      };
-
-      const { data, error } = await supabase
-        .from(NOTICES_TABLE)
-        .insert([noticeData])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Add to local state
-      setNotices([data, ...notices]);
+        branchId: newNotice.branch ? newNotice.branch : "",
+      });
+      if (!res.success) throw new Error(res.error || "Failed to create notice");
+      setNotices([res.notice as any, ...notices]);
       setCreateDialogOpen(false);
       setNewNotice(initialNewNotice);
 
@@ -218,19 +199,13 @@ export default function NoticeManagement() {
         return;
       }
 
-      const noticeData = {
+      const res = await adminUpdateNotice(selectedNotice.id, {
         title: selectedNotice.title.trim(),
         description: selectedNotice.description.trim(),
         date: selectedNotice.date || null,
-        branch: selectedNotice.branch,
-      };
-
-      const { error } = await supabase
-        .from(NOTICES_TABLE)
-        .update(noticeData)
-        .eq("id", selectedNotice.id);
-
-      if (error) throw error;
+        branchId: selectedNotice.branchId,
+      });
+      if (!res.success) throw new Error(res.error || "Failed to update notice");
 
       // Update local state
       setNotices(
@@ -254,13 +229,7 @@ export default function NoticeManagement() {
 
     try {
       setDeleteLoading(true);
-
-      const { error } = await supabase
-        .from(NOTICES_TABLE)
-        .delete()
-        .eq("id", selectedNotice.id);
-
-      if (error) throw error;
+      await adminDeleteNotice(selectedNotice.id);
 
       // Remove from local state
       setNotices(notices.filter((n) => n.id !== selectedNotice.id));
@@ -277,8 +246,8 @@ export default function NoticeManagement() {
   };
 
   // Get branch name by ID
-  const getBranchName = (branchId: number | null) => {
-    if (branchId === null) return "All Branches";
+  const getBranchName = (branchId: string | null | undefined) => {
+    if (!branchId) return "All Branches";
     const branch = branches.find((b) => b.id === branchId);
     return branch ? branch.name : "Unknown Branch";
   };
@@ -351,7 +320,7 @@ export default function NoticeManagement() {
                   <SelectItem value="all">All Branches</SelectItem>
                   <SelectItem value="none">All Branches (Global)</SelectItem>
                   {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id.toString()}>
+                    <SelectItem key={branch.id} value={branch.id}>
                       {branch.name}
                     </SelectItem>
                   ))}
@@ -406,7 +375,7 @@ export default function NoticeManagement() {
                         <div className="flex items-center space-x-2">
                           <MapPin className="w-4 h-4 text-gray-400" />
                           <span className="text-sm">
-                            {getBranchName(notice.branch)}
+                            {getBranchName(notice.branchId)}
                           </span>
                         </div>
                       </TableCell>
@@ -514,13 +483,11 @@ export default function NoticeManagement() {
               <div>
                 <Label htmlFor="create-branch">Branch</Label>
                 <Select
-                  value={
-                    (newNotice.branch as number | null)?.toString() || "none"
-                  }
+                  value={(newNotice.branch as string | null) || "none"}
                   onValueChange={(value) =>
                     setNewNotice({
                       ...newNotice,
-                      branch: value === "none" ? null : parseInt(value),
+                      branch: value === "none" ? null : value,
                     })
                   }
                 >
@@ -530,7 +497,7 @@ export default function NoticeManagement() {
                   <SelectContent>
                     <SelectItem value="none">All Branches</SelectItem>
                     {branches.map((branch) => (
-                      <SelectItem key={branch.id} value={branch.id.toString()}>
+                      <SelectItem key={branch.id} value={branch.id}>
                         {branch.name}
                       </SelectItem>
                     ))}
@@ -619,11 +586,11 @@ export default function NoticeManagement() {
                 <div>
                   <Label htmlFor="edit-branch">Branch</Label>
                   <Select
-                    value={selectedNotice.branch?.toString() || "none"}
+                    value={selectedNotice.branchId || "none"}
                     onValueChange={(value) =>
                       setSelectedNotice({
                         ...selectedNotice,
-                        branch: value === "none" ? null : parseInt(value),
+                        branchId: value === "none" ? "" : value,
                       })
                     }
                   >
@@ -633,10 +600,7 @@ export default function NoticeManagement() {
                     <SelectContent>
                       <SelectItem value="none">All Branches</SelectItem>
                       {branches.map((branch) => (
-                        <SelectItem
-                          key={branch.id}
-                          value={branch.id.toString()}
-                        >
+                        <SelectItem key={branch.id} value={branch.id}>
                           {branch.name}
                         </SelectItem>
                       ))}
