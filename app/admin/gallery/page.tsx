@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/lib/supabase";
-import { GALLERY_TABLE, GALLERY_IMAGES_BUCKET } from "@/lib/supabase-constants";
+import { genUploader } from "uploadthing/client";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import {
   Card,
   CardContent,
@@ -36,15 +35,19 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import {
+  adminListGallery,
+  adminCreateGalleryItems,
+  adminDeleteGalleryItem,
+} from "@/actions/admin-gallery";
 
 interface GalleryItem {
-  id: number;
+  id: string;
   url: string;
   created_at: string;
 }
 
 export default function GalleryManagement() {
-  const { user: currentUser } = useAuth();
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -64,18 +67,14 @@ export default function GalleryManagement() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Fetch gallery items from Supabase
+  const { uploadFiles } = genUploader<OurFileRouter>();
+
+  // Fetch gallery items via Prisma
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(GALLERY_TABLE)
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setItems(data || []);
+      const data = await adminListGallery();
+      setItems(data);
     } catch (error) {
       console.error("Error fetching gallery items:", error);
       toast.error("Failed to load gallery items");
@@ -88,25 +87,12 @@ export default function GalleryManagement() {
     fetchItems();
   }, []);
 
-  // Handle image upload
+  // Upload images via UploadThing
   const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(7)}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(GALLERY_IMAGES_BUCKET)
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage
-      .from(GALLERY_IMAGES_BUCKET)
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
+    const res = await uploadFiles("imageUploader", { files: [file] });
+    const url = res?.[0]?.ufsUrl;
+    if (!url) throw new Error("Failed to upload image");
+    return url;
   };
 
   // Handle file selection
@@ -171,29 +157,16 @@ export default function GalleryManagement() {
         return;
       }
 
-      const uploadPromises = imageFiles.map((file) => uploadImage(file));
-      const imageUrls = await Promise.all(uploadPromises);
-
-      const itemsToInsert = imageUrls.map((url) => ({ url }));
-
-      const { data, error } = await supabase
-        .from(GALLERY_TABLE)
-        .insert(itemsToInsert)
-        .select();
-
-      if (error) throw error;
-
-      // Add to local state
-      const newItemRecords: GalleryItem[] = (data || []).map((item) => ({
-        ...item,
-        created_at: new Date().toISOString(),
-      }));
-
-      setItems([...newItemRecords, ...items]);
+      const imageUrls = await Promise.all(
+        imageFiles.map((file) => uploadImage(file))
+      );
+      const res = await adminCreateGalleryItems(imageUrls);
+      if (!res.success) throw new Error(res.error || "Failed to add images");
+      setItems([...res.items, ...items]);
       setImageFiles([]);
       setImagePreviews([]);
 
-      toast.success(`${newItemRecords.length} images uploaded successfully`);
+      toast.success(`${res.items.length} images uploaded successfully`);
     } catch (error: any) {
       console.error("Error uploading images:", error);
       toast.error(error.message || "Failed to upload images");
@@ -209,12 +182,7 @@ export default function GalleryManagement() {
     try {
       setDeleteLoading(true);
 
-      const { error } = await supabase
-        .from(GALLERY_TABLE)
-        .delete()
-        .eq("id", selectedItem.id);
-
-      if (error) throw error;
+      await adminDeleteGalleryItem(selectedItem.id);
 
       // Remove from local state
       setItems(items.filter((item) => item.id !== selectedItem.id));
