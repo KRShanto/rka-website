@@ -4,75 +4,12 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { X, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { GALLERY_TABLE } from "@/lib/supabase-constants";
 import Masonry from "react-masonry-css";
+import { getGallery } from "@/actions/public";
+import { Gallery } from "@prisma/client";
 
-interface GalleryItem {
-  id: number;
-  url: string;
-  created_at: string;
-}
-
-// Fallback images for when database is empty
-const fallbackImages = [
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%2011.jpg-DvGpKoK1o4shrAZ99t7FZ7wSCZCnWI.jpeg",
-    alt: "Karate instructor raising a young student's arm in victory, both wearing white gi with the student having an orange belt",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%201.jpg-9shw1zttlVYAsTDypCH2MH7WLyHIwB.jpeg",
-    alt: "BWKD team members in formal attire at an event",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%202.jpg-s6VKFyKCk5dX7L1PxK2g7Nxmc0wCRd.jpeg",
-    alt: "BWKD students in formal attire with red ties",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%203.jpg-uDgFM6eMVuab78PZrnPRCuxFVY1ZO3.jpeg",
-    alt: "Award ceremony with trophies and officials",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%204.jpg-bnBUeF1UUlR9h2iI8B8AaLQCQC15m9.jpeg",
-    alt: "Young karate students smiling together",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%205.jpg-oCVDJ2lOUC6j4xr79xyQZ2LRhDLVBP.jpeg",
-    alt: "Karate practitioners receiving awards",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%206.jpg-v01o6n4mwZQtsUTsxiwKVSvhHRZh7R.jpeg",
-    alt: "Karate practitioners at a ceremony",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%207.jpg-6ti1nH0kup4LZQGyOiVyxuxT93TjVj.jpeg",
-    alt: "BWKD team with medals at a competition",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%208.jpg-tOIAGWTpTRFJcA2Qh6g0GERUxm80LJ.jpeg",
-    alt: "Karate practitioner with trophy and medal",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%209.jpg-o0cwKl6g4ZNCApKawh8Fe46d6FggNs.jpeg",
-    alt: "Karate athlete with medal in national colors",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%2010.jpg-NYdtLYozhyrGsaGwhvdivCQKt6COEO.jpeg",
-    alt: "Two karate practitioners showing gold medals",
-  },
-  // Keep some of the previous images
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg",
-    alt: "Karate training session",
-  },
-  {
-    src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unknownpersonimg.jpg-ECcz9FhlPE735MrZ1EIlZAOSemRubx.jpeg",
-    alt: "Karate competition",
-  },
-];
-
-export default function Gallery() {
-  const [galleryImages, setGalleryImages] = useState<GalleryItem[]>([]);
+export default function GalleryComponent() {
+  const [galleryImages, setGalleryImages] = useState<Gallery[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<null | {
     src: string;
@@ -88,33 +25,10 @@ export default function Gallery() {
   const fetchGalleryImages = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(GALLERY_TABLE)
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      // Use database images if available, otherwise fallback
-      setGalleryImages(
-        data && data.length > 0
-          ? data
-          : fallbackImages.map((img, index) => ({
-              id: index,
-              url: img.src,
-              created_at: new Date().toISOString(),
-            }))
-      );
+      const gallery = await getGallery();
+      setGalleryImages(gallery);
     } catch (error) {
       console.error("Error fetching gallery images:", error);
-      // Use fallback images on error
-      setGalleryImages(
-        fallbackImages.map((img, index) => ({
-          id: index,
-          url: img.src,
-          created_at: new Date().toISOString(),
-        }))
-      );
     } finally {
       setLoading(false);
     }
