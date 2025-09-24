@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import {
-  ACHIEVEMENTS_TABLE,
-  ACHIEVEMENT_IMAGES_BUCKET,
-} from "@/lib/supabase-constants";
 import {
   Card,
   CardContent,
@@ -55,9 +50,17 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
+import { genUploader } from "uploadthing/client";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import {
+  adminListAchievements,
+  adminCreateAchievement,
+  adminUpdateAchievement,
+  adminDeleteAchievement,
+} from "@/actions/admin-achievements";
 
 interface Achievement {
-  id: number;
+  id: string;
   title: string;
   description: string;
   image_url: string;
@@ -150,54 +153,36 @@ export default function AchievementsManagement() {
     reader.readAsDataURL(file);
   };
 
-  // Upload image to Supabase storage
+  const { uploadFiles } = genUploader<OurFileRouter>();
   const uploadImage = async (file: File): Promise<string> => {
     try {
       setImageUploading(true);
-
-      // Create a unique file path
-      const fileExtension = file.name.split(".").pop();
-      const fileName = `achievement_${Date.now()}.${fileExtension}`;
-      const filePath = `achievements/${fileName}`;
-
-      // Upload the file to Supabase storage
-      const { data, error } = await supabase.storage
-        .from(ACHIEVEMENT_IMAGES_BUCKET)
-        .upload(filePath, file);
-
-      if (error) {
-        throw error;
-      }
-
-      // Get the public URL for the uploaded file
-      const {
-        data: { publicUrl },
-      } = supabase.storage
-        .from(ACHIEVEMENT_IMAGES_BUCKET)
-        .getPublicUrl(filePath);
-
-      setImageUploading(false);
-      return publicUrl;
-    } catch (error) {
-      console.error("Error uploading image:", error);
+      const res = await uploadFiles("imageUploader", { files: [file] });
+      const url = res?.[0]?.ufsUrl ?? "";
+      return url;
+    } catch (err) {
+      console.error("Error uploading image:", err);
       toast.error("Failed to upload image");
-      setImageUploading(false);
       return "";
+    } finally {
+      setImageUploading(false);
     }
   };
 
-  // Fetch achievements from Supabase
+  // Fetch achievements via Prisma
   const fetchAchievements = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(ACHIEVEMENTS_TABLE)
-        .select("*")
-        .order("date", { ascending: false });
-
-      if (error) throw error;
-
-      setAchievements(data || []);
+      const data = await adminListAchievements();
+      setAchievements(
+        data.map((a) => ({
+          id: a.id,
+          title: a.title,
+          description: a.description,
+          image_url: a.imageUrl || "",
+          date: a.date,
+        }))
+      );
     } catch (error) {
       console.error("Error fetching achievements:", error);
       toast.error("Failed to load achievements");
@@ -230,17 +215,14 @@ export default function AchievementsManagement() {
         imageUrl = await uploadImage(editImageFile);
       }
 
-      const { error } = await supabase
-        .from(ACHIEVEMENTS_TABLE)
-        .update({
-          title: selectedAchievement.title,
-          description: selectedAchievement.description,
-          image_url: imageUrl,
-          date: selectedAchievement.date,
-        })
-        .eq("id", selectedAchievement.id);
-
-      if (error) throw error;
+      const res = await adminUpdateAchievement(selectedAchievement.id, {
+        title: selectedAchievement.title,
+        description: selectedAchievement.description,
+        imageUrl,
+        date: selectedAchievement.date || undefined,
+      });
+      if (!res.success)
+        throw new Error(res.error || "Failed to update achievement");
 
       // Update local state
       setAchievements(
@@ -274,12 +256,7 @@ export default function AchievementsManagement() {
     try {
       setDeleteLoading(true);
 
-      const { error } = await supabase
-        .from(ACHIEVEMENTS_TABLE)
-        .delete()
-        .eq("id", selectedAchievement.id);
-
-      if (error) throw error;
+      await adminDeleteAchievement(selectedAchievement.id);
 
       // Remove from local state
       setAchievements(
@@ -314,23 +291,24 @@ export default function AchievementsManagement() {
         imageUrl = await uploadImage(imageFile);
       }
 
-      const achievementData = {
+      const res = await adminCreateAchievement({
         title: newAchievement.title,
         description: newAchievement.description,
-        image_url: imageUrl,
+        imageUrl,
         date: newAchievement.date,
-      };
-
-      const { data: achievementResponse, error } = await supabase
-        .from(ACHIEVEMENTS_TABLE)
-        .insert([achievementData])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Add to local state
-      setAchievements([...achievements, achievementResponse]);
+      });
+      if (!res.success)
+        throw new Error(res.error || "Failed to create achievement");
+      setAchievements([
+        ...achievements,
+        {
+          id: res.achievement.id,
+          title: res.achievement.title,
+          description: res.achievement.description,
+          image_url: res.achievement.imageUrl || "",
+          date: res.achievement.date,
+        },
+      ]);
       setCreateDialogOpen(false);
       setNewAchievement(initialNewAchievement);
       setImageFile(null);
