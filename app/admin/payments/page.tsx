@@ -5,6 +5,7 @@ import {
   adminListPayments,
   adminConfirmPayment,
   adminDeletePayment,
+  adminRejectPayment,
 } from "@/actions/admin-payments";
 import {
   Card,
@@ -179,6 +180,28 @@ export default function PaymentManagement() {
     } catch (error) {
       console.error("Error deleting payment:", error);
       toast.error("Failed to delete payment");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle reject payment
+  const handleRejectPayment = async () => {
+    if (!selectedPayment) return;
+
+    try {
+      setActionLoading(true);
+      const res = await adminRejectPayment(selectedPayment.id);
+      if (!res.success) throw new Error("Failed to reject");
+      setPayments(
+        payments.map((p) =>
+          p.id === selectedPayment.id ? { ...p, status: "rejected" } : p
+        )
+      );
+      toast.success("Payment rejected successfully");
+    } catch (error) {
+      console.error("Error rejecting payment:", error);
+      toast.error("Failed to reject payment");
     } finally {
       setActionLoading(false);
     }

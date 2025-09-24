@@ -54,6 +54,7 @@ export default function AdminLayout({
     { href: "/admin/achievements", label: "Achievements", icon: Trophy },
     { href: "/admin/gallery", label: "Gallery Management", icon: Images },
     { href: "/admin/payments", label: "Payment Management", icon: CreditCard },
+    { href: "/admin/admissions", label: "Admissions", icon: Users },
   ];
 
   return (

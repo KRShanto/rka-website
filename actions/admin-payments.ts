@@ -78,6 +78,15 @@ export async function adminDeletePayment(id: string) {
   return { success: true as const };
 }
 
+export async function adminRejectPayment(id: string) {
+  await requireAuth();
+  await prisma.payment.update({
+    where: { id },
+    data: { status: PaymentStatus.REJECTED },
+  });
+  return { success: true as const };
+}
+
 function mapPrismaTypeToUi(type: PaymentType): AdminPayment["type"] {
   switch (type) {
     case PaymentType.MONTHLY_FEE:
