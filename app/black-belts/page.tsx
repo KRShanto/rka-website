@@ -1,84 +1,70 @@
 "use client";
 import Image from "next/image";
-import { Award, Calendar, Search, User } from "lucide-react";
+import { Award, Calendar, Search, User as UserIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/lib/supabase";
-import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
-
-interface BlackBelt {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  profile_image_url: string;
-  current_belt: string;
-  current_dan: number;
-  weight: number;
-  gender: string;
-  branch: number | null;
-  created_at: string;
-  dan_exam_dates: string[];
-}
-
-interface Branch {
-  id: number;
-  name: string;
-}
+import { Branch, User } from "@prisma/client";
+import { getBlackBelts, getBranches } from "@/actions/public";
 
 export default function BlackBelts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [blackBelts, setBlackBelts] = useState<BlackBelt[]>([]);
+  const [blackBelts, setBlackBelts] = useState<User[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
 
-  // Fetch branches for name lookup
-  const fetchBranches = async () => {
-    try {
-      const { data, error } = await supabase
-        .from(BRANCHES_TABLE)
-        .select("id, name");
+  // // Fetch branches for name lookup
+  // const fetchBranches = async () => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from(BRANCHES_TABLE)
+  //       .select("id, name");
 
-      if (error) throw error;
-      setBranches(data || []);
-    } catch (error) {
-      console.error("Error fetching branches:", error);
-    }
-  };
+  //     if (error) throw error;
+  //     setBranches(data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching branches:", error);
+  //   }
+  // };
 
-  // Fetch black belts from database
-  const fetchBlackBelts = async () => {
+  // // Fetch black belts from database
+  // const fetchBlackBelts = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const { data, error } = await supabase
+  //       .from(PROFILES_TABLE)
+  //       .select("*")
+  //       .eq("current_belt", "black-belt")
+  //       .order("current_dan", { ascending: false });
+
+  //     if (error) throw error;
+  //     setBlackBelts(data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching black belts:", error);
+  //     setBlackBelts([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  async function getBlackBeltsWithBranches() {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(PROFILES_TABLE)
-        .select("*")
-        .eq("current_belt", "black-belt")
-        .order("current_dan", { ascending: false });
-
-      if (error) throw error;
-      setBlackBelts(data || []);
+      const blackBelts = await getBlackBelts();
+      const branches = await getBranches();
+      setBlackBelts(blackBelts);
+      setBranches(branches);
     } catch (error) {
-      console.error("Error fetching black belts:", error);
-      setBlackBelts([]);
+      console.error("Error fetching black belts with branches:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
-    fetchBlackBelts();
-    fetchBranches();
+    getBlackBeltsWithBranches();
   }, []);
-
-  // Get branch name by ID
-  const getBranchName = (branchId: number | null) => {
-    if (branchId === null) return "Main Dojo";
-    const branch = branches.find((b) => b.id === branchId);
-    return branch ? branch.name : "Main Dojo";
-  };
 
   // Format dan for display
   const formatDan = (dan: number) => {
@@ -173,9 +159,7 @@ export default function BlackBelts() {
                 >
                   <div className="relative h-64 bg-gray-100 dark:bg-gray-700">
                     <Image
-                      src={
-                        blackBelt.profile_image_url || "/placeholder-user.png"
-                      }
+                      src={blackBelt.imageUrl || "/placeholder-user.png"}
                       alt={blackBelt.name}
                       fill
                       className="object-cover transition-transform duration-300 hover:scale-105"
@@ -184,7 +168,7 @@ export default function BlackBelts() {
                       priority={index < 3}
                     />
                     <div className="absolute top-0 right-0 m-4 bg-[#dc2626]/90 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      {formatDan(blackBelt.current_dan)}
+                      {formatDan(blackBelt.currentDan ?? 0)}
                     </div>
                   </div>
                   <div className="p-4">
@@ -192,19 +176,20 @@ export default function BlackBelts() {
                       {blackBelt.name}
                     </h2>
                     <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
-                      <User className="w-3 h-3 mr-2 text-[#dc2626]" />
+                      <UserIcon className="w-3 h-3 mr-2 text-[#dc2626]" />
                       <span className="text-sm">ID: {blackBelt.id}</span>
                     </div>
                     <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
                       <Award className="w-3 h-3 mr-2 text-[#dc2626]" />
                       <span className="text-sm">
-                        {formatDan(blackBelt.current_dan)} Black Belt
+                        {formatDan(blackBelt.currentDan ?? 0)} Black Belt
                       </span>
                     </div>
                     <div className="flex items-center text-gray-600 dark:text-gray-300">
                       <Calendar className="w-3 h-3 mr-2 text-[#dc2626]" />
                       <span className="text-sm">
-                        Awarded: {formatBlackBeltDate(blackBelt.created_at)}
+                        Awarded:{" "}
+                        {formatBlackBeltDate(blackBelt.createdAt.toISOString())}
                       </span>
                     </div>
                   </div>
