@@ -3,19 +3,10 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
-import { ACHIEVEMENTS_TABLE } from "@/lib/supabase-constants";
 import { Trophy, Award } from "lucide-react";
 import { toast } from "sonner";
-
-interface Achievement {
-  id: number;
-  title: string;
-  description: string;
-  image_url: string;
-  date: string | null;
-  created_at: string;
-}
+import { Achievement } from "@prisma/client";
+import { getAchievements } from "@/actions/public";
 
 export default function Achievements() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -25,14 +16,9 @@ export default function Achievements() {
   const fetchAchievements = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(ACHIEVEMENTS_TABLE)
-        .select("*")
-        .order("date", { ascending: false });
+      const achievements = await getAchievements();
 
-      if (error) throw error;
-
-      setAchievements(data || []);
+      setAchievements(achievements || []);
     } catch (error) {
       console.error("Error fetching achievements:", error);
       toast.error("Failed to load achievements");
@@ -96,7 +82,7 @@ export default function Achievements() {
                 >
                   <div className="relative w-full md:w-1/2 h-64">
                     <Image
-                      src={achievement.image_url || "/placeholder.svg"}
+                      src={achievement.imageUrl || "/placeholder.svg"}
                       alt={achievement.title}
                       layout="fill"
                       objectFit="cover"
