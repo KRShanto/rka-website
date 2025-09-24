@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/lib/supabase";
-import { PAYMENTS_TABLE, PROFILES_TABLE } from "@/lib/supabase-constants";
+import {
+  adminListPayments,
+  adminConfirmPayment,
+  adminDeletePayment,
+} from "@/actions/admin-payments";
 import {
   Card,
   CardContent,
@@ -62,24 +64,23 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface Payment {
-  id: number;
+  id: string;
   created_at: string;
   type: string;
   amount: number;
   student_id: string;
-  bkash_transaction_id: string;
+  bkash_transaction_id: string | null;
   status: string;
-  user_id: number;
+  user_id: string;
   profiles: {
-    id: number;
+    id: string;
     name: string;
-    email: string;
-    profile_image_url: string;
+    email: string | null;
+    profile_image_url: string | null;
   };
 }
 
 export default function PaymentManagement() {
-  const { user: currentUser } = useAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,28 +91,12 @@ export default function PaymentManagement() {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Fetch payments from Supabase with user details
+  // Fetch payments via Prisma with user details
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from(PAYMENTS_TABLE)
-        .select(
-          `
-          *,
-          profiles:user_id (
-            id,
-            name,
-            email,
-            profile_image_url
-          )
-        `
-        )
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setPayments(data || []);
+      const data = await adminListPayments();
+      setPayments(data as any);
     } catch (error) {
       console.error("Error fetching payments:", error);
       toast.error("Failed to load payments");
@@ -131,7 +116,7 @@ export default function PaymentManagement() {
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
       payment.student_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.bkash_transaction_id
+      (payment.bkash_transaction_id ?? "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
 
@@ -154,13 +139,8 @@ export default function PaymentManagement() {
 
     try {
       setActionLoading(true);
-
-      const { error } = await supabase
-        .from(PAYMENTS_TABLE)
-        .update({ status: "confirmed" })
-        .eq("id", selectedPayment.id);
-
-      if (error) throw error;
+      const res = await adminConfirmPayment(selectedPayment.id);
+      if (!res.success) throw new Error("Failed to confirm");
 
       // Update local state
       setPayments(
@@ -186,13 +166,8 @@ export default function PaymentManagement() {
 
     try {
       setActionLoading(true);
-
-      const { error } = await supabase
-        .from(PAYMENTS_TABLE)
-        .delete()
-        .eq("id", selectedPayment.id);
-
-      if (error) throw error;
+      const res = await adminDeletePayment(selectedPayment.id);
+      if (!res.success) throw new Error("Failed to delete");
 
       // Remove from local state
       setPayments(payments.filter((p) => p.id !== selectedPayment.id));
@@ -429,7 +404,7 @@ export default function PaymentManagement() {
                       </TableCell>
                       <TableCell>
                         <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                          {payment.bkash_transaction_id}
+                          {payment.bkash_transaction_id || "—"}
                         </span>
                       </TableCell>
                       <TableCell>{getStatusBadge(payment.status)}</TableCell>
