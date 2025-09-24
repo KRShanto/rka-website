@@ -1,36 +1,13 @@
-"use client";
-
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { Award, Calendar, User, Clock } from "lucide-react";
+import { Award, Calendar, User as UserIcon, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/lib/supabase";
-import { PROFILES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
-import { getAuthEmail } from "@/actions/get-auth-email";
-
-interface BlackBeltProfile {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  profile_image_url: string;
-  current_belt: string;
-  current_dan: number;
-  weight: number;
-  gender: string;
-  branch: number | null;
-  created_at: string;
-  dan_exam_dates: string[];
-  auth_id: string;
-}
-
-interface Branch {
-  id: number;
-  name: string;
-}
+import { User, Branch } from "@prisma/client";
+import { getBlackBeltById } from "@/actions/public";
+import { JsonValue } from "@prisma/client/runtime/library";
 
 // Helper function to get ordinal suffix
 function getOrdinalSuffix(num: number): string {
@@ -48,101 +25,99 @@ function getOrdinalSuffix(num: number): string {
   return "th";
 }
 
-export default function BlackBeltProfilePage() {
-  const params = useParams();
-  const id = params.id as string;
-  const [profile, setProfile] = useState<BlackBeltProfile | null>(null);
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [authEmail, setAuthEmail] = useState<string | null>(null);
+// Format dan for display
+const formatDan = (dan: number) => {
+  const suffix = dan === 1 ? "st" : dan === 2 ? "nd" : dan === 3 ? "rd" : "th";
+  return `${dan}${suffix} Dan`;
+};
 
-  // Get branch name by ID
-  const getBranchName = (branchId: number | null) => {
-    if (branchId === null) return "Main Dojo";
-    const branch = branches.find((b) => b.id === branchId);
-    return branch ? branch.name : "Main Dojo";
-  };
+// Format date for display
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 
-  // Format dan for display
-  const formatDan = (dan: number) => {
-    const suffix =
-      dan === 1 ? "st" : dan === 2 ? "nd" : dan === 3 ? "rd" : "th";
-    return `${dan}${suffix} Dan`;
-  };
+export default async function BlackBeltProfilePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  // const params = useParams();
+  const id = (await params).id as string;
+  // const [profile, setProfile] = useState<User | null>(null);
+  // const [branches, setBranches] = useState<Branch[]>([]);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(false);
+  // const [authEmail, setAuthEmail] = useState<string | null>(null);
 
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // useEffect(() => {
+  //   // Fetch branches
+  //   const fetchBranches = async () => {
+  //     try {
+  //       const { data, error } = await supabase
+  //         .from(BRANCHES_TABLE)
+  //         .select("id, name");
+  //       if (error) throw error;
+  //       setBranches(data || []);
+  //     } catch (error) {
+  //       console.error("Error fetching branches:", error);
+  //     }
+  //   };
 
-  useEffect(() => {
-    // Fetch branches
-    const fetchBranches = async () => {
-      try {
-        const { data, error } = await supabase
-          .from(BRANCHES_TABLE)
-          .select("id, name");
-        if (error) throw error;
-        setBranches(data || []);
-      } catch (error) {
-        console.error("Error fetching branches:", error);
-      }
-    };
+  //   // Fetch profile from database
+  //   const fetchProfile = async () => {
+  //     try {
+  //       setLoading(true);
 
-    // Fetch profile from database
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
+  //       // Get profile by ID
+  //       const { data: profileData, error: profileError } = await supabase
+  //         .from(PROFILES_TABLE)
+  //         .select("*")
+  //         .eq("id", id)
+  //         .eq("current_belt", "black-belt")
+  //         .single();
 
-        // Get profile by ID
-        const { data: profileData, error: profileError } = await supabase
-          .from(PROFILES_TABLE)
-          .select("*")
-          .eq("id", id)
-          .eq("current_belt", "black-belt")
-          .single();
+  //       if (profileError) {
+  //         setError(true);
+  //         return;
+  //       }
 
-        if (profileError) {
-          setError(true);
-          return;
-        }
+  //       if (!profileData) {
+  //         setError(true);
+  //         return;
+  //       }
 
-        if (!profileData) {
-          setError(true);
-          return;
-        }
+  //       setProfile(profileData);
 
-        setProfile(profileData);
+  //       // Get auth email using server action
+  //       if (profileData.auth_id) {
+  //         const result = await getAuthEmail(profileData.auth_id);
+  //         if (result.success && result.email) {
+  //           setAuthEmail(result.email);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching profile:", err);
+  //       setError(true);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-        // Get auth email using server action
-        if (profileData.auth_id) {
-          const result = await getAuthEmail(profileData.auth_id);
-          if (result.success && result.email) {
-            setAuthEmail(result.email);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching profile:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //   fetchBranches();
+  //   fetchProfile();
+  // }, [id]);
 
-    fetchBranches();
-    fetchProfile();
-  }, [id]);
+  // if (loading) {
+  //   return <ProfileSkeleton />;
+  // }
 
-  if (loading) {
-    return <ProfileSkeleton />;
-  }
+  const profile = await getBlackBeltById(id);
 
-  if (error || !profile) {
+  if (!profile) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
         <div className="text-center">
@@ -165,7 +140,7 @@ export default function BlackBeltProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white">
               <Image
-                src={profile.profile_image_url || "/placeholder-user.png"}
+                src={profile.imageUrl || "/placeholder-user.png"}
                 alt={profile.name}
                 layout="fill"
                 objectFit="cover"
@@ -178,11 +153,11 @@ export default function BlackBeltProfilePage() {
                 {profile.name}
               </h1>
               <p className="text-xl mb-2">
-                {formatDan(profile.current_dan)} Black Belt
+                {formatDan(profile.currentDan ?? 0)} Black Belt
               </p>
               <div className="flex items-center gap-2 text-primary-foreground/80">
                 <Award className="w-5 h-5" />
-                <span>RKA ID: {authEmail?.replace("@bwkd.app", "")}</span>
+                <span>RKAD ID: {profile.username}</span>
               </div>
             </div>
           </div>
@@ -198,22 +173,22 @@ export default function BlackBeltProfilePage() {
                   Contact Information
                 </h2>
                 <div className="space-y-4">
-                  {authEmail && (
+                  {profile.email && (
                     <div className="flex items-start gap-3">
-                      <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                      <UserIcon className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                       <div>
                         <p className="font-medium text-gray-700 dark:text-gray-300">
                           Email
                         </p>
                         <p className="text-gray-600 dark:text-gray-400">
-                          {authEmail}
+                          {profile.email}
                         </p>
                       </div>
                     </div>
                   )}
                   {profile.phone && (
                     <div className="flex items-start gap-3">
-                      <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                      <UserIcon className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                       <div>
                         <p className="font-medium text-gray-700 dark:text-gray-300">
                           Phone
@@ -225,13 +200,13 @@ export default function BlackBeltProfilePage() {
                     </div>
                   )}
                   <div className="flex items-start gap-3">
-                    <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                    <UserIcon className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
                         Branch
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {getBranchName(profile.branch)}
+                        {profile.branch?.name}
                       </p>
                     </div>
                   </div>
@@ -247,29 +222,32 @@ export default function BlackBeltProfilePage() {
                     <Award className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
-                        Current Rank: {formatDan(profile.current_dan)} Black
+                        Current Rank: {formatDan(profile.currentDan ?? 0)} Black
                         Belt
                       </p>
                     </div>
                   </div>
 
-                  {profile.dan_exam_dates &&
-                    profile.dan_exam_dates.length > 0 && (
+                  {profile.danExamDates &&
+                    Array.isArray(profile.danExamDates) &&
+                    profile.danExamDates.length > 0 && (
                       <div className="ml-8 space-y-4 border-l-2 border-primary/30 pl-4">
-                        {profile.dan_exam_dates.map((date, index) => (
-                          <div key={index} className="relative">
-                            <div className="absolute -left-6 top-1 w-2 h-2 rounded-full bg-primary"></div>
-                            <p className="font-medium text-gray-700 dark:text-gray-300">
-                              {index + 1}
-                              {getOrdinalSuffix(index + 1)} Dan Black Belt
-                            </p>
-                            {date && (
-                              <p className="text-gray-600 dark:text-gray-400">
-                                {formatDate(date)}
+                        {profile.danExamDates.map(
+                          (date: JsonValue | null, index: number) => (
+                            <div key={index} className="relative">
+                              <div className="absolute -left-6 top-1 w-2 h-2 rounded-full bg-primary"></div>
+                              <p className="font-medium text-gray-700 dark:text-gray-300">
+                                {index + 1}
+                                {getOrdinalSuffix(index + 1)} Dan Black Belt
                               </p>
-                            )}
-                          </div>
-                        ))}
+                              {date && (
+                                <p className="text-gray-600 dark:text-gray-400">
+                                  {formatDate(date.toString())}
+                                </p>
+                              )}
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
                 </div>
@@ -283,7 +261,7 @@ export default function BlackBeltProfilePage() {
                 </h2>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                    <UserIcon className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
                         Name
@@ -301,20 +279,19 @@ export default function BlackBeltProfilePage() {
                         Member Since
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {formatDate(profile.created_at)}
+                        {formatDate(profile.createdAt.toISOString())}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                    <UserIcon className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                     <div>
                       <p className="font-medium text-gray-700 dark:text-gray-300">
                         Gender
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {profile.gender.charAt(0).toUpperCase() +
-                          profile.gender.slice(1)}
+                        {profile.gender}
                       </p>
                     </div>
                   </div>
@@ -326,14 +303,14 @@ export default function BlackBeltProfilePage() {
                         RKA ID
                       </p>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {authEmail?.replace("@bwkd.app", "")}
+                        {profile.username}
                       </p>
                     </div>
                   </div>
 
-                  {profile.weight > 0 && (
+                  {profile.weight && profile.weight > 0 && (
                     <div className="flex items-start gap-3">
-                      <User className="w-5 h-5 mt-0.5 text-[#dc2626]" />
+                      <UserIcon className="w-5 h-5 mt-0.5 text-[#dc2626]" />
                       <div>
                         <p className="font-medium text-gray-700 dark:text-gray-300">
                           Weight
