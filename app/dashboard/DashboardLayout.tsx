@@ -85,7 +85,7 @@ export default function DashboardLayout({
         <div className="flex-1 flex justify-center md:justify-start items-center">
           <Link href="/dashboard" className="flex items-center space-x-2">
             <Image
-              src="/bwkd-logo.png"
+              src="/rka-logo.png"
               alt="RKA"
               width={40}
               height={40}
