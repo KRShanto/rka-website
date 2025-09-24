@@ -53,6 +53,7 @@ export async function POST(request: Request) {
           name: name,
           username: username,
           password: hashedPassword,
+          role: "ADMIN",
         },
       });
 
