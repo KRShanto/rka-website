@@ -2,72 +2,70 @@
 
 import { useState, useEffect } from "react";
 import { CalendarIcon, MapPinIcon, BellIcon } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { NOTICES_TABLE, BRANCHES_TABLE } from "@/lib/supabase-constants";
+import { Notice as NoticeType, Branch } from "@prisma/client";
+import { getNotices, getBranches } from "@/actions/public";
 import { toast } from "sonner";
 
-interface Notice {
-  id: number;
-  title: string;
-  description: string;
-  date: string | null;
-  branch: number | null;
-  created_at: string;
-}
-
-interface Branch {
-  id: number;
-  name: string;
-}
-
 export default function Notice() {
-  const [notices, setNotices] = useState<Notice[]>([]);
+  const [notices, setNotices] = useState<NoticeType[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch branches for name lookup
-  const fetchBranches = async () => {
+  // // Fetch branches for name lookup
+  // const fetchBranches = async () => {
+  //   try {
+  //     const { data, error } = await supabase
+  //       .from(BRANCHES_TABLE)
+  //       .select("id, name");
+
+  //     if (error) throw error;
+  //     setBranches(data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching branches:", error);
+  //   }
+  // };
+
+  // // Fetch notices
+  // const fetchNotices = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const { data, error } = await supabase
+  //       .from(NOTICES_TABLE)
+  //       .select("*")
+  //       .order("created_at", { ascending: false });
+
+  //     if (error) throw error;
+  //     setNotices(data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching notices:", error);
+  //     toast.error("Failed to load notices");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  async function fetchNoticesAndBranches() {
     try {
-      const { data, error } = await supabase
-        .from(BRANCHES_TABLE)
-        .select("id, name");
-
-      if (error) throw error;
-      setBranches(data || []);
+      const notices = await getNotices();
+      const branches = await getBranches();
+      setNotices(notices);
+      setBranches(branches);
     } catch (error) {
-      console.error("Error fetching branches:", error);
-    }
-  };
-
-  // Fetch notices
-  const fetchNotices = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from(NOTICES_TABLE)
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setNotices(data || []);
-    } catch (error) {
-      console.error("Error fetching notices:", error);
-      toast.error("Failed to load notices");
+      console.error("Error fetching notices and branches:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
-    fetchNotices();
-    fetchBranches();
+    fetchNoticesAndBranches();
   }, []);
 
   // Show all notices regardless of user's branch or authentication status
   const filteredNotices = notices;
 
   // Get branch name by ID
-  const getBranchName = (branchId: number | null) => {
+  const getBranchName = (branchId: string | null) => {
     if (branchId === null) return "All Branches";
     const branch = branches.find((b) => b.id === branchId);
     return branch ? branch.name : "Unknown Branch";
@@ -127,13 +125,13 @@ export default function Notice() {
                         <div className="flex items-center text-primary dark:text-primary-foreground">
                           <CalendarIcon className="w-5 h-5 mr-2" />
                           <span className="text-sm">
-                            {formatDate(notice.date)}
+                            {formatDate(notice.date.toISOString())}
                           </span>
                         </div>
                         <div className="flex items-center text-gray-500 dark:text-gray-400">
                           <MapPinIcon className="w-4 h-4 mr-2" />
                           <span className="text-sm">
-                            {getBranchName(notice.branch)}
+                            {getBranchName(notice.branchId)}
                           </span>
                         </div>
                       </div>
