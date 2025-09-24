@@ -1,6 +1,7 @@
 import type React from "react";
 import ClientLayout from "./ClientLayout";
 import { Analytics } from "@vercel/analytics/next";
+import { getUser } from "@/lib/auth";
 
 export const viewport = {
   width: "device-width",
@@ -18,7 +19,7 @@ export const metadata = {
   generator: "v0.dev",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -19,7 +19,6 @@ import { usePathname } from "next/navigation";
 import ResponsiveNavigation from "@/components/ResponsiveNavigation";
 import ResponsiveFooter from "@/components/ResponsiveFooter";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
-import { AuthProvider } from "@/providers/AuthProvider";
 import { Toaster } from "sonner";
 
 // Optimize by deferring non-critical components
@@ -119,47 +118,33 @@ export default function ClientLayout({
   const isAdmin = pathname?.startsWith("/admin");
 
   return (
-    <div suppressHydrationWarning>
-      {/* Theme meta tags - moving from head to meta component */}
-      <meta
-        name="theme-color"
-        content="#dc2626"
-        media="(prefers-color-scheme: light)"
-      />
-      <meta
-        name="theme-color"
-        content="#111827"
-        media="(prefers-color-scheme: dark)"
-      />
-
+    <div>
       <div className={`${inter.className} bg-background text-foreground`}>
         {mounted && (
-          <AuthProvider>
-            <AccessibilityProvider>
-              {!isDashboard && !isAdmin && (
-                <ResponsiveNavigation
-                  logo="/rka-logo.png"
-                  logoAlt="RKA"
-                  items={navItems}
-                  cta={{ href: "/join-us", label: "Join Us" }}
-                />
-              )}
+          <AccessibilityProvider>
+            {!isDashboard && !isAdmin && (
+              <ResponsiveNavigation
+                logo="/rka-logo.png"
+                logoAlt="RKA"
+                items={navItems}
+                cta={{ href: "/join-us", label: "Join Us" }}
+              />
+            )}
 
-              <main>{children}</main>
+            <main>{children}</main>
 
-              {!isDashboard && !isAdmin && (
-                <ResponsiveFooter
-                  logo="/rka-logo.png"
-                  logoAlt="RKA"
-                  description="Roni Karate Academy - Empowering individuals through the art of Karate since 2013. Join our community and discover your potential."
-                  columns={footerColumns}
-                  socialLinks={socialLinks}
-                  newsletter={false}
-                  copyright={`© ${new Date().getFullYear()} Roni Karate Academy. All rights reserved.`}
-                />
-              )}
-            </AccessibilityProvider>
-          </AuthProvider>
+            {!isDashboard && !isAdmin && (
+              <ResponsiveFooter
+                logo="/rka-logo.png"
+                logoAlt="RKA"
+                description="Roni Karate Academy - Empowering individuals through the art of Karate since 2013. Join our community and discover your potential."
+                columns={footerColumns}
+                socialLinks={socialLinks}
+                newsletter={false}
+                copyright={`© ${new Date().getFullYear()} Roni Karate Academy. All rights reserved.`}
+              />
+            )}
+          </AccessibilityProvider>
         )}
       </div>
 

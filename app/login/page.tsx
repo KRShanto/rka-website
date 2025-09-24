@@ -1,80 +1,104 @@
 "use client";
 
-import type React from "react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { useAuth } from "@/providers/AuthProvider";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
-  const [usernameOrEmail, setUsernameOrEmail] = useState("");
+  // const [usernameOrEmail, setUsernameOrEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState("");
-  const { login, loading, error: authError } = useAuth();
+  const [loading, setLoading] = useState(false);
+  // const { login, loading, error: authError } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLocalError("");
+
+  //   // Validation for empty input
+  //   if (!usernameOrEmail.trim()) {
+  //     setLocalError("Please enter your username or email");
+  //     return;
+  //   }
+
+  //   const trimmedInput = usernameOrEmail.trim();
+
+  //   // Basic validation
+  //   if (trimmedInput.length === 0) {
+  //     setLocalError("Please enter a valid username or email");
+  //     return;
+  //   }
+
+  //   // If it contains @, validate as email format
+  //   if (trimmedInput.includes("@")) {
+  //     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //     if (!emailRegex.test(trimmedInput)) {
+  //       setLocalError("Please enter a valid email address");
+  //       return;
+  //     }
+  //   } else {
+  //     // If no @, validate as username (alphanumeric, underscore, hyphen, dots)
+  //     const usernameRegex = /^[a-zA-Z0-9._-]+$/;
+  //     if (!usernameRegex.test(trimmedInput)) {
+  //       setLocalError(
+  //         "Username can only contain letters, numbers, dots, underscores, and hyphens"
+  //       );
+  //       return;
+  //     }
+
+  //     if (trimmedInput.length > 50) {
+  //       setLocalError("Username must be less than 50 characters");
+  //       return;
+  //     }
+  //   }
+
+  //   console.log(`Login input: ${trimmedInput}`);
+
+  //   try {
+  //     await login(trimmedInput, password);
+  //     // Successful login is handled by the AuthProvider
+  //   } catch (error) {
+  //     // Error handling is done in the AuthProvider
+  //     console.error("Login submission error:", error);
+  //   }
+  // };
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLocalError("");
-
-    // Validation for empty input
-    if (!usernameOrEmail.trim()) {
-      setLocalError("Please enter your username or email");
-      return;
-    }
-
-    const trimmedInput = usernameOrEmail.trim();
-
-    // Basic validation
-    if (trimmedInput.length === 0) {
-      setLocalError("Please enter a valid username or email");
-      return;
-    }
-
-    // If it contains @, validate as email format
-    if (trimmedInput.includes("@")) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(trimmedInput)) {
-        setLocalError("Please enter a valid email address");
-        return;
-      }
-    } else {
-      // If no @, validate as username (alphanumeric, underscore, hyphen, dots)
-      const usernameRegex = /^[a-zA-Z0-9._-]+$/;
-      if (!usernameRegex.test(trimmedInput)) {
-        setLocalError(
-          "Username can only contain letters, numbers, dots, underscores, and hyphens"
-        );
-        return;
-      }
-
-      if (trimmedInput.length > 50) {
-        setLocalError("Username must be less than 50 characters");
-        return;
-      }
-    }
-
-    console.log(`Login input: ${trimmedInput}`);
+    setLoading(true);
 
     try {
-      await login(trimmedInput, password);
-      // Successful login is handled by the AuthProvider
+      // POST to /api/login
+      const response = await fetch("/api/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        window.location.href = "/dashboard";
+      } else {
+        setLocalError(data.error);
+      }
     } catch (error) {
-      // Error handling is done in the AuthProvider
+      setLocalError("Invalid credentials");
       console.error("Login submission error:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const error = localError || authError;
+  const error = localError;
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -118,13 +142,13 @@ export default function Login() {
               )}
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
-                  <Label htmlFor="usernameOrEmail">Username or Email</Label>
+                  <Label htmlFor="username">Username or Email</Label>
                   <Input
-                    id="usernameOrEmail"
+                    id="username"
                     type="text"
                     placeholder=""
-                    value={usernameOrEmail}
-                    onChange={(e) => setUsernameOrEmail(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">

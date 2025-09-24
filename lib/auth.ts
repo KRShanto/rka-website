@@ -3,6 +3,8 @@ import { verifyJWT } from "./jwt";
 import { prisma } from "./db";
 import { redirect } from "next/navigation";
 
+export type DbUser = NonNullable<Awaited<ReturnType<typeof getDbUser>>>;
+
 export async function getUser() {
   try {
     // Get token from cookies
@@ -61,6 +63,44 @@ export type AuthUser = NonNullable<Awaited<ReturnType<typeof getUser>>>;
 // Helper to use in Server Components to require authentication
 export async function requireAuth() {
   const user = await getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  return user;
+}
+
+// Get user from the database
+// This is used in Server Components to get the user from the database
+// This expects the user to be authenticated, otherwise it will redirect to the login page
+export async function getDbUser() {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const dbUser = await requireAuth();
+
+  const user = await prisma.user.findUnique({
+    where: { id: dbUser.id },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      imageUrl: true,
+      email: true,
+      role: true,
+      phone: true,
+      fatherName: true,
+      motherName: true,
+      gender: true,
+      currentBelt: true,
+      currentDan: true,
+      danExamDates: true,
+      weight: true,
+      joinDate: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
 
   if (!user) {
     redirect("/auth/login");
