@@ -65,7 +65,7 @@ export async function requireAuth() {
   const user = await getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect("/login");
   }
 
   return user;
@@ -75,8 +75,6 @@ export async function requireAuth() {
 // This is used in Server Components to get the user from the database
 // This expects the user to be authenticated, otherwise it will redirect to the login page
 export async function getDbUser() {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-
   const dbUser = await requireAuth();
 
   const user = await prisma.user.findUnique({
