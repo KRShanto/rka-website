@@ -21,9 +21,6 @@ import ResponsiveFooter from "@/components/ResponsiveFooter";
 import { AccessibilityProvider } from "@/components/AccessibilityProvider";
 import { Toaster } from "sonner";
 
-// Optimize by deferring non-critical components
-const FooterNewsletter = lazy(() => import("@/components/FooterNewsletter"));
-
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",

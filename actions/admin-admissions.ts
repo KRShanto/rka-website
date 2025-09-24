@@ -42,10 +42,17 @@ export async function adminListAdmissions(): Promise<AdminAdmission[]> {
 
 export async function adminApproveAdmission(id: string) {
   await requireAuth();
+
+  // Approve the admission
   await prisma.admission.update({
     where: { id },
     data: { status: AdmissionStatus.APPROVED },
   });
+
+
+  // TODO Create a user with default password
+  
+
   return { success: true as const };
 }
 
