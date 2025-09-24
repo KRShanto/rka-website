@@ -887,44 +887,6 @@ section {
   }
 }
 
-/* Add these styles to enhance active navigation items */
-.active-nav-indicator {
-  position: relative;
-}
-
-.active-nav-indicator::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: white; /* White underline on red background */
-  border-radius: 2px;
-}
-
-/* Add a dot indicator for active pages */
-.active-page-dot {
-  position: relative;
-}
-
-.active-page-dot::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: -12px;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: white; /* White dot on red background */
-}
-
-/* When navbar is scrolled (white background) */
-.scrolled .active-page-dot::before {
-  background-color: #dc2626; /* Red dot on white background */
-}
-
 /* Add a subtle glow to active items on red background */
 .nav-red-bg .active-nav-item {
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
@@ -944,30 +906,6 @@ section {
 
 .scrolled .active-nav-subtle-bg {
   background-color: rgba(220, 38, 38, 0.1); /* Subtle red background on white */
-}
-
-/* Add a floating indicator for the active page when scrolling */
-.floating-page-indicator {
-  position: fixed;
-  top: 70px;
-  right: 20px;
-  background-color: #dc2626;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.3);
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 40;
-  pointer-events: none;
-}
-
-.floating-page-indicator.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Enhanced active state for mobile navigation */
@@ -1031,9 +969,4 @@ section {
 
 .dark .bg-\[\#009da9\] .navbar-link-hover-animation::after {
   background-color: rgba(255, 255, 255, 0.7);
-}
-
-/* Ensure the animation doesn't interfere with active indicators */
-.active-nav-indicator .navbar-link-hover-animation::after {
-  display: none;
 }
