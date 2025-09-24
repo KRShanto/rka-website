@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/providers/AuthProvider";
-import { supabase } from "@/lib/supabase";
-import { PAYMENTS_TABLE, PROFILES_TABLE } from "@/lib/supabase-constants";
+import { createPayment } from "@/actions/create-payment";
 import {
   Card,
   CardContent,
@@ -27,17 +25,15 @@ import { toast } from "sonner";
 import Image from "next/image";
 
 export default function PaymentPage() {
-  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [paymentType, setPaymentType] = useState("");
   const [amount, setAmount] = useState("");
-  const [studentId, setStudentId] = useState(user?.email?.split("@")[0] || "");
   const [transactionId, setTransactionId] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!paymentType || !amount || !studentId || !transactionId) {
+    if (!paymentType || !amount || !transactionId) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -45,56 +41,34 @@ export default function PaymentPage() {
     setLoading(true);
 
     try {
-      // Get current user session
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
+      const res = await createPayment({
+        type: paymentType as "monthly" | "exam" | "registration" | "event",
+        amount,
+        bkashTransactionId: transactionId,
+      });
 
-      if (sessionError || !session) {
-        throw new Error("You must be logged in to submit a payment");
+      if (res.ok) {
+        toast.success(
+          "Payment submitted successfully. We'll verify your transaction soon."
+        );
+        setPaymentType("");
+        setAmount("");
+        setTransactionId("");
+      } else {
+        if (res.fieldErrors?.bkashTransactionId) {
+          toast.error(res.fieldErrors.bkashTransactionId);
+        } else if (res.fieldErrors?.amount) {
+          toast.error(res.fieldErrors.amount);
+        } else if (res.fieldErrors?.type) {
+          toast.error(res.fieldErrors.type);
+        } else {
+          toast.error(res.error);
+        }
       }
-
-      // Get user profile ID
-      const { data: profile, error: profileError } = await supabase
-        .from(PROFILES_TABLE)
-        .select("id")
-        .eq("auth_id", session.user.id)
-        .single();
-
-      if (profileError || !profile) {
-        throw new Error("Could not find your profile. Please contact support.");
-      }
-
-      // Insert payment record
-      const { data, error } = await supabase
-        .from(PAYMENTS_TABLE)
-        .insert({
-          user_id: profile.id,
-          type: paymentType,
-          amount: parseFloat(amount),
-          student_id: studentId,
-          bkash_transaction_id: transactionId,
-          status: "pending",
-        })
-        .select();
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success(
-        "Payment information submitted successfully! We'll verify your transaction within 24 hours."
-      );
-
-      // Reset form
-      setPaymentType("");
-      setAmount("");
-      setTransactionId("");
     } catch (error: any) {
       console.error("Payment submission error:", error);
       toast.error(
-        error.message || "Failed to submit payment. Please try again."
+        error?.message || "Failed to submit payment. Please try again."
       );
     } finally {
       setLoading(false);
@@ -190,22 +164,6 @@ export default function PaymentPage() {
                 step="1"
                 required
               />
-            </div>
-
-            {/* Student ID */}
-            <div className="space-y-2">
-              <Label htmlFor="student-id">Student ID *</Label>
-              <Input
-                id="student-id"
-                type="text"
-                placeholder="Enter student ID"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                required
-              />
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Your username (automatically filled from your account)
-              </p>
             </div>
 
             {/* Transaction ID */}
