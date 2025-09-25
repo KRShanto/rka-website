@@ -142,7 +142,7 @@ export default function Login() {
               )}
               <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
-                  <Label htmlFor="username">Username or Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
                     id="username"
                     type="text"
