@@ -48,7 +48,7 @@ export async function adminListAdmissions(): Promise<AdminAdmission[]> {
  *
  * @returns Promise<string> - The next username in the sequence (e.g., "d101", "d102")
  */
-async function generateNextUsername(): Promise<string> {
+export async function generateNextUsername(): Promise<string> {
   // Query all usernames that match the pattern d + number (d101, d102, etc.)
   // We use a regex pattern to find usernames that start with 'd' followed by digits
   const users = await prisma.user.findMany({

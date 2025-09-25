@@ -4,10 +4,12 @@ import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { Role, Gender } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { generateNextUsername } from "./admin-admissions";
 
 export type AdminUser = {
   id: string;
   name: string;
+  username: string;
   email: string | null;
   phone: string | null;
   mother_name: string | null;
@@ -44,6 +46,7 @@ export async function adminListUsers(): Promise<AdminUser[]> {
     select: {
       id: true,
       name: true,
+      username: true,
       email: true,
       phone: true,
       motherName: true,
@@ -64,6 +67,7 @@ export async function adminListUsers(): Promise<AdminUser[]> {
     return {
       id: u.id,
       name: u.name,
+      username: u.username,
       email: u.email ?? null,
       phone: u.phone ?? null,
       mother_name: u.motherName ?? null,
@@ -81,9 +85,43 @@ export async function adminListUsers(): Promise<AdminUser[]> {
   });
 }
 
+/**
+ * Gets the next available username for the admin UI
+ * This function is called by the frontend to populate the username field
+ *
+ * @returns Promise<{nextUsername: string}> - The next available username
+ */
+export async function adminGetNextUsername(): Promise<{
+  nextUsername: string;
+}> {
+  await requireAuth();
+  const nextUsername = await generateNextUsername();
+  return { nextUsername };
+}
+
+/**
+ * Validates if a username is available (not already taken)
+ *
+ * @param username - The username to check
+ * @returns Promise<{isAvailable: boolean}> - Whether the username is available
+ */
+export async function adminCheckUsernameAvailability(
+  username: string
+): Promise<{ isAvailable: boolean }> {
+  await requireAuth();
+
+  const existingUser = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+
+  return { isAvailable: !existingUser };
+}
+
 export type AdminCreateUserInput = {
   name: string;
-  email: string;
+  username: string;
+  email?: string;
   password: string;
   phone?: string;
   mother_name?: string;
@@ -100,12 +138,24 @@ export type AdminCreateUserInput = {
 
 export async function adminCreateUser(input: AdminCreateUserInput) {
   await requireAuth();
+
+  // Validate username availability
+  const { isAvailable } = await adminCheckUsernameAvailability(input.username);
+  if (!isAvailable) {
+    throw new Error(`Username "${input.username}" is already taken`);
+  }
+
+  // Validate username format (optional: only if you want to enforce specific patterns)
+  if (input.username.trim().length < 3) {
+    throw new Error("Username must be at least 3 characters long");
+  }
+
   const hashed = await bcrypt.hash(input.password, 10);
   const dbUser = await prisma.user.create({
     data: {
       name: input.name,
-      username: input.email.split("@")[0],
-      email: input.email,
+      username: input.username.trim(),
+      email: input.email ?? null,
       password: hashed,
       phone: input.phone ?? null,
       motherName: input.mother_name ?? null,
@@ -121,6 +171,7 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
     select: {
       id: true,
       name: true,
+      username: true,
       email: true,
       phone: true,
       motherName: true,
@@ -140,6 +191,7 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
   const user: AdminUser = {
     id: dbUser.id,
     name: dbUser.name,
+    username: dbUser.username,
     email: dbUser.email ?? null,
     phone: dbUser.phone ?? null,
     mother_name: dbUser.motherName ?? null,
@@ -165,6 +217,7 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
 export type AdminUpdateUserInput = {
   id: string;
   name?: string;
+  username?: string;
   email?: string | null;
   phone?: string | null;
   mother_name?: string | null;
@@ -181,10 +234,30 @@ export type AdminUpdateUserInput = {
 
 export async function adminUpdateUser(input: AdminUpdateUserInput) {
   await requireAuth();
+
+  // Validate username if it's being updated
+  if (input.username !== undefined) {
+    // Check if username format is valid
+    if (input.username.trim().length < 3) {
+      throw new Error("Username must be at least 3 characters long");
+    }
+
+    // Check if username is available (excluding current user)
+    const existingUser = await prisma.user.findUnique({
+      where: { username: input.username.trim() },
+      select: { id: true },
+    });
+
+    if (existingUser && existingUser.id !== input.id) {
+      throw new Error(`Username "${input.username}" is already taken`);
+    }
+  }
+
   await prisma.user.update({
     where: { id: input.id },
     data: {
       name: input.name ?? undefined,
+      username: input.username ? input.username.trim() : undefined,
       email: input.email ?? undefined,
       phone: input.phone ?? undefined,
       motherName: input.mother_name ?? undefined,

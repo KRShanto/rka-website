@@ -56,6 +56,7 @@ import {
   Shield,
   Upload,
   X,
+  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -65,6 +66,8 @@ import {
   adminCreateUser,
   adminDeleteUser,
   adminUpdateUser,
+  adminGetNextUsername,
+  adminCheckUsernameAvailability,
   type AdminUser,
 } from "@/actions/admin-users";
 
@@ -95,10 +98,20 @@ export default function UsersClient({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [createImageFile, setCreateImageFile] = useState<File | null>(null);
+  const [usernameLoading, setUsernameLoading] = useState(false);
+  const [usernameValidation, setUsernameValidation] = useState<{
+    isValid: boolean;
+    message: string;
+  } | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    password?: string;
+  }>({});
   const { uploadFiles } = genUploader<OurFileRouter>();
 
   type NewUserState = {
     name: string;
+    username: string;
     email: string;
     phone: string;
     mother_name: string;
@@ -116,6 +129,7 @@ export default function UsersClient({
 
   const initialNewUser: NewUserState = {
     name: "",
+    username: "",
     email: "",
     phone: "",
     mother_name: "",
@@ -136,6 +150,7 @@ export default function UsersClient({
     return users.filter((u) => {
       const matchesSearch =
         (u.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (u.username || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (u.email || "").toLowerCase().includes(searchQuery.toLowerCase());
       const matchesRole = roleFilter === "all" || u.role === roleFilter;
       return matchesSearch && matchesRole;
@@ -200,6 +215,71 @@ export default function UsersClient({
     return colors[belt || "white"] || "bg-gray-100 text-gray-800";
   };
 
+  // Username generation and validation functions
+  const generateNextUsername = async () => {
+    try {
+      setUsernameLoading(true);
+      const { nextUsername } = await adminGetNextUsername();
+      setNewUser((prev) => ({ ...prev, username: nextUsername }));
+      setUsernameValidation({
+        isValid: true,
+        message: "Auto-generated username",
+      });
+      toast.success(`Generated username: ${nextUsername}`);
+    } catch (error) {
+      toast.error("Failed to generate username");
+    } finally {
+      setUsernameLoading(false);
+    }
+  };
+
+  const validateUsername = async (username: string) => {
+    if (!username.trim()) {
+      setUsernameValidation(null);
+      return;
+    }
+
+    if (username.trim().length < 3) {
+      setUsernameValidation({
+        isValid: false,
+        message: "Username must be at least 3 characters long",
+      });
+      return;
+    }
+
+    try {
+      const { isAvailable } = await adminCheckUsernameAvailability(
+        username.trim()
+      );
+      setUsernameValidation({
+        isValid: isAvailable,
+        message: isAvailable
+          ? "Username is available"
+          : "Username is already taken",
+      });
+    } catch (error) {
+      setUsernameValidation({
+        isValid: false,
+        message: "Error checking username availability",
+      });
+    }
+  };
+
+  // Validation function for required fields
+  const validateRequiredFields = () => {
+    const errors: { name?: string; password?: string } = {};
+
+    if (!newUser.name.trim()) {
+      errors.name = "Name is required";
+    }
+    if (!newUser.password.trim()) {
+      errors.password = "Password is required";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleEditUser = async () => {
     if (!selectedUser) return;
     try {
@@ -211,6 +291,7 @@ export default function UsersClient({
       await adminUpdateUser({
         id: selectedUser.id,
         name: selectedUser.name,
+        username: selectedUser.username,
         email: selectedUser.email,
         phone: selectedUser.phone,
         mother_name: selectedUser.mother_name,
@@ -266,6 +347,20 @@ export default function UsersClient({
   };
 
   const handleCreateUser = async () => {
+    // Validate required fields
+    if (!validateRequiredFields()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    if (!newUser.username.trim()) {
+      toast.error("Username is required");
+      return;
+    }
+    if (usernameValidation?.isValid === false) {
+      toast.error("Please fix username issues before creating user");
+      return;
+    }
+
     try {
       setCreateLoading(true);
       let uploadedUrl: string | undefined = undefined;
@@ -274,7 +369,8 @@ export default function UsersClient({
       }
       const res = await adminCreateUser({
         name: newUser.name,
-        email: newUser.email,
+        username: newUser.username,
+        email: newUser.email || undefined,
         password: newUser.password,
         phone: newUser.phone,
         mother_name: newUser.mother_name,
@@ -295,6 +391,8 @@ export default function UsersClient({
       setNewUser(initialNewUser);
       setImagePreview(null);
       setCreateImageFile(null);
+      setUsernameValidation(null);
+      setFieldErrors({});
       toast.success("User created successfully");
     } catch (e: any) {
       toast.error(e?.message || "Failed to create user");
@@ -319,9 +417,22 @@ export default function UsersClient({
             {filteredUsers.length} users
           </Badge>
           <Button
-            onClick={() => {
+            onClick={async () => {
               setCreateDialogOpen(true);
               setImagePreview(null);
+              setUsernameValidation(null);
+              // Auto-generate username when opening create dialog
+              try {
+                const { nextUsername } = await adminGetNextUsername();
+                setNewUser((prev) => ({ ...prev, username: nextUsername }));
+                setUsernameValidation({
+                  isValid: true,
+                  message: "Auto-generated username",
+                });
+              } catch (error) {
+                // If auto-generation fails, user can still manually enter or click the Auto button
+                console.error("Failed to auto-generate username:", error);
+              }
             }}
           >
             <UserPlus className="w-4 h-4 mr-2" />
@@ -345,7 +456,7 @@ export default function UsersClient({
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   id="search"
-                  placeholder="Search by name or email..."
+                  placeholder="Search by name, username, or email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -385,6 +496,7 @@ export default function UsersClient({
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
+                  <TableHead>Username</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Belt</TableHead>
@@ -426,8 +538,13 @@ export default function UsersClient({
                         </div>
                       </div>
                     </TableCell>
+                    <TableCell className="font-mono text-sm font-medium">
+                      {user.username}
+                    </TableCell>
                     <TableCell className="font-mono text-sm">
-                      {user.email}
+                      {user.email || (
+                        <span className="text-gray-500 italic">No email</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -597,9 +714,26 @@ export default function UsersClient({
                   />
                 </div>
                 <div>
+                  <Label htmlFor="edit-username">Username</Label>
+                  <Input
+                    id="edit-username"
+                    value={selectedUser.username}
+                    onChange={(e) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        username: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <Label htmlFor="edit-email">Email</Label>
                   <Input
                     id="edit-email"
+                    placeholder="Optional email address"
                     value={selectedUser.email || ""}
                     onChange={(e) =>
                       setSelectedUser({
@@ -609,9 +743,6 @@ export default function UsersClient({
                     }
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-phone">Phone</Label>
                   <Input
@@ -624,6 +755,29 @@ export default function UsersClient({
                       })
                     }
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-gender">Gender</Label>
+                  <Select
+                    value={selectedUser.gender || "male"}
+                    onValueChange={(value) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        gender: value as "male" | "female",
+                      })
+                    }
+                  >
+                    <SelectTrigger id="edit-gender">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="edit-branch">Branch</Label>
@@ -766,7 +920,11 @@ export default function UsersClient({
         open={createDialogOpen}
         onOpenChange={(o) => {
           setCreateDialogOpen(o);
-          if (!o) setImagePreview(null);
+          if (!o) {
+            setImagePreview(null);
+            setUsernameValidation(null);
+            setFieldErrors({});
+          }
         }}
       >
         <DialogContent className="max-w-2xl">
@@ -853,36 +1011,76 @@ export default function UsersClient({
                 <Input
                   id="create-name"
                   value={newUser.name}
-                  onChange={(e) =>
-                    setNewUser((p) => ({ ...p, name: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setNewUser((p) => ({ ...p, name: e.target.value }));
+                    // Clear error when user starts typing
+                    if (fieldErrors.name) {
+                      setFieldErrors((prev) => ({ ...prev, name: undefined }));
+                    }
+                  }}
+                  className={cn(fieldErrors.name && "border-red-500")}
                 />
+                {fieldErrors.name && (
+                  <p className="text-xs mt-1 text-red-600">
+                    {fieldErrors.name}
+                  </p>
+                )}
               </div>
               <div>
-                <Label htmlFor="create-email">
-                  Email <span className="text-red-500">*</span>
+                <Label htmlFor="create-username">
+                  Username <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="create-email"
-                  value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser((p) => ({ ...p, email: e.target.value }))
-                  }
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="create-username"
+                    value={newUser.username}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewUser((p) => ({ ...p, username: value }));
+                      validateUsername(value);
+                    }}
+                    className={cn(
+                      usernameValidation?.isValid === false && "border-red-500"
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={generateNextUsername}
+                    disabled={usernameLoading}
+                    title="Generate next username (d101, d102, etc.)"
+                  >
+                    {usernameLoading ? (
+                      <RotateCcw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Auto"
+                    )}
+                  </Button>
+                </div>
+                {usernameValidation && (
+                  <p
+                    className={cn(
+                      "text-xs mt-1",
+                      usernameValidation.isValid
+                        ? "text-green-600"
+                        : "text-red-600"
+                    )}
+                  >
+                    {usernameValidation.message}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="create-password">
-                  Password <span className="text-red-500">*</span>
-                </Label>
+                <Label htmlFor="create-email">Email</Label>
                 <Input
-                  id="create-password"
-                  type="password"
-                  value={newUser.password}
+                  id="create-email"
+                  value={newUser.email}
                   onChange={(e) =>
-                    setNewUser((p) => ({ ...p, password: e.target.value }))
+                    setNewUser((p) => ({ ...p, email: e.target.value }))
                   }
                 />
               </div>
@@ -895,6 +1093,35 @@ export default function UsersClient({
                     setNewUser((p) => ({ ...p, phone: e.target.value }))
                   }
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label htmlFor="create-password">
+                  Password <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="create-password"
+                  type="password"
+                  value={newUser.password}
+                  onChange={(e) => {
+                    setNewUser((p) => ({ ...p, password: e.target.value }));
+                    // Clear error when user starts typing
+                    if (fieldErrors.password) {
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        password: undefined,
+                      }));
+                    }
+                  }}
+                  className={cn(fieldErrors.password && "border-red-500")}
+                />
+                {fieldErrors.password && (
+                  <p className="text-xs mt-1 text-red-600">
+                    {fieldErrors.password}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1078,12 +1305,23 @@ export default function UsersClient({
                 setCreateDialogOpen(false);
                 setNewUser(initialNewUser);
                 setImagePreview(null);
+                setUsernameValidation(null);
+                setFieldErrors({});
               }}
               disabled={createLoading}
             >
               Cancel
             </Button>
-            <Button onClick={handleCreateUser} disabled={createLoading}>
+            <Button
+              onClick={handleCreateUser}
+              disabled={
+                createLoading ||
+                !newUser.name.trim() ||
+                !newUser.username.trim() ||
+                !newUser.password.trim() ||
+                usernameValidation?.isValid === false
+              }
+            >
               {createLoading ? "Creating..." : "Create User"}
             </Button>
           </DialogFooter>
