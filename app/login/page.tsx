@@ -151,9 +151,6 @@ export default function Login() {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    You can use either your username or full email address
-                  </p>
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>
