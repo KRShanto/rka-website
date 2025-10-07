@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowRight, Play, Award, Users, Trophy } from "lucide-react";
 import Image from "next/image";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { START_YEAR } from "@/lib/consts";
 
 interface HeroStat {
   icon: React.ElementType;
@@ -14,9 +15,12 @@ interface HeroStat {
   label: string;
 }
 
+const current = new Date().getFullYear();
+const years = current - START_YEAR;
+
 const heroStats: HeroStat[] = [
   { icon: Users, value: "1000+", label: "Students" },
-  { icon: Award, value: "12+", label: "Years" },
+  { icon: Award, value: `${years}+`, label: "Years" },
   { icon: Trophy, value: "500+", label: "Medals" },
 ];
 
