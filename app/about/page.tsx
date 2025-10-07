@@ -2,8 +2,12 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { START_YEAR } from "@/lib/consts";
 
 export default function About() {
+  const current = new Date().getFullYear();
+  const years = current - START_YEAR;
+
   return (
     <div className="bg-background text-foreground min-h-screen">
       <section className="bg-primary text-primary-foreground py-10 mt-14">
@@ -121,15 +125,15 @@ export default function About() {
                 RKA's Journey
               </h2>
               <p className="mb-4 text-gray-700 dark:text-gray-300">
-                Roni Karate Academy (RKA) started its journey in 2013 under the
-                leadership of Sensei Abdul Sukkur Ali Shikder. With a vision to
+                Roni Karate Academy (RKA) started its journey in {START_YEAR}{" "}
+                under the leadership of Roni Islam Ripon. With a vision to
                 promote the art of Wadokai Karate in Bangladesh, RKA has grown
                 from a small dojo in Dhaka to a nationwide organization with
                 branches across the country.
               </p>
               <p className="mb-4 text-gray-700 dark:text-gray-300">
-                Over the past 12 Years, RKA has trained thousands of students,
-                many of whom have gone on to compete at national and
+                Over the past {years} years, RKA has trained thousands of
+                students, many of whom have gone on to compete at national and
                 international levels. Our organization has played a crucial role
                 in popularizing Karate in Bangladesh and raising the country's
                 profile in international Karate competitions.
