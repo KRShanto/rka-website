@@ -13,138 +13,138 @@ interface Branch {
   facilities: string[];
 }
 
-const branches = [
-  {
-    name: "Banasree (C Block)",
-    address: "House 36, Road 3, C Block, Banasree, Dhaka",
-    contactNumber: "+880 1712-345678",
-    schedule: [
-      {
-        days: "Saturday to Tuesday",
-        times: [
-          "7:00 AM - 8:30 AM",
-          "3:30 PM - 5:00 PM",
-          "5:30 PM - 7:00 PM",
-          "7:30 PM - 9:00 PM",
-        ],
-      },
-      {
-        days: "Wednesday to Friday",
-        times: [
-          "7:00 AM - 8:30 AM",
-          "3:30 PM - 5:00 PM",
-          "5:30 PM - 7:00 PM",
-          "7:30 PM - 9:00 PM",
-        ],
-      },
-    ],
-    facilities: [
-      "Modern training facility",
-      "Spacious training area",
-      "Changing rooms",
-      "CCTV",
-      "Viewing area for spectators",
-    ],
-  },
-  {
-    name: "Aftabnagar",
-    address: "Aftabnagar, Dhaka",
-    contactNumber: "+880 1812-345678",
-    schedule: [
-      {
-        days: "Saturday to Tuesday",
-        times: [
-          "7:00 AM - 8:30 AM",
-          "3:30 PM - 5:00 PM",
-          "5:30 PM - 7:00 PM",
-          "7:30 PM - 9:00 PM",
-        ],
-      },
-      {
-        days: "Wednesday to Friday",
-        times: [
-          "7:00 AM - 8:30 AM",
-          "3:30 PM - 5:00 PM",
-          "5:30 PM - 7:00 PM",
-          "7:30 PM - 9:00 PM",
-        ],
-      },
-    ],
-    facilities: [
-      "Modern training facility",
-      "Spacious training area",
-      "Changing rooms",
-      "CCTV",
-      "Viewing area for spectators",
-    ],
-  },
-  {
-    name: "Banasree (B Block)",
-    address: "House 14, Road 5, B Block, Banasree, Dhaka",
-    contactNumber: "+880 1912-345678",
-    schedule: [
-      { days: " Wednesday to  saterday", times: ["5:00 PM - 6:30 PM"] },
-    ],
-    facilities: [
-      "Spacious training area",
-      "Changing rooms",
-      "Viewing area for spectators",
-    ],
-  },
-  {
-    name: "Rampura TV Center",
-    address: "TV Center, Rampura, Dhaka",
-    contactNumber: "+880 1612-345678",
-    schedule: [
-      { days: " Saturday  to turshday", times: ["5:30 PM - 7:00 PM"] },
-    ],
-    facilities: [
-      "Spacious training area",
-      "Changing rooms",
-      "Viewing area for spectators",
-    ],
-  },
-  {
-    name: "NSC Tower",
-    address: "NSC Tower, Dhaka",
-    contactNumber: "+880 1512-345678",
-    schedule: [{ days: "Sunday to turshday", times: ["7:30 AM - 9:00 AM"] }],
-    facilities: [
-      "Spacious training area",
-      "Changing rooms",
-      "Viewing area for spectators",
-    ],
-  },
-  {
-    name: "Demra",
-    address: "Demra, Dhaka",
-    contactNumber: "+880 1312-345678",
-    schedule: [
-      {
-        days: "Saturday to Tuesday",
-        times: [
-          "7:00 AM - 8:30 AM",
-          "3:30 PM - 5:00 PM",
-          "5:30 PM - 7:00 PM",
-          "7:30 PM - 9:00 PM",
-        ],
-      },
-      {
-        days: "Wednesday to Friday",
-        times: [
-          "7:00 AM - 8:30 AM",
-          "3:30 PM - 5:00 PM",
-          "5:30 PM - 7:00 PM",
-          "7:30 PM - 9:00 PM",
-        ],
-      },
-    ],
-    facilities: [
-      "Spacious training area",
-      "Changing rooms",
-      "Viewing area for spectator",
-    ],
-  },
+const branches: Branch[] = [
+  // {
+  //   name: "Banasree (C Block)",
+  //   address: "House 36, Road 3, C Block, Banasree, Dhaka",
+  //   contactNumber: "+880 1712-345678",
+  //   schedule: [
+  //     {
+  //       days: "Saturday to Tuesday",
+  //       times: [
+  //         "7:00 AM - 8:30 AM",
+  //         "3:30 PM - 5:00 PM",
+  //         "5:30 PM - 7:00 PM",
+  //         "7:30 PM - 9:00 PM",
+  //       ],
+  //     },
+  //     {
+  //       days: "Wednesday to Friday",
+  //       times: [
+  //         "7:00 AM - 8:30 AM",
+  //         "3:30 PM - 5:00 PM",
+  //         "5:30 PM - 7:00 PM",
+  //         "7:30 PM - 9:00 PM",
+  //       ],
+  //     },
+  //   ],
+  //   facilities: [
+  //     "Modern training facility",
+  //     "Spacious training area",
+  //     "Changing rooms",
+  //     "CCTV",
+  //     "Viewing area for spectators",
+  //   ],
+  // },
+  // {
+  //   name: "Aftabnagar",
+  //   address: "Aftabnagar, Dhaka",
+  //   contactNumber: "+880 1812-345678",
+  //   schedule: [
+  //     {
+  //       days: "Saturday to Tuesday",
+  //       times: [
+  //         "7:00 AM - 8:30 AM",
+  //         "3:30 PM - 5:00 PM",
+  //         "5:30 PM - 7:00 PM",
+  //         "7:30 PM - 9:00 PM",
+  //       ],
+  //     },
+  //     {
+  //       days: "Wednesday to Friday",
+  //       times: [
+  //         "7:00 AM - 8:30 AM",
+  //         "3:30 PM - 5:00 PM",
+  //         "5:30 PM - 7:00 PM",
+  //         "7:30 PM - 9:00 PM",
+  //       ],
+  //     },
+  //   ],
+  //   facilities: [
+  //     "Modern training facility",
+  //     "Spacious training area",
+  //     "Changing rooms",
+  //     "CCTV",
+  //     "Viewing area for spectators",
+  //   ],
+  // },
+  // {
+  //   name: "Banasree (B Block)",
+  //   address: "House 14, Road 5, B Block, Banasree, Dhaka",
+  //   contactNumber: "+880 1912-345678",
+  //   schedule: [
+  //     { days: " Wednesday to  saterday", times: ["5:00 PM - 6:30 PM"] },
+  //   ],
+  //   facilities: [
+  //     "Spacious training area",
+  //     "Changing rooms",
+  //     "Viewing area for spectators",
+  //   ],
+  // },
+  // {
+  //   name: "Rampura TV Center",
+  //   address: "TV Center, Rampura, Dhaka",
+  //   contactNumber: "+880 1612-345678",
+  //   schedule: [
+  //     { days: " Saturday  to turshday", times: ["5:30 PM - 7:00 PM"] },
+  //   ],
+  //   facilities: [
+  //     "Spacious training area",
+  //     "Changing rooms",
+  //     "Viewing area for spectators",
+  //   ],
+  // },
+  // {
+  //   name: "NSC Tower",
+  //   address: "NSC Tower, Dhaka",
+  //   contactNumber: "+880 1512-345678",
+  //   schedule: [{ days: "Sunday to turshday", times: ["7:30 AM - 9:00 AM"] }],
+  //   facilities: [
+  //     "Spacious training area",
+  //     "Changing rooms",
+  //     "Viewing area for spectators",
+  //   ],
+  // },
+  // {
+  //   name: "Demra",
+  //   address: "Demra, Dhaka",
+  //   contactNumber: "+880 1312-345678",
+  //   schedule: [
+  //     {
+  //       days: "Saturday to Tuesday",
+  //       times: [
+  //         "7:00 AM - 8:30 AM",
+  //         "3:30 PM - 5:00 PM",
+  //         "5:30 PM - 7:00 PM",
+  //         "7:30 PM - 9:00 PM",
+  //       ],
+  //     },
+  //     {
+  //       days: "Wednesday to Friday",
+  //       times: [
+  //         "7:00 AM - 8:30 AM",
+  //         "3:30 PM - 5:00 PM",
+  //         "5:30 PM - 7:00 PM",
+  //         "7:30 PM - 9:00 PM",
+  //       ],
+  //     },
+  //   ],
+  //   facilities: [
+  //     "Spacious training area",
+  //     "Changing rooms",
+  //     "Viewing area for spectator",
+  //   ],
+  // },
 ];
 
 export default function Branches() {
