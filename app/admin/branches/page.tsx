@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -70,9 +70,48 @@ export default function BranchManagement() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
 
+  // Interactive form helpers (create)
+  const [facilityInput, setFacilityInput] = useState("");
+  const [scheduleDayInput, setScheduleDayInput] = useState("");
+  const [scheduleStartInput, setScheduleStartInput] = useState("");
+  const [scheduleEndInput, setScheduleEndInput] = useState("");
+  // Back-compat states used in legacy UI below
+  const [scheduleDaysInput, setScheduleDaysInput] = useState("");
+  const [timeInputs, setTimeInputs] = useState<Record<number, string>>({});
+
+  // Interactive form helpers (edit)
+  const [editFacilityInput, setEditFacilityInput] = useState("");
+  const [editScheduleDayInput, setEditScheduleDayInput] = useState("");
+  const [editScheduleStartInput, setEditScheduleStartInput] = useState("");
+  const [editScheduleEndInput, setEditScheduleEndInput] = useState("");
+  // Back-compat states used in legacy edit UI below
+  const [editScheduleDaysInput, setEditScheduleDaysInput] = useState("");
+  const [editTimeInputs, setEditTimeInputs] = useState<Record<number, string>>(
+    {}
+  );
+
+  // Helper: add one schedule row in create dialog
+  const addScheduleRow = () => {
+    const d = scheduleDayInput.trim();
+    const s = scheduleStartInput.trim();
+    const en = scheduleEndInput.trim();
+    if (!d || !s || !en) return;
+    setNewBranch((prev) => ({
+      ...prev,
+      schedule: [...prev.schedule, { day: d, start: s, end: en }],
+    }));
+    setScheduleDayInput("");
+    setScheduleStartInput("");
+    setScheduleEndInput("");
+  };
+
   // Initial state for new branch
   const initialNewBranch = {
     name: "",
+    address: "",
+    contactNumber: "",
+    schedule: [] as any[],
+    facilities: [] as string[],
   };
 
   const [newBranch, setNewBranch] = useState(initialNewBranch);
@@ -91,7 +130,7 @@ export default function BranchManagement() {
     }
   };
 
-  useMemo(() => {
+  useEffect(() => {
     fetchBranches();
   }, []);
 
@@ -104,7 +143,18 @@ export default function BranchManagement() {
   const handleCreateBranch = async () => {
     try {
       setCreateLoading(true);
-      const res = await adminCreateBranch(newBranch.name);
+      const res = await adminCreateBranch(newBranch.name, {
+        address: newBranch.address || undefined,
+        contactNumber: newBranch.contactNumber || undefined,
+        schedule:
+          newBranch.schedule && newBranch.schedule.length > 0
+            ? newBranch.schedule
+            : undefined,
+        facilities:
+          newBranch.facilities && newBranch.facilities.length > 0
+            ? newBranch.facilities
+            : undefined,
+      });
       if (!res.success) {
         toast.error(res.error || "Please enter a branch name");
       } else {
@@ -129,7 +179,13 @@ export default function BranchManagement() {
       setEditLoading(true);
       const res = await adminUpdateBranch(
         selectedBranch.id,
-        selectedBranch.name
+        selectedBranch.name,
+        {
+          address: (selectedBranch as any).address ?? null,
+          contactNumber: (selectedBranch as any).contactNumber ?? null,
+          schedule: (selectedBranch as any).schedule ?? null,
+          facilities: (selectedBranch as any).facilities ?? null,
+        }
       );
       if (!res.success) {
         toast.error(res.error || "Failed to update branch");
@@ -353,6 +409,155 @@ export default function BranchManagement() {
                 }
               />
             </div>
+            <div>
+              <Label htmlFor="create-address">Address (optional)</Label>
+              <Input
+                id="create-address"
+                value={newBranch.address}
+                onChange={(e) =>
+                  setNewBranch({ ...newBranch, address: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="create-contact">Contact Number (optional)</Label>
+              <Input
+                id="create-contact"
+                value={newBranch.contactNumber}
+                onChange={(e) =>
+                  setNewBranch({
+                    ...newBranch,
+                    contactNumber: e.target.value,
+                  })
+                }
+              />
+            </div>
+            {/* Facilities editor */}
+            <div className="space-y-2">
+              <Label>Facilities (optional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add a facility"
+                  value={facilityInput}
+                  onChange={(e) => setFacilityInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && facilityInput.trim()) {
+                      setNewBranch({
+                        ...newBranch,
+                        facilities: [
+                          ...newBranch.facilities,
+                          facilityInput.trim(),
+                        ],
+                      });
+                      setFacilityInput("");
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (!facilityInput.trim()) return;
+                    setNewBranch({
+                      ...newBranch,
+                      facilities: [
+                        ...newBranch.facilities,
+                        facilityInput.trim(),
+                      ],
+                    });
+                    setFacilityInput("");
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {newBranch.facilities.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {newBranch.facilities.map((f, idx) => (
+                    <div
+                      key={`${f}-${idx}`}
+                      className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 text-sm px-2 py-1 rounded"
+                    >
+                      <span>{f}</span>
+                      <button
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() =>
+                          setNewBranch({
+                            ...newBranch,
+                            facilities: newBranch.facilities.filter(
+                              (_, i) => i !== idx
+                            ),
+                          })
+                        }
+                        title="Remove"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Schedule: Day + Start + End */}
+            <div className="space-y-2">
+              <Label>Schedule (optional)</Label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <Input
+                  placeholder="Day (e.g. Sunday)"
+                  value={scheduleDayInput}
+                  onChange={(e) => setScheduleDayInput(e.target.value)}
+                />
+                <input
+                  type="time"
+                  className="w-full h-10 px-3 py-2 rounded-md border bg-background"
+                  value={scheduleStartInput}
+                  onChange={(e) => setScheduleStartInput(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="time"
+                    className="w-full h-10 px-3 py-2 rounded-md border bg-background"
+                    value={scheduleEndInput}
+                    onChange={(e) => setScheduleEndInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") addScheduleRow();
+                    }}
+                  />
+                  <Button type="button" onClick={addScheduleRow}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              {newBranch.schedule.length > 0 && (
+                <div className="space-y-2">
+                  {newBranch.schedule.map((row, idx) => (
+                    <div
+                      key={`st-${idx}`}
+                      className="flex items-center justify-between border rounded px-3 py-2"
+                    >
+                      <div className="text-sm">
+                        <span className="font-medium">{(row as any).day}:</span>{" "}
+                        {(row as any).start} - {(row as any).end}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600"
+                        onClick={() =>
+                          setNewBranch({
+                            ...newBranch,
+                            schedule: newBranch.schedule.filter(
+                              (_, i) => i !== idx
+                            ),
+                          })
+                        }
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <DialogFooter>
@@ -397,6 +602,251 @@ export default function BranchManagement() {
                     })
                   }
                 />
+              </div>
+              <div>
+                <Label htmlFor="edit-address">Address (optional)</Label>
+                <Input
+                  id="edit-address"
+                  value={(selectedBranch as any).address ?? ""}
+                  onChange={(e) =>
+                    setSelectedBranch({
+                      ...(selectedBranch as any),
+                      address: e.target.value,
+                    } as any)
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-contact">Contact Number (optional)</Label>
+                <Input
+                  id="edit-contact"
+                  value={(selectedBranch as any).contactNumber ?? ""}
+                  onChange={(e) =>
+                    setSelectedBranch({
+                      ...(selectedBranch as any),
+                      contactNumber: e.target.value,
+                    } as any)
+                  }
+                />
+              </div>
+              {/* Facilities editor (Edit) */}
+              <div className="space-y-2">
+                <Label>Facilities (optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add a facility"
+                    value={editFacilityInput}
+                    onChange={(e) => setEditFacilityInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "Enter" &&
+                        editFacilityInput.trim() &&
+                        selectedBranch
+                      ) {
+                        const current = ((selectedBranch as any).facilities ||
+                          []) as string[];
+                        setSelectedBranch({
+                          ...(selectedBranch as any),
+                          facilities: [...current, editFacilityInput.trim()],
+                        } as any);
+                        setEditFacilityInput("");
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      if (!editFacilityInput.trim() || !selectedBranch) return;
+                      const current = ((selectedBranch as any).facilities ||
+                        []) as string[];
+                      setSelectedBranch({
+                        ...(selectedBranch as any),
+                        facilities: [...current, editFacilityInput.trim()],
+                      } as any);
+                      setEditFacilityInput("");
+                    }}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                {((selectedBranch as any).facilities || []).length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {(
+                      ((selectedBranch as any).facilities || []) as string[]
+                    ).map((f: string, idx: number) => (
+                      <div
+                        key={`${f}-${idx}`}
+                        className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 text-sm px-2 py-1 rounded"
+                      >
+                        <span>{f}</span>
+                        <button
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() =>
+                            setSelectedBranch({
+                              ...(selectedBranch as any),
+                              facilities: (
+                                (selectedBranch as any).facilities || []
+                              ).filter((_: string, i: number) => i !== idx),
+                            } as any)
+                          }
+                          title="Remove"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Schedule editor (Edit) */}
+              <div className="space-y-2">
+                <Label>Schedule (optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Days (e.g. Saturday to Tuesday)"
+                    value={editScheduleDaysInput}
+                    onChange={(e) => setEditScheduleDaysInput(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      if (!selectedBranch || !editScheduleDaysInput.trim())
+                        return;
+                      const current = (
+                        ((selectedBranch as any).schedule || []) as {
+                          days: string;
+                          times: string[];
+                        }[]
+                      ).slice();
+                      current.push({
+                        days: editScheduleDaysInput.trim(),
+                        times: [],
+                      });
+                      setSelectedBranch({
+                        ...(selectedBranch as any),
+                        schedule: current,
+                      } as any);
+                      setEditScheduleDaysInput("");
+                    }}
+                  >
+                    <Plus className="w-4 h-4" /> Add Days
+                  </Button>
+                </div>
+
+                {(
+                  ((selectedBranch as any).schedule || []) as {
+                    days: string;
+                    times: string[];
+                  }[]
+                ).map((row, idx) => (
+                  <div
+                    key={`esched-${idx}`}
+                    className="border rounded p-3 space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium">{row.days}</div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600"
+                        onClick={() => {
+                          const current = (
+                            ((selectedBranch as any).schedule || []) as any[]
+                          ).slice();
+                          current.splice(idx, 1);
+                          setSelectedBranch({
+                            ...(selectedBranch as any),
+                            schedule: current,
+                          } as any);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Add time (e.g. 7:00 AM - 8:30 AM)"
+                        value={editTimeInputs[idx] || ""}
+                        onChange={(e) =>
+                          setEditTimeInputs({
+                            ...editTimeInputs,
+                            [idx]: e.target.value,
+                          })
+                        }
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            (editTimeInputs[idx] || "").trim()
+                          ) {
+                            const val = (editTimeInputs[idx] || "").trim();
+                            const current = (
+                              ((selectedBranch as any).schedule || []) as any[]
+                            ).slice();
+                            const times = [...(current[idx].times || []), val];
+                            current[idx] = { ...current[idx], times };
+                            setSelectedBranch({
+                              ...(selectedBranch as any),
+                              schedule: current,
+                            } as any);
+                            setEditTimeInputs({ ...editTimeInputs, [idx]: "" });
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          const val = (editTimeInputs[idx] || "").trim();
+                          if (!val) return;
+                          const current = (
+                            ((selectedBranch as any).schedule || []) as any[]
+                          ).slice();
+                          const times = [...(current[idx].times || []), val];
+                          current[idx] = { ...current[idx], times };
+                          setSelectedBranch({
+                            ...(selectedBranch as any),
+                            schedule: current,
+                          } as any);
+                          setEditTimeInputs({ ...editTimeInputs, [idx]: "" });
+                        }}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {row.times?.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {row.times.map((t, tIdx) => (
+                          <div
+                            key={`etime-${idx}-${tIdx}`}
+                            className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 text-sm px-2 py-1 rounded"
+                          >
+                            <span>{t}</span>
+                            <button
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => {
+                                const current = (
+                                  ((selectedBranch as any).schedule ||
+                                    []) as any[]
+                                ).slice();
+                                const times = (current[idx].times || []).filter(
+                                  (_: string, i: number) => i !== tIdx
+                                );
+                                current[idx] = { ...current[idx], times };
+                                setSelectedBranch({
+                                  ...(selectedBranch as any),
+                                  schedule: current,
+                                } as any);
+                              }}
+                              title="Remove"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
