@@ -105,23 +105,36 @@ export default function AdmissionsManagement() {
   const statusBadge = (status: Admission["status"]) => {
     if (status === "PENDING")
       return (
-        <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+        <Badge
+          variant="outline"
+          className="text-yellow-600 border-yellow-600 text-xs px-2 py-0.5"
+        >
           Pending
         </Badge>
       );
     if (status === "APPROVED")
       return (
-        <Badge variant="outline" className="text-green-600 border-green-600">
+        <Badge
+          variant="outline"
+          className="text-green-600 border-green-600 text-xs px-2 py-0.5"
+        >
           Approved
         </Badge>
       );
     if (status === "REJECTED")
       return (
-        <Badge variant="outline" className="text-red-600 border-red-600">
+        <Badge
+          variant="outline"
+          className="text-red-600 border-red-600 text-xs px-2 py-0.5"
+        >
           Rejected
         </Badge>
       );
-    return <Badge variant="outline">{status}</Badge>;
+    return (
+      <Badge variant="outline" className="text-xs px-2 py-0.5">
+        {status}
+      </Badge>
+    );
   };
 
   const formatDate = (iso: string) => new Date(iso).toLocaleDateString();
@@ -208,65 +221,97 @@ export default function AdmissionsManagement() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Applicant</TableHead>
-                    <TableHead>Gender</TableHead>
-                    <TableHead>Blood</TableHead>
-                    <TableHead>DOB</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-48">Applicant</TableHead>
+                    <TableHead className="w-16">Gender</TableHead>
+                    <TableHead className="w-16">Blood</TableHead>
+                    <TableHead className="w-24">DOB</TableHead>
+                    <TableHead className="w-32">Email</TableHead>
+                    <TableHead className="w-24">Phone</TableHead>
+                    <TableHead className="w-32">bKash Transaction</TableHead>
+                    <TableHead className="w-20">Status</TableHead>
+                    <TableHead className="w-32 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((a) => (
                     <TableRow key={a.id}>
                       <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
+                        <div className="flex items-center space-x-2">
+                          <Avatar className="h-14 w-14 rounded-md">
                             {a.imageUrl ? (
-                              <AvatarImage src={a.imageUrl} alt={a.name} />
+                              <AvatarImage
+                                src={a.imageUrl}
+                                alt={a.name}
+                                className="rounded-md"
+                              />
                             ) : (
-                              <AvatarFallback>
+                              <AvatarFallback className="text-sm rounded-md">
                                 {a.name.charAt(0).toUpperCase()}
                               </AvatarFallback>
                             )}
                           </Avatar>
                           <div>
-                            <div className="font-medium">{a.name}</div>
+                            <div className="font-medium text-sm">{a.name}</div>
                             <div className="text-xs text-gray-500">
-                              Parents: {a.fatherName} & {a.motherName}
+                              {a.fatherName} & {a.motherName}
                             </div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{a.gender}</TableCell>
-                      <TableCell>{a.bloodGroup ?? "-"}</TableCell>
-                      <TableCell>{formatDate(a.dateOfBirth)}</TableCell>
-                      <TableCell className="text-sm">{a.email}</TableCell>
+                      <TableCell className="text-sm">
+                        {a.gender === "MALE" ? "M" : "F"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {a.bloodGroup
+                          ? a.bloodGroup
+                              .replace("_POS", "+")
+                              .replace("_NEG", "-")
+                          : "-"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {formatDate(a.dateOfBirth)}
+                      </TableCell>
+                      <TableCell className="text-xs truncate max-w-32">
+                        {a.email}
+                      </TableCell>
                       <TableCell className="text-sm">{a.phone}</TableCell>
+                      <TableCell className="text-xs">
+                        {a.bkashTransactionId ? (
+                          <span className="bg-green-100 text-green-800 px-1 py-0.5 rounded text-sm">
+                            {a.bkashTransactionId}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 italic text-xs">
+                            No payment
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell>{statusBadge(a.status)}</TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          size="sm"
-                          onClick={() => reject(a.id)}
-                          disabled={
-                            actionLoadingId === a.id || a.status === "REJECTED"
-                          }
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                        >
-                          <XCircle className="w-4 h-4 mr-1" /> Reject
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700"
-                          onClick={() => approve(a.id)}
-                          disabled={
-                            actionLoadingId === a.id || a.status === "APPROVED"
-                          }
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" /> Approve
-                        </Button>
+                      <TableCell className="text-right">
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            onClick={() => reject(a.id)}
+                            disabled={
+                              actionLoadingId === a.id ||
+                              a.status === "REJECTED"
+                            }
+                            className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1"
+                          >
+                            <XCircle className="w-3 h-3 mr-1" /> Reject
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-xs px-2 py-1"
+                            onClick={() => approve(a.id)}
+                            disabled={
+                              actionLoadingId === a.id ||
+                              a.status === "APPROVED"
+                            }
+                          >
+                            <CheckCircle className="w-3 h-3 mr-1" /> Approve
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
