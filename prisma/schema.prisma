@@ -65,12 +65,16 @@ enum PaymentStatus {
 // ------------
 
 model Branch {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  notices   Notice[]
-  users     User[]
+  id            String   @id @default(cuid())
+  name          String   @unique
+  address       String?
+  contactNumber String?
+  schedule      Json? // { days: string, times: string[] }[]
+  facilities    Json? // string[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  notices       Notice[]
+  users         User[]
 }
 
 model Gallery {
