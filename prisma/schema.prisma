@@ -125,19 +125,20 @@ model User {
 }
 
 model Admission {
-  id          String          @id @default(cuid())
-  name        String
-  fatherName  String
-  motherName  String
-  dateOfBirth DateTime
-  bloodGroup  BloodGroup?
-  email       String
-  phone       String
-  gender      Gender
-  imageUrl    String?
-  status      AdmissionStatus @default(PENDING)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id                 String          @id @default(cuid())
+  name               String
+  fatherName         String
+  motherName         String
+  dateOfBirth        DateTime
+  bloodGroup         BloodGroup?
+  email              String
+  phone              String
+  gender             Gender
+  imageUrl           String?
+  bkashTransactionId String?
+  status             AdmissionStatus @default(PENDING)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model Payment {
