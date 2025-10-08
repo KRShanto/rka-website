@@ -425,7 +425,7 @@ export default function BranchManagement() {
               />
             </div>
             <div>
-              <Label htmlFor="create-address">Address (optional)</Label>
+              <Label htmlFor="create-address">Address</Label>
               <Input
                 id="create-address"
                 value={newBranch.address}
@@ -435,7 +435,7 @@ export default function BranchManagement() {
               />
             </div>
             <div>
-              <Label htmlFor="create-contact">Contact Number (optional)</Label>
+              <Label htmlFor="create-contact">Contact Number</Label>
               <Input
                 id="create-contact"
                 value={newBranch.contactNumber}
@@ -449,7 +449,7 @@ export default function BranchManagement() {
             </div>
             {/* Facilities editor */}
             <div className="space-y-2">
-              <Label>Facilities (optional)</Label>
+              <Label>Facilities</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="Add a facility"
@@ -514,7 +514,7 @@ export default function BranchManagement() {
             </div>
             {/* Schedule: Day + Start + End */}
             <div className="space-y-2">
-              <Label>Schedule (optional)</Label>
+              <Label>Schedule</Label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <Input
                   placeholder="Day (e.g. Sunday)"
@@ -619,7 +619,7 @@ export default function BranchManagement() {
                 />
               </div>
               <div>
-                <Label htmlFor="edit-address">Address (optional)</Label>
+                <Label htmlFor="edit-address">Address</Label>
                 <Input
                   id="edit-address"
                   value={(selectedBranch as any).address ?? ""}
@@ -632,7 +632,7 @@ export default function BranchManagement() {
                 />
               </div>
               <div>
-                <Label htmlFor="edit-contact">Contact Number (optional)</Label>
+                <Label htmlFor="edit-contact">Contact Number</Label>
                 <Input
                   id="edit-contact"
                   value={(selectedBranch as any).contactNumber ?? ""}
@@ -646,7 +646,7 @@ export default function BranchManagement() {
               </div>
               {/* Facilities editor (Edit) */}
               <div className="space-y-2">
-                <Label>Facilities (optional)</Label>
+                <Label>Facilities</Label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="Add a facility"
@@ -716,7 +716,7 @@ export default function BranchManagement() {
 
               {/* Schedule (Day + Start + End) in Edit */}
               <div className="space-y-2">
-                <Label>Schedule (optional)</Label>
+                <Label>Schedule</Label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <Input
                     placeholder="Day (e.g. Sunday)"
