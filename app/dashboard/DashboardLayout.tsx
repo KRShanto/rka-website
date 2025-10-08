@@ -65,6 +65,8 @@ export default function DashboardLayout({
       if (res.ok) {
         console.log("Logout successful");
         router.push("/login");
+        // Hard refresh to clear any cached data
+        window.location.reload();
       }
     } catch (error) {
       console.error("Logout error:", error);
