@@ -105,6 +105,21 @@ export default function BranchManagement() {
     setScheduleEndInput("");
   };
 
+  // Helper: add one schedule row in edit dialog
+  const addEditScheduleRow = () => {
+    if (!selectedBranch) return;
+    const d = editScheduleDayInput.trim();
+    const s = editScheduleStartInput.trim();
+    const en = editScheduleEndInput.trim();
+    if (!d || !s || !en) return;
+    const current = [...(((selectedBranch as any).schedule || []) as any[])];
+    current.push({ day: d, start: s, end: en });
+    setSelectedBranch({ ...(selectedBranch as any), schedule: current } as any);
+    setEditScheduleDayInput("");
+    setEditScheduleStartInput("");
+    setEditScheduleEndInput("");
+  };
+
   // Initial state for new branch
   const initialNewBranch = {
     name: "",
@@ -699,53 +714,47 @@ export default function BranchManagement() {
                 )}
               </div>
 
-              {/* Schedule editor (Edit) */}
+              {/* Schedule (Day + Start + End) in Edit */}
               <div className="space-y-2">
                 <Label>Schedule (optional)</Label>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <Input
-                    placeholder="Days (e.g. Saturday to Tuesday)"
-                    value={editScheduleDaysInput}
-                    onChange={(e) => setEditScheduleDaysInput(e.target.value)}
+                    placeholder="Day (e.g. Sunday)"
+                    value={editScheduleDayInput}
+                    onChange={(e) => setEditScheduleDayInput(e.target.value)}
                   />
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      if (!selectedBranch || !editScheduleDaysInput.trim())
-                        return;
-                      const current = (
-                        ((selectedBranch as any).schedule || []) as {
-                          days: string;
-                          times: string[];
-                        }[]
-                      ).slice();
-                      current.push({
-                        days: editScheduleDaysInput.trim(),
-                        times: [],
-                      });
-                      setSelectedBranch({
-                        ...(selectedBranch as any),
-                        schedule: current,
-                      } as any);
-                      setEditScheduleDaysInput("");
-                    }}
-                  >
-                    <Plus className="w-4 h-4" /> Add Days
-                  </Button>
+                  <input
+                    type="time"
+                    className="w-full h-10 px-3 py-2 rounded-md border bg-background"
+                    value={editScheduleStartInput}
+                    onChange={(e) => setEditScheduleStartInput(e.target.value)}
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="time"
+                      className="w-full h-10 px-3 py-2 rounded-md border bg-background"
+                      value={editScheduleEndInput}
+                      onChange={(e) => setEditScheduleEndInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") addEditScheduleRow();
+                      }}
+                    />
+                    <Button type="button" onClick={addEditScheduleRow}>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
-                {(
-                  ((selectedBranch as any).schedule || []) as {
-                    days: string;
-                    times: string[];
-                  }[]
-                ).map((row, idx) => (
-                  <div
-                    key={`esched-${idx}`}
-                    className="border rounded p-3 space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium">{row.days}</div>
+                {(((selectedBranch as any).schedule || []) as any[]).map(
+                  (row: any, idx: number) => (
+                    <div
+                      key={`esched-${idx}`}
+                      className="flex items-center justify-between border rounded px-3 py-2"
+                    >
+                      <div className="text-sm">
+                        <span className="font-medium">{row.day}:</span>{" "}
+                        {row.start} - {row.end}
+                      </div>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -764,89 +773,8 @@ export default function BranchManagement() {
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Add time (e.g. 7:00 AM - 8:30 AM)"
-                        value={editTimeInputs[idx] || ""}
-                        onChange={(e) =>
-                          setEditTimeInputs({
-                            ...editTimeInputs,
-                            [idx]: e.target.value,
-                          })
-                        }
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            (editTimeInputs[idx] || "").trim()
-                          ) {
-                            const val = (editTimeInputs[idx] || "").trim();
-                            const current = (
-                              ((selectedBranch as any).schedule || []) as any[]
-                            ).slice();
-                            const times = [...(current[idx].times || []), val];
-                            current[idx] = { ...current[idx], times };
-                            setSelectedBranch({
-                              ...(selectedBranch as any),
-                              schedule: current,
-                            } as any);
-                            setEditTimeInputs({ ...editTimeInputs, [idx]: "" });
-                          }
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          const val = (editTimeInputs[idx] || "").trim();
-                          if (!val) return;
-                          const current = (
-                            ((selectedBranch as any).schedule || []) as any[]
-                          ).slice();
-                          const times = [...(current[idx].times || []), val];
-                          current[idx] = { ...current[idx], times };
-                          setSelectedBranch({
-                            ...(selectedBranch as any),
-                            schedule: current,
-                          } as any);
-                          setEditTimeInputs({ ...editTimeInputs, [idx]: "" });
-                        }}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    {row.times?.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {row.times.map((t, tIdx) => (
-                          <div
-                            key={`etime-${idx}-${tIdx}`}
-                            className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 text-sm px-2 py-1 rounded"
-                          >
-                            <span>{t}</span>
-                            <button
-                              className="text-red-600 hover:text-red-700"
-                              onClick={() => {
-                                const current = (
-                                  ((selectedBranch as any).schedule ||
-                                    []) as any[]
-                                ).slice();
-                                const times = (current[idx].times || []).filter(
-                                  (_: string, i: number) => i !== tIdx
-                                );
-                                current[idx] = { ...current[idx], times };
-                                setSelectedBranch({
-                                  ...(selectedBranch as any),
-                                  schedule: current,
-                                } as any);
-                              }}
-                              title="Remove"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
           )}
