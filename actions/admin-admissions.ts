@@ -16,6 +16,7 @@ export type AdminAdmission = {
   phone: string;
   gender: keyof typeof Gender;
   imageUrl: string | null;
+  bkashTransactionId: string | null;
   status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string; // ISO
 };
@@ -36,6 +37,7 @@ export async function adminListAdmissions(): Promise<AdminAdmission[]> {
     phone: r.phone,
     gender: r.gender as any,
     imageUrl: r.imageUrl ?? null,
+    bkashTransactionId: r.bkashTransactionId ?? null,
     status: r.status,
     createdAt: r.createdAt.toISOString(),
   }));

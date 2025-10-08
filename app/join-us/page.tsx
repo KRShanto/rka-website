@@ -19,6 +19,7 @@ import Image from "next/image";
 import { useState, useMemo } from "react";
 // Using custom API route to upload via UploadThing server SDK
 import { createAdmission } from "@/actions/create-admission";
+import { updateAdmissionPayment } from "@/actions/update-admission-payment";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -49,6 +50,10 @@ export default function JoinUs() {
   );
   const { uploadFiles } = genUploader<OurFileRouter>();
   const [successOpen, setSuccessOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [admissionId, setAdmissionId] = useState<string | null>(null);
+  const [bkashTransactionId, setBkashTransactionId] = useState("");
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
   // UploadThing endpoint name: imageUploader
   const benefits = [
@@ -133,13 +138,40 @@ export default function JoinUs() {
         alert(res.error);
         return;
       }
-      setSuccessOpen(true);
+      setAdmissionId(res.id);
+      setPaymentOpen(true);
       form.reset();
       setSelectedFile(null);
     } catch (err) {
       alert("Failed to submit admission");
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handlePaymentSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!admissionId) return;
+
+    try {
+      setIsSubmittingPayment(true);
+      const res = await updateAdmissionPayment({
+        admissionId,
+        bkashTransactionId,
+      });
+
+      if (!res.ok) {
+        console.error(res.error);
+        alert(res.error);
+        return;
+      }
+      setPaymentOpen(false);
+      setSuccessOpen(true);
+      setBkashTransactionId("");
+    } catch (err) {
+      alert("Failed to submit payment information");
+    } finally {
+      setIsSubmittingPayment(false);
     }
   }
 
@@ -366,6 +398,120 @@ export default function JoinUs() {
                       </Button>
                     </div>
                   </form>
+                  {/* Payment Dialog */}
+                  <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
+                    <DialogContent className="max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-3 text-xl">
+                          <Image
+                            src="/bkash.png"
+                            alt="bKash"
+                            width={28}
+                            height={28}
+                            className="rounded-sm"
+                          />
+                          Complete Your Payment
+                        </DialogTitle>
+                        <DialogDescription className="text-base">
+                          Please complete your payment to finalize your
+                          admission.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="space-y-6">
+                        {/* Payment Instructions */}
+                        <div className="bg-gray-50 border border-gray-200 rounded-md p-5">
+                          <div className="flex items-center gap-3 mb-4">
+                            <Image
+                              src="/bkash.png"
+                              alt="bKash"
+                              width={24}
+                              height={24}
+                              className="rounded-sm"
+                            />
+                            <h3 className="font-semibold text-gray-900">
+                              Payment Instructions
+                            </h3>
+                          </div>
+                          <div className="space-y-3">
+                            <p className="text-sm text-gray-700">
+                              Send your admission fee to the following bKash
+                              number:
+                            </p>
+                            <div className="bg-white border-2 border-gray-300 rounded-md p-4 text-center">
+                              <p className="text-2xl font-bold text-gray-900 tracking-wider">
+                                01811761851
+                              </p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                RKA Admission Fee
+                              </p>
+                            </div>
+                            <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                              <p className="text-xs text-blue-800">
+                                💡 <strong>Tip:</strong> After payment, you'll
+                                receive a transaction ID in your bKash app
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Transaction ID Form */}
+                        <form
+                          onSubmit={handlePaymentSubmit}
+                          className="space-y-4"
+                        >
+                          <div className="space-y-2">
+                            <Label
+                              htmlFor="bkashTransactionId"
+                              className="text-sm font-medium text-gray-900"
+                            >
+                              bKash Transaction ID
+                            </Label>
+                            <Input
+                              id="bkashTransactionId"
+                              type="text"
+                              placeholder="Enter your bKash transaction ID"
+                              value={bkashTransactionId}
+                              onChange={(e) =>
+                                setBkashTransactionId(e.target.value)
+                              }
+                              className="h-11 text-base"
+                              required
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              You can find this in your bKash app after making
+                              the payment
+                            </p>
+                          </div>
+
+                          <div className="flex gap-3 pt-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setPaymentOpen(false)}
+                              className="flex-1 h-11"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              type="submit"
+                              disabled={
+                                isSubmittingPayment ||
+                                !bkashTransactionId.trim()
+                              }
+                              className="flex-1 h-11 bg-primary hover:bg-primary/90"
+                            >
+                              {isSubmittingPayment
+                                ? "Submitting..."
+                                : "Submit Payment"}
+                            </Button>
+                          </div>
+                        </form>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Success Dialog */}
                   <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
                     <DialogContent>
                       <DialogHeader>
@@ -375,15 +521,24 @@ export default function JoinUs() {
                           will contact you soon.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="mt-4 flex justify-end">
-                        <Button
-                          onClick={() => {
-                            setSuccessOpen(false);
-                            router.push("/");
-                          }}
-                        >
-                          Okay
-                        </Button>
+                      <div className="mt-4 space-y-3">
+                        <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                          <p className="text-sm text-blue-800">
+                            <strong>Contact:</strong> If you didn't receive any
+                            message, please contact us at{" "}
+                            <strong>01600343824</strong>
+                          </p>
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            onClick={() => {
+                              setSuccessOpen(false);
+                              router.push("/");
+                            }}
+                          >
+                            Okay
+                          </Button>
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>
