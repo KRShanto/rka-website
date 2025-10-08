@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion, useScroll } from "framer-motion";
-import { useRef, lazy, Suspense } from "react";
+import { useRef, lazy, Suspense, useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 
 import HeroSection from "@/components/Hero";
@@ -18,6 +18,40 @@ export default function Home() {
     target: ref,
     offset: ["start start", "end start"],
   });
+
+  // Data: latest achievements and gallery
+  const [achievements, setAchievements] = useState<
+    import("@prisma/client").Achievement[]
+  >([]);
+  const [galleryImages, setGalleryImages] = useState<
+    import("@prisma/client").Gallery[]
+  >([]);
+  const [loading, setLoading] = useState({
+    achievements: true,
+    gallery: true,
+  });
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const [{ getAchievements }, { getGallery }] = await Promise.all([
+          import("@/actions/public"),
+          import("@/actions/public"),
+        ]);
+        const [ach, gal] = await Promise.all([getAchievements(), getGallery()]);
+        if (!mounted) return;
+        setAchievements((ach || []).slice(0, 3));
+        setGalleryImages((gal || []).slice(0, 8));
+      } finally {
+        if (!mounted) return;
+        setLoading({ achievements: false, gallery: false });
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background has-bottom-nav" ref={ref}>
@@ -156,41 +190,42 @@ export default function Home() {
             Latest Achievements
           </motion.h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
-            {[
-              {
-                title: "Second Runner-up in Sri Lanka",
-                event: "International Karate Championship 2025",
-                image:
-                  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/srilanka_cover.jpg-wticOZ20o01EhCFt8BlqrvpSXNFPyr.jpeg",
-              },
-              {
-                title: "Champion's Trophy",
-                event: "Narayanganj District 9th Open Karate Championship 2025",
-                image:
-                  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ng_cover.jpg-qxMAklfiAFty8eaRC998kUhHFIqHrQ.jpeg",
-              },
-              {
-                title: "107 Medals",
-                event: "First Open Gendaria Martial Arts Championship 2024",
-                image:
-                  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gandari_cover.jpg-2CudSIBTKMkDFAboMeqHGvANQDnlyA.jpeg",
-              },
-            ].map((achievement, index) => (
-              <Suspense
-                key={achievement.title}
-                fallback={
-                  <div className="bg-white dark:bg-black rounded-xl shadow-md overflow-hidden h-full mobile-card">
+            {loading.achievements
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-white dark:bg-black rounded-xl shadow-md overflow-hidden h-full mobile-card"
+                  >
                     <div className="h-48 sm:h-56 md:h-64 bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
                     <div className="p-4 sm:p-6 mobile-p-4">
                       <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded animate-pulse mb-3"></div>
                       <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
                     </div>
                   </div>
-                }
-              >
-                <LazyAchievementCard achievement={achievement} index={index} />
-              </Suspense>
-            ))}
+                ))
+              : achievements.map((item, index) => (
+                  <Suspense
+                    key={item.id}
+                    fallback={
+                      <div className="bg-white dark:bg-black rounded-xl shadow-md overflow-hidden h-full mobile-card">
+                        <div className="h-48 sm:h-56 md:h-64 bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
+                        <div className="p-4 sm:p-6 mobile-p-4">
+                          <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded animate-pulse mb-3"></div>
+                          <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                        </div>
+                      </div>
+                    }
+                  >
+                    <LazyAchievementCard
+                      achievement={{
+                        title: item.title,
+                        event: item.description,
+                        image: item.imageUrl || "/placeholder.svg",
+                      }}
+                      index={index}
+                    />
+                  </Suspense>
+                ))}
           </div>
           <div className="text-center mt-6 sm:mt-12">
             <Button
@@ -221,36 +256,36 @@ export default function Home() {
             Photo Gallery
           </motion.h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 mobile-gap-4">
-            {[
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%2011.jpg-DvGpKoK1o4shrAZ99t7FZ7wSCZCnWI.jpeg",
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%201.jpg-9shw1zttlVYAsTDypCH2MH7WLyHIwB.jpeg",
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%202.jpg-s6VKFyKCk5dX7L1PxK2g7Nxmc0wCRd.jpeg",
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%203.jpg-uDgFM6eMVuab78PZrnPRCuxFVY1ZO3.jpeg",
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%204.jpg-bnBUeF1UUlR9h2iI8B8AaLQCQC15m9.jpeg",
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%205.jpg-oCVDJ2lOUC6j4xr79xyQZ2LRhDLVBP.jpeg",
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%206.jpg-v01o6n4mwZQtsUTsxiwKVSvhHRZh7R.jpeg",
-              "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/demo%207.jpg-6ti1nH0kup4LZQGyOiVyxuxT93TjVj.jpeg",
-            ].map((src, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.05, zIndex: 1 }}
-                className="relative overflow-hidden rounded-lg aspect-square animate-optimized"
-              >
-                <Image
-                  src={src || "/placeholder.svg"}
-                  alt={`RKA gallery image ${index + 1}`}
-                  layout="fill"
-                  objectFit="cover"
-                  className="transition-transform duration-300"
-                  loading={index < 4 ? "eager" : "lazy"}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                />
-              </motion.div>
-            ))}
+            {loading.gallery
+              ? Array.from({ length: 8 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="relative overflow-hidden rounded-lg aspect-square animate-optimized"
+                  >
+                    <div className="w-full h-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                  </div>
+                ))
+              : galleryImages.map((img, index) => (
+                  <motion.div
+                    key={img.id}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.05, zIndex: 1 }}
+                    className="relative overflow-hidden rounded-lg aspect-square animate-optimized"
+                  >
+                    <Image
+                      src={img.url || "/placeholder.svg"}
+                      alt={`RKA gallery image ${index + 1}`}
+                      layout="fill"
+                      objectFit="cover"
+                      className="transition-transform duration-300"
+                      loading={index < 4 ? "eager" : "lazy"}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                  </motion.div>
+                ))}
           </div>
           <div className="text-center mt-6 sm:mt-12">
             <Button
