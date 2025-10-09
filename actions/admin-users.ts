@@ -18,26 +18,12 @@ export type AdminUser = {
   current_belt: string | null;
   current_dan: number | null;
   weight: number | null;
-  gender: "male" | "female" | null;
+  gender: Gender | null;
   branch: string | null; // branchId
-  role: "student" | "trainer";
-  is_admin: boolean;
+  role: Role;
+  isAdmin: boolean;
   created_at: string;
 };
-
-function mapRoleToUi(role: Role): {
-  role: "student" | "trainer";
-  is_admin: boolean;
-} {
-  if (role === Role.ADMIN) return { role: "student", is_admin: true };
-  if (role === Role.TRAINER) return { role: "trainer", is_admin: false };
-  return { role: "student", is_admin: false };
-}
-
-function mapUiToRole(role: "student" | "trainer", is_admin: boolean): Role {
-  if (is_admin) return Role.ADMIN;
-  return role === "trainer" ? Role.TRAINER : Role.USER;
-}
 
 export async function adminListUsers(): Promise<AdminUser[]> {
   await requireAuth();
@@ -58,12 +44,12 @@ export async function adminListUsers(): Promise<AdminUser[]> {
       gender: true,
       branchId: true,
       role: true,
+      isAdmin: true,
       createdAt: true,
     },
   });
 
   return users.map((u) => {
-    const { role, is_admin } = mapRoleToUi(u.role);
     return {
       id: u.id,
       name: u.name,
@@ -76,10 +62,10 @@ export async function adminListUsers(): Promise<AdminUser[]> {
       current_belt: u.currentBelt ?? null,
       current_dan: u.currentDan ?? null,
       weight: u.weight ?? null,
-      gender: u.gender ? (u.gender === Gender.MALE ? "male" : "female") : null,
+      gender: u.gender,
       branch: u.branchId ?? null,
-      role,
-      is_admin,
+      role: u.role,
+      isAdmin: u.isAdmin,
       created_at: u.createdAt.toISOString(),
     };
   });
@@ -130,10 +116,10 @@ export type AdminCreateUserInput = {
   current_belt?: string;
   current_dan?: number;
   weight?: number;
-  gender: "male" | "female";
+  gender: Gender;
   branch?: string | null;
-  role: "student" | "trainer";
-  is_admin?: boolean;
+  role: Role;
+  isAdmin?: boolean;
 };
 
 export async function adminCreateUser(input: AdminCreateUserInput) {
@@ -164,9 +150,9 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
       currentBelt: input.current_belt ?? null,
       currentDan: input.current_dan ?? null,
       weight: input.weight ?? null,
-      gender: input.gender === "female" ? Gender.FEMALE : Gender.MALE,
+      gender: input.gender,
       branchId: input.branch ?? null,
-      role: mapUiToRole(input.role, Boolean(input.is_admin)),
+      role: input.role,
     },
     select: {
       id: true,
@@ -183,11 +169,11 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
       gender: true,
       branchId: true,
       role: true,
+      isAdmin: true,
       createdAt: true,
     },
   });
 
-  const { role, is_admin } = mapRoleToUi(dbUser.role);
   const user: AdminUser = {
     id: dbUser.id,
     name: dbUser.name,
@@ -202,12 +188,12 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
     weight: dbUser.weight ?? null,
     gender: dbUser.gender
       ? dbUser.gender === Gender.MALE
-        ? "male"
-        : "female"
+        ? Gender.MALE
+        : Gender.FEMALE
       : null,
     branch: dbUser.branchId ?? null,
-    role,
-    is_admin,
+    role: dbUser.role,
+    isAdmin: dbUser.isAdmin,
     created_at: dbUser.createdAt.toISOString(),
   };
 
@@ -226,10 +212,10 @@ export type AdminUpdateUserInput = {
   current_belt?: string | null;
   current_dan?: number | null;
   weight?: number | null;
-  gender?: "male" | "female" | null;
+  gender?: Gender | null;
   branch?: string | null;
-  role?: "student" | "trainer";
-  is_admin?: boolean;
+  role?: Role;
+  isAdmin?: boolean;
 };
 
 export async function adminUpdateUser(input: AdminUpdateUserInput) {
@@ -266,16 +252,9 @@ export async function adminUpdateUser(input: AdminUpdateUserInput) {
       currentBelt: input.current_belt ?? undefined,
       currentDan: input.current_dan ?? undefined,
       weight: input.weight ?? undefined,
-      gender: input.gender
-        ? input.gender === "female"
-          ? Gender.FEMALE
-          : Gender.MALE
-        : undefined,
+      gender: input.gender,
       branchId: input.branch ?? undefined,
-      role:
-        input.role !== undefined || input.is_admin !== undefined
-          ? mapUiToRole(input.role ?? "student", Boolean(input.is_admin))
-          : undefined,
+      role: input.role,
     },
   });
 

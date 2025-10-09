@@ -70,6 +70,7 @@ import {
   adminCheckUsernameAvailability,
   type AdminUser,
 } from "@/actions/admin-users";
+import { Gender, Role } from "@prisma/client";
 
 type Branch = { id: string; name: string };
 
@@ -120,10 +121,10 @@ export default function UsersClient({
     current_belt: string;
     current_dan: number;
     weight: number;
-    gender: "male" | "female";
+    gender: Gender;
     branch: string | null;
-    role: "student" | "trainer";
-    is_admin: boolean;
+    role: Role;
+    isAdmin: boolean;
     password: string;
   };
 
@@ -138,10 +139,10 @@ export default function UsersClient({
     current_belt: "white",
     current_dan: 1,
     weight: 0,
-    gender: "male",
+    gender: Gender.MALE,
     branch: null,
-    role: "student",
-    is_admin: false,
+    role: Role.STUDENT,
+    isAdmin: false,
     password: "",
   };
   const [newUser, setNewUser] = useState<NewUserState>(initialNewUser);
@@ -304,7 +305,7 @@ export default function UsersClient({
         gender: selectedUser.gender,
         branch: selectedUser.branch,
         role: selectedUser.role,
-        is_admin: selectedUser.is_admin,
+        isAdmin: selectedUser.isAdmin,
       });
       const updated = {
         ...selectedUser,
@@ -383,7 +384,7 @@ export default function UsersClient({
         gender: newUser.gender,
         branch: newUser.branch,
         role: newUser.role,
-        is_admin: newUser.is_admin,
+        isAdmin: newUser.isAdmin,
       });
       if (!res.success) throw new Error("Failed to create user");
       setUsers((prev) => [res.user, ...prev]);
@@ -525,14 +526,14 @@ export default function UsersClient({
                         <div>
                           <div className="font-medium flex items-center space-x-2">
                             <span>{user.name}</span>
-                            {user.is_admin && (
+                            {user.isAdmin && (
                               <span title="Administrator">
                                 <Shield className="w-4 h-4 text-red-500" />
                               </span>
                             )}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {user.gender === "male" ? "Male" : "Female"} •{" "}
+                            {user.gender === Gender.MALE ? "Male" : "Female"} •{" "}
                             {user.weight ?? 0}kg
                           </div>
                         </div>
@@ -549,7 +550,7 @@ export default function UsersClient({
                     <TableCell>
                       <Badge
                         variant={
-                          user.role === "trainer" ? "default" : "secondary"
+                          user.role === Role.TRAINER ? "default" : "secondary"
                         }
                       >
                         {user.role}
@@ -762,11 +763,11 @@ export default function UsersClient({
                 <div>
                   <Label htmlFor="edit-gender">Gender</Label>
                   <Select
-                    value={selectedUser.gender || "male"}
+                    value={selectedUser.gender || Gender.MALE}
                     onValueChange={(value) =>
                       setSelectedUser({
                         ...selectedUser,
-                        gender: value as "male" | "female",
+                        gender: value as Gender,
                       })
                     }
                   >
@@ -774,8 +775,8 @@ export default function UsersClient({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value={Gender.MALE}>Male</SelectItem>
+                      <SelectItem value={Gender.FEMALE}>Female</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -813,7 +814,7 @@ export default function UsersClient({
                     onValueChange={(value) =>
                       setSelectedUser({
                         ...selectedUser,
-                        role: value as "student" | "trainer",
+                        role: value as Role,
                       })
                     }
                   >
@@ -821,8 +822,8 @@ export default function UsersClient({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="trainer">Trainer</SelectItem>
+                      <SelectItem value={Role.STUDENT}>Student</SelectItem>
+                      <SelectItem value={Role.TRAINER}>Trainer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -883,11 +884,13 @@ export default function UsersClient({
                 <input
                   type="checkbox"
                   id="edit-admin"
-                  checked={selectedUser.is_admin}
+                  checked={selectedUser.isAdmin}
                   onChange={(e) =>
                     setSelectedUser({
                       ...selectedUser,
-                      is_admin: e.target.checked,
+                      // If admin is enabled, force role to student to avoid ADMIN mapping to student on reload
+                      isAdmin: e.target.checked,
+                      role: e.target.checked ? Role.STUDENT : selectedUser.role,
                     })
                   }
                   className="rounded"
@@ -1197,7 +1200,7 @@ export default function UsersClient({
                   onValueChange={(value) =>
                     setNewUser((p) => ({
                       ...p,
-                      gender: value as "male" | "female",
+                      gender: value as Gender,
                     }))
                   }
                 >
@@ -1205,8 +1208,8 @@ export default function UsersClient({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value={Gender.MALE}>Male</SelectItem>
+                    <SelectItem value={Gender.FEMALE}>Female</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1217,7 +1220,10 @@ export default function UsersClient({
                   onValueChange={(value) =>
                     setNewUser((p) => ({
                       ...p,
-                      role: value as "student" | "trainer",
+                      // If trainer is selected, ensure admin flag is turned off
+                      role: value as Role,
+                      isAdmin:
+                        (value as Role) === Role.TRAINER ? false : p.isAdmin,
                     }))
                   }
                 >
@@ -1225,8 +1231,8 @@ export default function UsersClient({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="trainer">Trainer</SelectItem>
+                    <SelectItem value={Role.STUDENT}>Student</SelectItem>
+                    <SelectItem value={Role.TRAINER}>Trainer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1289,9 +1295,14 @@ export default function UsersClient({
               <input
                 type="checkbox"
                 id="create-admin"
-                checked={newUser.is_admin}
+                checked={newUser.isAdmin}
                 onChange={(e) =>
-                  setNewUser((p) => ({ ...p, is_admin: e.target.checked }))
+                  setNewUser((p) => ({
+                    ...p,
+                    // If admin is enabled, force role to student to keep state consistent
+                    isAdmin: e.target.checked,
+                    role: e.target.checked ? Role.STUDENT : p.role,
+                  }))
                 }
                 className="rounded"
               />
