@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
-import { AdmissionStatus, Gender, BloodGroup } from "@prisma/client";
+import { AdmissionStatus, Gender, BloodGroup, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export type AdminAdmission = {
@@ -128,7 +128,7 @@ export async function adminApproveAdmission(id: string) {
         imageUrl: admission.imageUrl,
         gender: admission.gender,
         joinDate: new Date(), // Set join date to current date
-        role: "USER", // Default role for new users
+        role: Role.STUDENT, // Default role for new users
         // Note: branchId can be set later by admin if needed
       },
     });

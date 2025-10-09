@@ -50,7 +50,7 @@ export default function DashboardLayout({
 
   const topNavItems = [
     { href: "/", label: "Main Site", icon: Home },
-    ...(user?.role === "ADMIN"
+    ...(user?.isAdmin
       ? [{ href: "/admin", label: "Admin Panel", icon: Shield }]
       : []),
     { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
@@ -134,7 +134,7 @@ export default function DashboardLayout({
             <div className="hidden lg:block">
               <p className="text-sm font-medium">{user?.name || "Admin"}</p>
               <div className="flex items-center space-x-1">
-                {user?.role === "ADMIN" && (
+                {user?.isAdmin && (
                   <span className="text-xs bg-yellow-500 text-black px-1 rounded">
                     Admin
                   </span>
@@ -168,7 +168,7 @@ export default function DashboardLayout({
             <div>
               <span className="font-medium block">{user?.name || "Admin"}</span>
               <div className="flex items-center space-x-1">
-                {user?.role === "ADMIN" && (
+                {user?.isAdmin && (
                   <span className="text-xs bg-yellow-500 text-black px-1 rounded">
                     Admin
                   </span>
