@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import { SignJWT, jwtVerify } from "jose";
 
 if (!process.env.JWT_SECRET) {
@@ -9,7 +10,8 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 interface SessionPayload {
   id: string;
   name: string;
-  role: string;
+  role: Role;
+  isAdmin: boolean;
   username: string;
   iat?: number;
   exp?: number;
@@ -39,7 +41,8 @@ export async function verifyJWT(token: string): Promise<SessionPayload | null> {
       typeof payload.id === "string" &&
       typeof payload.name === "string" &&
       typeof payload.username === "string" &&
-      typeof payload.role === "string"
+      typeof payload.role === "string" &&
+      typeof payload.isAdmin === "boolean"
     ) {
       // Use a type assertion through unknown to satisfy TypeScript
       return {
@@ -47,6 +50,7 @@ export async function verifyJWT(token: string): Promise<SessionPayload | null> {
         username: payload.username,
         name: payload.name,
         role: payload.role,
+        isAdmin: payload.isAdmin,
         iat: payload.iat,
         exp: payload.exp,
       } as SessionPayload;

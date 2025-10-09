@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       username: user.username,
       name: user.name,
       role: user.role,
+      isAdmin: user.isAdmin,
     };
 
     // Sign JWT - now properly awaited

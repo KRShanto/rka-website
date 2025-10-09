@@ -34,6 +34,7 @@ export async function getUser() {
         createdAt: true,
         updatedAt: true,
         role: true,
+        isAdmin: true,
       },
     });
 
@@ -50,6 +51,7 @@ export async function getUser() {
       email: user.email,
       imageUrl: user.imageUrl,
       role: user.role,
+      isAdmin: user.isAdmin,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -99,6 +101,7 @@ export async function getDbUser() {
       joinDate: true,
       createdAt: true,
       updatedAt: true,
+      isAdmin: true,
     },
   });
 
