@@ -120,9 +120,9 @@ export default function ResponsiveNavigation({
               <Image
                 src={logo || "/placeholder.svg"}
                 alt={logoAlt}
-                width={48}
-                height={48}
-                className="h-10 w-auto"
+                width={130}
+                height={130}
+                className="h-14 w-auto"
                 priority
               />
               <span className="font-bold text-lg text-gray-900 dark:text-white">
@@ -199,7 +199,7 @@ export default function ResponsiveNavigation({
             {/* Admin Link and Profile or CTA Button */}
             {user ? (
               <div className="flex items-center space-x-2">
-                {user.role === "ADMIN" && (
+                {user.isAdmin && (
                   <Button
                     asChild
                     variant="ghost"
@@ -350,7 +350,7 @@ export default function ResponsiveNavigation({
             {/* Mobile Admin and Profile or CTA Button */}
             {user ? (
               <div className="space-y-2">
-                {user.role === "ADMIN" && (
+                {user.isAdmin && (
                   <Link
                     href="/admin"
                     className="flex items-center px-3 py-3 rounded-md text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 focus:outline-none focus-visible:outline-none"
