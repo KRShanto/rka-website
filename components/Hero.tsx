@@ -201,7 +201,7 @@ export default function HeroSection() {
                   alt="RKA Logo"
                   width={150}
                   height={150}
-                  className="w-32 h-32 lg:w-36 lg:h-36"
+                  className="w-32 h-32 lg:w-36 lg:h-48"
                   priority
                 />
               </motion.div>
