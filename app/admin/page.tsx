@@ -2,21 +2,21 @@ import { getDbUser } from "@/lib/auth";
 import AdminClient from "./client";
 import { prisma } from "@/lib/db";
 import { useState } from "react";
-import { Payment, User } from "@prisma/client";
+import { Payment, Role, User } from "@prisma/client";
 
 export default async function AdminDashboard() {
   const user = await getDbUser();
   // fetch total students
   const totalStudents = await prisma.user.count({
     where: {
-      role: "USER",
+      role: Role.STUDENT,
     },
   });
 
   // fetch total trainers
   const totalTrainers = await prisma.user.count({
     where: {
-      role: "TRAINER",
+      role: Role.TRAINER,
     },
   });
 
