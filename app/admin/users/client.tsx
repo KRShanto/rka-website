@@ -888,9 +888,7 @@ export default function UsersClient({
                   onChange={(e) =>
                     setSelectedUser({
                       ...selectedUser,
-                      // If admin is enabled, force role to student to avoid ADMIN mapping to student on reload
                       isAdmin: e.target.checked,
-                      role: e.target.checked ? Role.STUDENT : selectedUser.role,
                     })
                   }
                   className="rounded"

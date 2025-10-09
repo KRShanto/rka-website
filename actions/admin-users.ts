@@ -153,6 +153,7 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
       gender: input.gender,
       branchId: input.branch ?? null,
       role: input.role,
+      isAdmin: input.isAdmin ?? false,
     },
     select: {
       id: true,
@@ -186,11 +187,7 @@ export async function adminCreateUser(input: AdminCreateUserInput) {
     current_belt: dbUser.currentBelt ?? null,
     current_dan: dbUser.currentDan ?? null,
     weight: dbUser.weight ?? null,
-    gender: dbUser.gender
-      ? dbUser.gender === Gender.MALE
-        ? Gender.MALE
-        : Gender.FEMALE
-      : null,
+    gender: dbUser.gender,
     branch: dbUser.branchId ?? null,
     role: dbUser.role,
     isAdmin: dbUser.isAdmin,
@@ -255,6 +252,7 @@ export async function adminUpdateUser(input: AdminUpdateUserInput) {
       gender: input.gender,
       branchId: input.branch ?? undefined,
       role: input.role,
+      isAdmin: input.isAdmin ?? false,
     },
   });
 
