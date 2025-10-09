@@ -18,7 +18,7 @@ datasource db {
 // ------------
 
 enum Role {
-  USER
+  STUDENT
   TRAINER
 }
 
@@ -119,7 +119,7 @@ model User {
   weight       Float?
   gender       Gender?
   joinDate     DateTime?
-  role         Role      @default(USER)
+  role         Role      @default(STUDENT)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   branch       Branch?   @relation(fields: [branchId], references: [id])
