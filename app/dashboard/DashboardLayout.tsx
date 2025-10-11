@@ -85,18 +85,12 @@ export default function DashboardLayout({
         </button>
 
         <div className="flex-1 flex justify-center md:justify-start items-center">
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <Image
-              src="/rka-logo.png"
-              alt="RKA"
-              width={40}
-              height={40}
-              className="rounded-full bg-white p-1"
-            />
-            <span className="font-bold text-lg hidden md:inline-block">
-              RKA Admin Dashboard
-            </span>
-            <span className="font-bold text-lg md:hidden">RKA Admin</span>
+          <Link
+            href="/dashboard"
+            className=" items-center space-x-2 md:flex hidden"
+          >
+            <Home className="w-6 h-6" />
+            <span className="font-bold text-lg ">RKA Dashboard</span>
           </Link>
         </div>
 
