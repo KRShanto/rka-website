@@ -211,7 +211,7 @@ export default function PaymentPage() {
                 2.
               </span>
               <span>
-                Enter the number: <strong>01301393129</strong>
+                Enter the number: <strong>01811761851</strong>
               </span>
             </div>
             <div className="flex items-start space-x-2">
