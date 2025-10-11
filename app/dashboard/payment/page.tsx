@@ -110,7 +110,7 @@ export default function PaymentPage() {
               </div>
 
               <div className="text-2xl font-bold text-pink-600 bg-pink-50 dark:bg-pink-900/20 py-3 px-6 rounded-lg inline-block">
-                01301393129
+                01811761851
               </div>
 
               <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
